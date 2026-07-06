@@ -30,7 +30,28 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 });
 
 // Public Website Routes
-Route::get('/', \App\Livewire\Web\Home::class)->name('web.home');
+Route::get('/', \App\Livewire\Web\Home::class)
+    ->name('web.home')
+    ->middleware(\App\Http\Middleware\AddAgentLinkHeaders::class);
+
+Route::get('/.well-known/api-catalog', function () {
+    return response()->json([
+        'services' => [
+            [
+                'name' => 'Fairfield Hearing API',
+                'description' => 'Public API for retrieving clinics, blog posts, categories, and submitting leads.',
+                'endpoints' => [
+                    ['path' => '/api/locations', 'method' => 'GET', 'description' => 'Retrieve clinic locations.'],
+                    ['path' => '/api/posts', 'method' => 'GET', 'description' => 'Retrieve public blog posts.'],
+                    ['path' => '/api/categories', 'method' => 'GET', 'description' => 'Retrieve blog categories.'],
+                    ['path' => '/api/faqs', 'method' => 'GET', 'description' => 'Retrieve FAQs.'],
+                    ['path' => '/api/submissions', 'method' => 'POST', 'description' => 'Submit customer contact lead.'],
+                ]
+            ]
+        ]
+    ]);
+});
+
 Route::get('/about', \App\Livewire\Web\About::class)->name('web.about');
 Route::get('/book-a-test', \App\Livewire\Web\BookTest::class)->name('web.book_test');
 
@@ -121,13 +142,13 @@ Route::get('/blogs/{category}/{slug}/markdown', function ($category, $slug) {
 $validateMaintenance = function (Request $request) {
     // 1. Restrict execution strictly to local environment
     if (!App::environment('local')) {
-        abort(404);
+        abort(403, 'Unauthorized environment.');
     }
     // 2. Validate the authorization token
     $token = $request->header('X-Maintenance-Token') ?: $request->input('token');
     $expectedToken = config('admin.maintenance_token');
     if (empty($expectedToken) || $token !== $expectedToken) {
-        abort(404);
+        abort(401, 'Unauthorized token.');
     }
 };
 
@@ -157,4 +178,68 @@ Route::prefix('maintenance')->group(function () use ($validateMaintenance) {
         Artisan::call('storage:link');
         return response()->json(['output' => Artisan::output()]);
     });
+});
+
+Route::get('/sitemap.xml', function () {
+    $urls = [];
+    $baseUrl = config('app.url', 'https://fairfieldhearing.in');
+    
+    $addUrl = function ($path, $lastMod = null, $changefreq = 'weekly', $priority = '0.5') use ($baseUrl, &$urls) {
+        $urls[] = [
+            'loc' => rtrim($baseUrl, '/') . '/' . ltrim($path, '/'),
+            'lastmod' => $lastMod ? $lastMod->toAtomString() : now()->toAtomString(),
+            'changefreq' => $changefreq,
+            'priority' => $priority,
+        ];
+    };
+
+    // Static pages
+    $addUrl('/', now(), 'daily', '1.0');
+    $addUrl('/about', now(), 'monthly', '0.8');
+    $addUrl('/book-a-test', now(), 'monthly', '0.9');
+    $addUrl('/bluetooth', now(), 'monthly', '0.7');
+    $addUrl('/bte', now(), 'monthly', '0.7');
+    $addUrl('/invisible', now(), 'monthly', '0.7');
+    $addUrl('/rechargeable', now(), 'monthly', '0.7');
+    $addUrl('/ric', now(), 'monthly', '0.7');
+    $addUrl('/tinnitus', now(), 'monthly', '0.7');
+    $addUrl('/blogs', now(), 'daily', '0.9');
+
+    // Dynamic Team Members
+    foreach (\App\Models\TeamMember::all() as $member) {
+        $addUrl('/team/' . $member->slug, $member->updated_at, 'monthly', '0.6');
+    }
+
+    // Dynamic Policies
+    foreach (\App\Models\PolicyPage::all() as $policy) {
+        $addUrl('/policies/' . $policy->slug, $policy->updated_at, 'monthly', '0.5');
+    }
+
+    // Dynamic Blog Categories
+    foreach (\App\Models\BlogCategory::all() as $category) {
+        $addUrl('/blogs/' . $category->slug, $category->updated_at, 'weekly', '0.7');
+    }
+
+    // Dynamic Blog Posts
+    foreach (\App\Models\BlogPost::with('category')->get() as $post) {
+        if ($post->category) {
+            $addUrl('/blogs/' . $post->category->slug . '/' . $post->slug, $post->updated_at, 'weekly', '0.8');
+        }
+    }
+
+    $xml = '<?xml version="1.0" encoding="UTF-8"?>';
+    $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+    foreach ($urls as $url) {
+        $xml .= '<url>';
+        $xml .= '<loc>' . htmlspecialchars($url['loc']) . '</loc>';
+        $xml .= '<lastmod>' . $url['lastmod'] . '</lastmod>';
+        $xml .= '<changefreq>' . $url['changefreq'] . '</changefreq>';
+        $xml .= '<priority>' . $url['priority'] . '</priority>';
+        $xml .= '</url>';
+    }
+    $xml .= '</urlset>';
+
+    return response($xml, 200, [
+        'Content-Type' => 'application/xml',
+    ]);
 });
