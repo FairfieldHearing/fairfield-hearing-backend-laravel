@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#58781b"/><stop offset="1" stop-color="#3a5011"/></linearGradient></defs>
+<rect width="1200" height="630" fill="url(#g)"/>
+<g fill="none" stroke="#aacc00" stroke-width="3" opacity="0.25"><path d="M-20 120 C300 40 700 200 1240 60"/><path d="M-20 150 C300 70 700 230 1240 90"/><path d="M-20 180 C300 100 700 260 1240 120"/></g>
+<rect x="70" y="70" width="209" height="44" rx="22" fill="#aacc00"/><text x="90" y="99" font-family="Arial" font-weight="bold" font-size="20" fill="#1b1b1b">BUYING GUIDES</text>
+<text x="70" y="244" font-family="Georgia, serif" font-weight="bold" font-size="48" fill="#ffffff">Best Hearing Aids for</text><text x="70" y="300" font-family="Georgia, serif" font-weight="bold" font-size="48" fill="#ffffff">Severe to Profound Hearing</text><text x="70" y="356" font-family="Georgia, serif" font-weight="bold" font-size="48" fill="#ffffff">Loss (2026 Edition)</text>
+<text x="70" y="560" font-family="Georgia, serif" font-weight="bold" font-size="30" fill="#ffffff">Fairfield <tspan font-weight="normal" font-size="24">Hearing Clinics</tspan></text>
+<text x="70" y="590" font-family="Arial" font-size="18" fill="#cfe39a">fairfieldhearing.in/blog</text></svg>

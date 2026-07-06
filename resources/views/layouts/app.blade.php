@@ -13,7 +13,7 @@
 </head>
 <body class="min-h-screen font-sans antialiased bg-base-200">
 
-    @if(request()->routeIs('login'))
+    @if(request()->routeIs('admin.login'))
         {{ $slot }}
     @else
         {{-- NAVBAR mobile only --}}
@@ -46,48 +46,48 @@
                         <x-list-item :item="$user" value="name" sub-value="email" no-separator no-hover class="-mx-2 !-my-2 rounded">
                             <x-slot:actions>
                                 <livewire:theme-toggle />
-                                <x-button icon="o-power" class="btn-circle btn-ghost btn-xs" tooltip-left="logoff" no-wire-navigate link="/logout" />
+                                <x-button icon="o-power" class="btn-circle btn-ghost btn-xs" tooltip-left="logoff" no-wire-navigate link="{{ route('admin.logout') }}" />
                             </x-slot:actions>
                         </x-list-item>
 
                         <x-menu-separator />
                     @endif
 
-                    <x-menu-item title="Dashboard" icon="o-home" link="/" />
+                    <x-menu-item title="Dashboard" icon="o-home" link="{{ route('admin.dashboard') }}" />
 
                     @can('manage-blogs')
                         <x-menu-separator />
                         <span class="text-xs text-base-content/40 px-4 pt-2 font-bold uppercase tracking-wider block">Publications</span>
-                        <x-menu-item title="Blog Categories" icon="o-folder" link="/categories" />
-                        <x-menu-item title="Blog Posts" icon="o-document-text" link="/posts" />
+                        <x-menu-item title="Blog Categories" icon="o-folder" link="{{ route('admin.categories') }}" />
+                        <x-menu-item title="Blog Posts" icon="o-document-text" link="{{ route('admin.posts') }}" />
                     @endcan
 
                     @can('manage-content')
                         <x-menu-separator />
                         <span class="text-xs text-base-content/40 px-4 pt-2 font-bold uppercase tracking-wider block">Clinical Content</span>
-                        <x-menu-item title="FAQs" icon="o-question-mark-circle" link="/faqs" />
-                        <x-menu-item title="Locations" icon="o-map-pin" link="/locations" />
-                        <x-menu-item title="Policy Pages" icon="o-shield-check" link="/policies" />
+                        <x-menu-item title="FAQs" icon="o-question-mark-circle" link="{{ route('admin.faqs') }}" />
+                        <x-menu-item title="Locations" icon="o-map-pin" link="{{ route('admin.locations') }}" />
+                        <x-menu-item title="Policy Pages" icon="o-shield-check" link="{{ route('admin.policies') }}" />
                     @endcan
 
                     @if(auth()->user() && auth()->user()->hasAnyRole(['superadmin', 'leads_management', 'support']))
                         <x-menu-separator />
                         <span class="text-xs text-base-content/40 px-4 pt-2 font-bold uppercase tracking-wider block">Leads & Support</span>
                         @can('manage-leads')
-                            <x-menu-item title="Form Submissions" icon="o-inbox" link="/submissions" />
-                            <x-menu-item title="Leads Pipeline" icon="o-user-group" link="/leads" />
+                            <x-menu-item title="Form Submissions" icon="o-inbox" link="{{ route('admin.submissions') }}" />
+                            <x-menu-item title="Leads Pipeline" icon="o-user-group" link="{{ route('admin.leads') }}" />
                         @endcan
                         @can('manage-tickets')
-                            <x-menu-item title="Support Tickets" icon="o-ticket" link="/tickets" />
+                            <x-menu-item title="Support Tickets" icon="o-ticket" link="{{ route('admin.tickets') }}" />
                         @endcan
                     @endif
 
                     <x-menu-separator />
                     <span class="text-xs text-base-content/40 px-4 pt-2 font-bold uppercase tracking-wider block">Administration</span>
                     @can('manage-staff')
-                        <x-menu-item title="Staff Management" icon="o-users" link="/staff" />
+                        <x-menu-item title="Staff Management" icon="o-users" link="{{ route('admin.staff') }}" />
                     @endcan
-                    <x-menu-item title="Account Settings" icon="o-cog-6-tooth" link="/password" />
+                    <x-menu-item title="Account Settings" icon="o-cog-6-tooth" link="{{ route('admin.password') }}" />
                 </x-menu>
             </x-slot:sidebar>
 

@@ -233,6 +233,33 @@ return new class extends Migration
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
+            [
+                'blog_post_id' => $postId,
+                'question' => 'Is the Styletto 7IX worth the extra money?',
+                'answer' => 'If you spend a lot of time in noisy or demanding situations — restaurants, meetings, crowds — the 7IX’s faster, more precise processing is worth it. For mostly everyday use, the 5IX usually offers the best value.',
+                'type' => 'blog_post',
+                'sort_order' => 2,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'blog_post_id' => $postId,
+                'question' => 'Are all Styletto IX models rechargeable and Bluetooth-enabled?',
+                'answer' => 'Yes. The slim design, rechargeable battery, portable charging case and Bluetooth streaming are the same across 7IX, 5IX and 3IX — only the processing tier changes.',
+                'type' => 'blog_post',
+                'sort_order' => 3,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'blog_post_id' => $postId,
+                'question' => 'Which Signia Styletto IX is best for me?',
+                'answer' => 'Choose by lifestyle: 7IX for busy, noisy lives; 5IX for balanced everyday use and value; 3IX for quieter routines and tighter budgets. A trial with an audiologist is the best way to decide.',
+                'type' => 'blog_post',
+                'sort_order' => 4,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
         ]);
 
         // 5. Insert General FAQs

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 480" role="img" aria-label="Behind-the-Ear (BTE)">
+  <rect width="760" height="480" rx="20" fill="#f7f2ce"/>
+  <circle cx="380" cy="222" r="168" fill="#ffffff"/>
+  <circle cx="380" cy="222" r="168" fill="none" stroke="#aacc00" stroke-width="2" opacity="0.6"/>
+  
+    <g transform="translate(330,200)">
+      <path d="M0,-44 C34,-44 52,-18 52,14 C52,52 28,76 -4,76 C-26,76 -40,58 -40,34 C-40,2 -32,-44 0,-44 Z" fill="#58781b"/>
+      <rect x="-22" y="-10" width="14" height="56" rx="7" fill="#eef3e0" opacity="0.85"/>
+      <path d="M40,-30 C78,-46 108,-26 112,18 C114,40 104,58 86,64" fill="none" stroke="#445e15" stroke-width="6" stroke-linecap="round"/>
+      <path d="M86,64 C70,70 64,86 74,98 C84,110 104,108 110,92" fill="#aacc00"/>
+    </g>
+  <g>
+    <rect x="250" y="408" width="260" height="40" rx="20" fill="#58781b"/>
+    <text x="380" y="434" text-anchor="middle" font-family="Georgia, serif" font-size="20" fill="#ffffff">Behind-the-Ear (BTE)</text>
+  </g>
+</svg>

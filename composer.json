@@ -9,7 +9,7 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^8.3",
+        "php": "^8.3 <8.4.0",
         "laravel/framework": "^13.8",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^3.0",
@@ -46,6 +46,15 @@
             "@php artisan migrate --force",
             "npm install --ignore-scripts",
             "npm run build"
+        ],
+        "post-install-cmd": [
+            "@php artisan migrate --force",
+            "@php artisan view:cache",
+            "@php artisan optimize"
+        ],
+        "reset-dev": [
+            "@php artisan migrate:fresh --force --seed",
+            "@php artisan view:cache"
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
@@ -86,6 +95,9 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "platform": {
+            "php": "8.3.0"
         }
     },
     "minimum-stability": "stable",
