@@ -38,7 +38,7 @@
                 />
 
                 <x-slot:actions>
-                    <x-button label="Cancel" link="{{ route('admin.dashboard') }}" class="btn-ghost" />
+                    <x-button label="Cancel" link="{{ route('admin.dashboard') }}" no-wire-navigate class="btn-ghost" />
                     <x-button label="Save Changes" type="submit" class="btn-primary" spinner="updateSettings" />
                 </x-slot:actions>
             </x-form>

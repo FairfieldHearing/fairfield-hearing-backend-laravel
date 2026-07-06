@@ -23,7 +23,8 @@ use Toast;
 
         if (Auth::attempt($credentials, $this->remember)) {
             session()->regenerate();
-            $this->success('Welcome back!', redirectTo: route('admin.dashboard'));
+            $this->success('Welcome back!');
+            $this->redirect(route('admin.dashboard'), navigate: false);
             return;
         }
 

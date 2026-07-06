@@ -22,20 +22,20 @@
             <x-card title="Quick Navigation" shadow>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     @can('manage-leads')
-                        <x-button label="View Submissions" icon="o-inbox" link="{{ route('admin.submissions') }}" class="btn-outline w-full" />
-                        <x-button label="Manage Leads Pipeline" icon="o-user-group" link="{{ route('admin.leads') }}" class="btn-outline w-full" />
+                        <x-button label="View Submissions" icon="o-inbox" link="{{ route('admin.submissions') }}" no-wire-navigate class="btn-outline w-full" />
+                        <x-button label="Manage Leads Pipeline" icon="o-user-group" link="{{ route('admin.leads') }}" no-wire-navigate class="btn-outline w-full" />
                     @endcan
 
                     @can('manage-tickets')
-                        <x-button label="Support Helpdesk Queue" icon="o-ticket" link="{{ route('admin.tickets') }}" class="btn-outline w-full" />
+                        <x-button label="Support Helpdesk Queue" icon="o-ticket" link="{{ route('admin.tickets') }}" no-wire-navigate class="btn-outline w-full" />
                     @endcan
 
                     @can('manage-blogs')
-                        <x-button label="Write New Blog Post" icon="o-document-text" link="{{ route('admin.posts') }}" class="btn-outline w-full" />
+                        <x-button label="Write New Blog Post" icon="o-document-text" link="{{ route('admin.posts') }}" no-wire-navigate class="btn-outline w-full" />
                     @endcan
 
                     @can('superadmin-only')
-                        <x-button label="Manage Staff Members" icon="o-users" link="{{ route('admin.staff') }}" class="btn-outline w-full text-primary" />
+                        <x-button label="Manage Staff Members" icon="o-users" link="{{ route('admin.staff') }}" no-wire-navigate class="btn-outline w-full text-primary" />
                     @endcan
                 </div>
             </x-card>

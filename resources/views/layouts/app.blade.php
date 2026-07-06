@@ -53,41 +53,41 @@
                         <x-menu-separator />
                     @endif
 
-                    <x-menu-item title="Dashboard" icon="o-home" link="{{ route('admin.dashboard') }}" />
+                    <x-menu-item title="Dashboard" icon="o-home" link="{{ route('admin.dashboard') }}" no-wire-navigate />
 
                     @can('manage-blogs')
                         <x-menu-separator />
                         <span class="text-xs text-base-content/40 px-4 pt-2 font-bold uppercase tracking-wider block">Publications</span>
-                        <x-menu-item title="Blog Categories" icon="o-folder" link="{{ route('admin.categories') }}" />
-                        <x-menu-item title="Blog Posts" icon="o-document-text" link="{{ route('admin.posts') }}" />
+                        <x-menu-item title="Blog Categories" icon="o-folder" link="{{ route('admin.categories') }}" no-wire-navigate />
+                        <x-menu-item title="Blog Posts" icon="o-document-text" link="{{ route('admin.posts') }}" no-wire-navigate />
                     @endcan
 
                     @can('manage-content')
                         <x-menu-separator />
                         <span class="text-xs text-base-content/40 px-4 pt-2 font-bold uppercase tracking-wider block">Clinical Content</span>
-                        <x-menu-item title="FAQs" icon="o-question-mark-circle" link="{{ route('admin.faqs') }}" />
-                        <x-menu-item title="Locations" icon="o-map-pin" link="{{ route('admin.locations') }}" />
-                        <x-menu-item title="Policy Pages" icon="o-shield-check" link="{{ route('admin.policies') }}" />
+                        <x-menu-item title="FAQs" icon="o-question-mark-circle" link="{{ route('admin.faqs') }}" no-wire-navigate />
+                        <x-menu-item title="Locations" icon="o-map-pin" link="{{ route('admin.locations') }}" no-wire-navigate />
+                        <x-menu-item title="Policy Pages" icon="o-shield-check" link="{{ route('admin.policies') }}" no-wire-navigate />
                     @endcan
 
                     @if(auth()->user() && auth()->user()->hasAnyRole(['superadmin', 'leads_management', 'support']))
                         <x-menu-separator />
                         <span class="text-xs text-base-content/40 px-4 pt-2 font-bold uppercase tracking-wider block">Leads & Support</span>
                         @can('manage-leads')
-                            <x-menu-item title="Form Submissions" icon="o-inbox" link="{{ route('admin.submissions') }}" />
-                            <x-menu-item title="Leads Pipeline" icon="o-user-group" link="{{ route('admin.leads') }}" />
+                            <x-menu-item title="Form Submissions" icon="o-inbox" link="{{ route('admin.submissions') }}" no-wire-navigate />
+                            <x-menu-item title="Leads Pipeline" icon="o-user-group" link="{{ route('admin.leads') }}" no-wire-navigate />
                         @endcan
                         @can('manage-tickets')
-                            <x-menu-item title="Support Tickets" icon="o-ticket" link="{{ route('admin.tickets') }}" />
+                            <x-menu-item title="Support Tickets" icon="o-ticket" link="{{ route('admin.tickets') }}" no-wire-navigate />
                         @endcan
                     @endif
 
                     <x-menu-separator />
                     <span class="text-xs text-base-content/40 px-4 pt-2 font-bold uppercase tracking-wider block">Administration</span>
                     @can('manage-staff')
-                        <x-menu-item title="Staff Management" icon="o-users" link="{{ route('admin.staff') }}" />
+                        <x-menu-item title="Staff Management" icon="o-users" link="{{ route('admin.staff') }}" no-wire-navigate />
                     @endcan
-                    <x-menu-item title="Account Settings" icon="o-cog-6-tooth" link="{{ route('admin.password') }}" />
+                    <x-menu-item title="Account Settings" icon="o-cog-6-tooth" link="{{ route('admin.password') }}" no-wire-navigate />
                 </x-menu>
             </x-slot:sidebar>
 
