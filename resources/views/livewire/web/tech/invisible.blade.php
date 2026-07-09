@@ -83,12 +83,12 @@
       <span class="chip"><span class="dot"></span> Noise reduction</span>
     </div>
     <div class="brands" aria-label="Brands we offer">
-      <span><img src="assets/img/l-1.png" alt="Signia" ></span>
-      <span><img src="assets/img/l-2.png" alt="Phonak" ></span>
-      <span><img src="assets/img/l-3.png" alt="Widex" ></span>
-      <span><img src="assets/img/l-4.png" alt="ReSound" ></span>
-      <span><img src="assets/img/l-5.png" alt="Oticon" ></span>
-      <span><img src="assets/img/l-6.png" alt="Oticon" ></span>
+      <span><img src="/assets/img/l-1.png" alt="Signia" ></span>
+      <span><img src="/assets/img/l-2.png" alt="Phonak" ></span>
+      <span><img src="/assets/img/l-3.png" alt="Widex" ></span>
+      <span><img src="/assets/img/l-4.png" alt="ReSound" ></span>
+      <span><img src="/assets/img/l-5.png" alt="Oticon" ></span>
+      <span><img src="/assets/img/l-6.png" alt="Hansaton" ></span>
     </div>
     <p class="muted" style="marginTop: 18px">Available across budget to premium tiers, with free trials and easy EMI. Ask us for current pricing during your free test.</p>
   </div>

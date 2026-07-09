@@ -221,44 +221,31 @@
           <h2>From invisible to fully connected</h2>
           <p class="lead">Over 500 models from the world's leading manufacturers — we match the technology to your life.</p>
           <div class="chips">
-            <a href="/invisible">
+            <a class="chip" href="/invisible">
               <span class="dot"></span> Invisible (IIC/CIC)
             </a>
-            <a href="/ric">
+            <a class="chip" href="/ric">
               <span class="dot"></span> Receiver-in-Canal (RIC)
             </a>
-            <a href="/bte">
+            <a class="chip" href="/bte">
               <span class="dot"></span> Behind-the-Ear (BTE)
             </a>
-            <a href="/rechargeable">
+            <a class="chip" href="/rechargeable">
               <span class="dot"></span> Rechargeable
             </a>
-            <a href="/bluetooth">
+            <a class="chip" href="/bluetooth">
               <span class="dot"></span> Bluetooth streaming
             </a>
-            <a href="/tinnitus">
+            <a class="chip" href="/tinnitus">
               <span class="dot"></span> Tinnitus relief
             </a>
           </div>
           <div class="brands" aria-label="Brands we offer">
-            <span>
-              <img src="/assets/img/l-1.png" alt="Signia" style="width: 120px;" >
-            </span>
-            <span>
-              <img src="/assets/img/l-2.png" alt="Phonak" style="width: 120px;" >
-            </span>
-            <span>
-              <img src="/assets/img/l-3.png" alt="Widex" style="width: 120px;" >
-            </span>
-            <span>
-              <img src="/assets/img/l-4.png" alt="ReSound" style="width: 120px;" >
-            </span>
-            <span>
-              <img src="/assets/img/l-5.png" alt="Oticon" style="width: 120px;" >
-            </span>
-            <span>
-              <img src="/assets/img/l-6.png" alt="Oticon" style="width: 120px;" >
-            </span>
+            @foreach($manufacturers as $m)
+              <span>
+                <img src="{{ $m->logo_url }}" alt="{{ $m->name }}" style="width: 120px;" >
+              </span>
+            @endforeach
           </div>
         </div>
       </section>
@@ -454,10 +441,12 @@
         get embedUrl() {
             const loc = this.activeClinic;
             if (!loc) return '';
-            if (loc.google_maps_link && loc.google_maps_link.includes('maps/embed')) {
+            // For the main clinic, use the specific google_maps_link embed URL
+            if (loc.is_main && loc.google_maps_link && loc.google_maps_link.includes('maps/embed')) {
                 return loc.google_maps_link;
             }
-            const query = `${loc.name}, ${loc.address_line1}`;
+            // For other regional clinics, embed the map pinpointing their exact street address
+            const query = loc.address_line1;
             return `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
         },
         init() {
@@ -481,7 +470,7 @@
               <div class="clinic__links">
                 <a class="btn btn--ghost" :href="`tel:${loc.phone}`">Call</a>
                 <a class="btn btn--wa" :href="`https://wa.me/${loc.whatsapp}`" target="_blank" rel="noopener">WhatsApp</a>
-                <a class="btn btn--lime" :href="loc.google_maps_link && !loc.google_maps_link.includes('maps/embed') ? loc.google_maps_link : `https://maps.google.com/?q=${encodeURIComponent(loc.name)}`" target="_blank" rel="noopener" @click.stop>Directions</a>
+                <a class="btn btn--lime" :href="loc.google_maps_link && !loc.google_maps_link.includes('maps/embed') && !loc.google_maps_link.includes('output=embed') ? loc.google_maps_link : `https://maps.google.com/?q=${encodeURIComponent(loc.is_main ? loc.name : loc.address_line1)}`" target="_blank" rel="noopener" @click.stop>Directions</a>
               </div>
             </article>
           </template>

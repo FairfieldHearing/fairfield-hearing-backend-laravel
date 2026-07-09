@@ -14,10 +14,16 @@ class FormSubmission extends Model
         'location_id',
         'preferred_day_time',
         'message',
+        'exchange_estimate_id',
     ];
 
     public function location()
     {
         return $this->belongsTo(Location::class, 'location_id');
+    }
+
+    public function exchangeEstimate()
+    {
+        return $this->belongsTo(ExchangeEstimate::class, 'exchange_estimate_id');
     }
 }

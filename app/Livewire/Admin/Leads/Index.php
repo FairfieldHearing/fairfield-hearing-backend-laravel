@@ -33,7 +33,7 @@ use Toast, WithPagination;
 
     public function showDetails(Lead $lead): void
     {
-        $this->selectedLead = $lead->load(['location', 'assignedUser']);
+        $this->selectedLead = $lead->load(['location', 'assignedUser', 'formSubmission.exchangeEstimate.hearingAidModel.manufacturer']);
         $this->assigned_user_id = $lead->assigned_user_id;
         $this->status = $lead->status;
         $this->logMessage = '';

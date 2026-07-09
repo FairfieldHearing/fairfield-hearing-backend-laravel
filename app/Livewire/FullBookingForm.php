@@ -56,6 +56,7 @@ class FullBookingForm extends Component
                 'location_id' => $locationId,
                 'preferred_day_time' => $this->time ?: null,
                 'message' => $customMessage ?: null,
+                'exchange_estimate_id' => session('exchange_estimate_id'),
             ]);
 
             $this->status = 'success';

@@ -18,14 +18,14 @@
             <img src="/assets/img/logo.jpeg" alt="Fairfield Hearing Clinics logo" style="height: 78px; width: auto;" />
         </a>
         <nav aria-label="Primary">
-            <ul class="nav__menu" :class="{ 'open': isOpen }" id="navMenu" :style="{ display: isOpen ? 'block' : '' }">
+            <ul class="nav__menu" :class="{ 'open': isOpen }" id="navMenu">
                 <li>
-                    <a href="/" :aria-current="request()->is('/') ? 'page' : undefined" @click="isOpen = false">
+                    <a href="/" {{ request()->is('/') ? 'aria-current="page"' : '' }} @click="isOpen = false">
                         Home
                     </a>
                 </li>
                 <li>
-                    <a href="/about" :aria-current="request()->is('about') ? 'page' : undefined" @click="isOpen = false">
+                    <a href="/about" {{ request()->is('about') ? 'aria-current="page"' : '' }} @click="isOpen = false">
                         About
                     </a>
                 </li>
@@ -40,6 +40,11 @@
                     </a>
                 </li>
                 <li>
+                    <a href="/exchange" {{ request()->is('exchange') ? 'aria-current="page"' : '' }} @click="isOpen = false">
+                        Exchange Offer
+                    </a>
+                </li>
+                <li>
                     <a href="{{ request()->is('/') ? '#clinics' : '/#clinics' }}" @click="isOpen = false">
                         Clinics
                     </a>
@@ -47,11 +52,6 @@
                 <li>
                     <a href="{{ request()->is('/') ? '#faq' : '/#faq' }}" @click="isOpen = false">
                         FAQ
-                    </a>
-                </li>
-                <li>
-                    <a href="/blogs" :aria-current="request()->is('blogs*') ? 'page' : undefined" @click="isOpen = false">
-                        Blogs
                     </a>
                 </li>
             </ul>
@@ -62,14 +62,17 @@
             </a>
             <button
                 class="nav__toggle"
+                :class="{ 'open': isOpen }"
                 id="navToggle"
                 aria-label="Open menu"
                 :aria-expanded="isOpen"
                 aria-controls="navMenu"
                 @click="isOpen = !isOpen"
             >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                    <path d="M3 6h18M3 12h18M3 18h18" />
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <line x1="3" y1="6" x2="21" y2="6" class="line-1" stroke-linecap="round" />
+                    <line x1="3" y1="12" x2="21" y2="12" class="line-2" stroke-linecap="round" />
+                    <line x1="3" y1="18" x2="21" y2="18" class="line-3" stroke-linecap="round" />
                 </svg>
             </button>
         </div>

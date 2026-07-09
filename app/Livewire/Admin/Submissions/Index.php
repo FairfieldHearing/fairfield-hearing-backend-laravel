@@ -11,7 +11,7 @@ use Livewire\WithPagination;
 
 class Index extends Component
 {
-use Toast, WithPagination;
+    use Toast, WithPagination;
 
     public function mount()
     {
@@ -81,7 +81,7 @@ use Toast, WithPagination;
 
     public function showDetails(FormSubmission $submission): void
     {
-        $this->selectedSubmission = $submission->load('location');
+        $this->selectedSubmission = $submission->load(['location', 'exchangeEstimate.hearingAidModel.manufacturer']);
         $this->drawer = true;
     }
 
@@ -129,5 +129,4 @@ use Toast, WithPagination;
     {
         return view('livewire.admin.submissions.index', $this->with())->layout('layouts.app');
     }
-
 }

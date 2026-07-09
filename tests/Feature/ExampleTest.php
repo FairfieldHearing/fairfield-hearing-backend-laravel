@@ -29,6 +29,9 @@ test('public pages are accessible and return successful status', function () {
 
     $response = $this->get('/blogs');
     $response->assertStatus(200);
+
+    $response = $this->get('/exchange');
+    $response->assertStatus(200);
 });
 
 test('dynamic public pages load successfully using seeded data', function () {
@@ -101,4 +104,72 @@ test('blog posts markdown endpoint checks user agents correctly', function () {
     $response->assertSee('# Signs of Hearing Loss');
     $response->assertSee('*Author: Dr. Smith*');
     $response->assertSee('Here are some signs of hearing loss...');
+});
+
+test('manufacturer model logo url resolution and status filters work correctly', function () {
+    $seeded = \App\Models\Manufacturer::create([
+        'name' => 'Test Seeded',
+        'logo_path' => 'assets/img/l-1.png',
+        'is_active' => true,
+        'sort_order' => 1,
+    ]);
+
+    $uploaded = \App\Models\Manufacturer::create([
+        'name' => 'Test Uploaded',
+        'logo_path' => 'manufacturers/test.png',
+        'is_active' => false,
+        'sort_order' => 2,
+    ]);
+
+    expect($seeded->logo_url)->toBe('/assets/img/l-1.png');
+    expect($uploaded->logo_url)->toBe(Storage::url('manufacturers/test.png'));
+
+    // Verify active filter on home render path
+    $activeManufacturers = \App\Models\Manufacturer::where('is_active', true)->get();
+    expect($activeManufacturers->contains($seeded))->toBeTrue();
+    expect($activeManufacturers->contains($uploaded))->toBeFalse();
+});
+
+test('exchange page livewire calculation logic and session estimates work', function () {
+    $manufacturer = \App\Models\Manufacturer::create([
+        'name' => 'Signia Test',
+        'logo_path' => 'assets/img/l-1.png',
+        'is_active' => true,
+    ]);
+
+    $model = \App\Models\HearingAidModel::create([
+        'manufacturer_id' => $manufacturer->id,
+        'name' => 'Pure 312 Test',
+        'mrp' => 100000,
+        'discount_pct' => 50,
+        'tech_level' => 'Standard',
+        'form_factor' => 'RIC',
+        'units' => 1,
+        'is_active' => true,
+    ]);
+
+    // Test livewire flow
+    $lw = \Livewire\Livewire::test(\App\Livewire\Web\Exchange::class)
+        ->set('selectedBrandId', $manufacturer->id)
+        ->set('selectedModelId', $model->id)
+        ->assertSet('discountedPrice', 50000)
+        ->set('wantExchange', 'yes')
+        ->set('oldBrand', 'Phonak')
+        ->set('oldModel', 'Marvel')
+        ->set('oldPriceBand', '20k_50k')
+        ->set('oldAgeBand', '1_2_years')
+        ->set('oldConditionBand', 'fully_working')
+        ->assertSet('exchangeValue', 8000)
+        ->assertSet('finalPrice', 42000);
+
+    expect($lw->get('uniqueHash'))->not->toBeEmpty();
+
+    // Verify DB record matches
+    $this->assertDatabaseHas('exchange_estimates', [
+        'hearing_aid_model_id' => $model->id,
+        'want_exchange' => true,
+        'old_brand' => 'Phonak',
+        'calculated_value' => 8000,
+        'final_price' => 42000,
+    ]);
 });

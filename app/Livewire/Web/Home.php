@@ -12,6 +12,7 @@ class Home extends Component
     {
         $locations = Location::all()->toArray();
         $faqs = Faq::where('type', 'general')->get()->toArray();
+        $manufacturers = \App\Models\Manufacturer::where('is_active', true)->where('show_on_homepage', true)->orderBy('sort_order', 'asc')->get();
         
         $medicalBusinessSchema = [
             "@context" => "https://schema.org",
@@ -59,6 +60,7 @@ class Home extends Component
         return view('livewire.web.home', [
             'locations' => $locations,
             'faqs' => $faqs,
+            'manufacturers' => $manufacturers,
             'medicalBusinessSchema' => $medicalBusinessSchema,
             'faqSchema' => $faqSchema
         ])->layout('layouts.web');

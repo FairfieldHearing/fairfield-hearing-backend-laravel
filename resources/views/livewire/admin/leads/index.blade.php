@@ -95,6 +95,51 @@
                                 <p class="text-sm text-base-content/80 whitespace-pre-line">{{ $selectedLead->message }}</p>
                             </div>
                         @endif
+
+                        <!-- Exchange Calculator Estimate Details (If Present) -->
+                        @if($selectedLead->formSubmission && $selectedLead->formSubmission->exchangeEstimate)
+                            <div class="mt-4 border border-warning/30 bg-warning/10 p-4 rounded-lg space-y-3">
+                                <div class="text-xs text-base-content/50 uppercase font-bold tracking-wider">Exchange Calculator Summary</div>
+                                <div class="grid grid-cols-2 gap-2 text-sm">
+                                    <div>
+                                        <span class="text-xs text-base-content/60">Selected New Model</span>
+                                        <p class="font-bold text-primary">
+                                            {{ $selectedLead->formSubmission->exchangeEstimate->hearingAidModel?->manufacturer?->name }} 
+                                            {{ $selectedLead->formSubmission->exchangeEstimate->hearingAidModel?->name }}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span class="text-xs text-base-content/60">MRP / Discounted Price</span>
+                                        <p class="font-semibold text-base-content/80">
+                                            ₹{{ number_format($selectedLead->formSubmission->exchangeEstimate->hearingAidModel?->mrp) }} 
+                                            / <span class="text-success font-bold">₹{{ number_format($selectedLead->formSubmission->exchangeEstimate->final_price + $selectedLead->formSubmission->exchangeEstimate->calculated_value) }}</span>
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                @if($selectedLead->formSubmission->exchangeEstimate->want_exchange)
+                                    <div class="border-t border-warning/20 pt-2 grid grid-cols-2 gap-2 text-sm">
+                                        <div>
+                                            <span class="text-xs text-base-content/60">Old Hearing Aid</span>
+                                            <p class="font-semibold">{{ $selectedLead->formSubmission->exchangeEstimate->old_brand }} ({{ $selectedLead->formSubmission->exchangeEstimate->old_model }})</p>
+                                        </div>
+                                        <div>
+                                            <span class="text-xs text-base-content/60">Estimated Exchange Value</span>
+                                            <p class="font-bold text-success">− ₹{{ number_format($selectedLead->formSubmission->exchangeEstimate->calculated_value) }}</p>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="border-t border-warning/20 pt-2 text-xs text-base-content/60">
+                                        Selected without exchanging old hearing aid.
+                                    </div>
+                                @endif
+
+                                <div class="border-t border-warning/20 pt-2 flex justify-between items-center text-sm">
+                                    <span class="font-bold">Estimated Final Price:</span>
+                                    <span class="text-base font-extrabold text-success">₹{{ number_format($selectedLead->formSubmission->exchangeEstimate->final_price) }}</span>
+                                </div>
+                            </div>
+                        @endif
                     </div>
 
                     <!-- History / Updates log -->

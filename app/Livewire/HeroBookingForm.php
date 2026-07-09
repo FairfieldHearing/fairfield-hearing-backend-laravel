@@ -52,6 +52,7 @@ class HeroBookingForm extends Component
                 'hearing_problem' => $this->problem ?: null,
                 'location_id' => $locationId,
                 'message' => $messageSuffix ?: null,
+                'exchange_estimate_id' => session('exchange_estimate_id'),
             ]);
 
             $this->status = 'success';

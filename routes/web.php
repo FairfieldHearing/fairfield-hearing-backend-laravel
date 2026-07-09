@@ -27,12 +27,17 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/tickets', \App\Livewire\Admin\Tickets\Index::class)->name('tickets');
     Route::get('/staff', \App\Livewire\Admin\Users\Index::class)->name('staff');
     Route::get('/password', \App\Livewire\Admin\Password::class)->name('password');
+    Route::get('/manufacturers', \App\Livewire\Admin\Manufacturers\Index::class)->name('manufacturers');
+    Route::get('/models', \App\Livewire\Admin\HearingAidModels\Index::class)->name('models');
+    Route::get('/exchange-settings', \App\Livewire\Admin\ExchangeSettings\Index::class)->name('exchange_settings');
 });
 
 // Public Website Routes
 Route::get('/', \App\Livewire\Web\Home::class)
     ->name('web.home')
     ->middleware(\App\Http\Middleware\AddAgentLinkHeaders::class);
+
+Route::get('/exchange', \App\Livewire\Web\Exchange::class)->name('web.exchange');
 
 Route::get('/.well-known/api-catalog', function () {
     return response()->json([

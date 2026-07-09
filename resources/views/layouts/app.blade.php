@@ -68,6 +68,9 @@
                         <x-menu-item title="FAQs" icon="o-question-mark-circle" link="{{ route('admin.faqs') }}" no-wire-navigate />
                         <x-menu-item title="Locations" icon="o-map-pin" link="{{ route('admin.locations') }}" no-wire-navigate />
                         <x-menu-item title="Policy Pages" icon="o-shield-check" link="{{ route('admin.policies') }}" no-wire-navigate />
+                        <x-menu-item title="Manufacturers" icon="o-photo" link="{{ route('admin.manufacturers') }}" no-wire-navigate />
+                        <x-menu-item title="Hearing Aid Models" icon="o-sparkles" link="{{ route('admin.models') }}" no-wire-navigate />
+                        <x-menu-item title="Exchange Settings" icon="o-cog-6-tooth" link="{{ route('admin.exchange_settings') }}" no-wire-navigate />
                     @endcan
 
                     @if(auth()->user() && auth()->user()->hasAnyRole(['superadmin', 'leads_management', 'support']))
