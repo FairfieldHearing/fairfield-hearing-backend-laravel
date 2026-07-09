@@ -180,6 +180,7 @@ Route::prefix('maintenance')->group(function () use ($validateMaintenance) {
     });
     Route::get('/storage-link', function (Request $request) use ($validateMaintenance) {
         $validateMaintenance($request);
+        Artisan::call('storage:unlink');
         Artisan::call('storage:link');
         return response()->json(['output' => Artisan::output()]);
     });
