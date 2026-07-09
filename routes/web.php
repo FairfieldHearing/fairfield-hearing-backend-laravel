@@ -180,7 +180,17 @@ Route::prefix('maintenance')->group(function () use ($validateMaintenance) {
     });
     Route::get('/storage-link', function (Request $request) use ($validateMaintenance) {
         $validateMaintenance($request);
-        Artisan::call('storage:unlink');
+
+        $targetPath = storage_path('app/public');
+        if (!is_dir($targetPath)) {
+            mkdir($targetPath, 0755, true);
+        }
+
+        $linkPath = public_path('storage');
+        if (is_link($linkPath)) {
+            unlink($linkPath);
+        }
+
         Artisan::call('storage:link');
         return response()->json(['output' => Artisan::output()]);
     });
