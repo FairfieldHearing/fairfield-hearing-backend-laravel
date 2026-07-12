@@ -36,6 +36,8 @@
             <div class="divider">SEO Metadata</div>
             <x-input label="Meta Title" wire:model="meta_title" />
             <x-textarea label="Meta Description" wire:model="meta_description" rows="2" />
+            <x-textarea label="Meta Keywords" wire:model="meta_keywords" placeholder="Comma-separated keywords" rows="2" />
+            <x-input label="Canonical URL" wire:model="canonical_url" placeholder="{{ $policy ? 'Automatic: ' . $this->automaticCanonical : 'https://...' }}" hint="{{ $policy ? 'Left empty, it defaults to: ' . $this->automaticCanonical : '' }}" />
 
             <x-slot:actions>
                 <x-button label="Cancel" @click="$wire.drawer = false" class="btn-ghost" />

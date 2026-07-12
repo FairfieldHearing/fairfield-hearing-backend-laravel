@@ -32,8 +32,18 @@ use Toast, WithFileUploads, WithPagination;
     public string $meta_title = '';
     public string $meta_description = '';
     public string $json_schema = '';
+    public string $meta_keywords = '';
+    public string $canonical_url = '';
 
     public bool $drawer = false;
+
+    public function getAutomaticCanonicalProperty(): string
+    {
+        if (!$this->category) {
+            return '';
+        }
+        return url("/blogs/{$this->slug}");
+    }
 
     public function updatedTitle($value): void
     {
@@ -44,7 +54,7 @@ use Toast, WithFileUploads, WithPagination;
     {
         $this->resetValidation();
         $this->category = null;
-        $this->reset(['title', 'slug', 'image', 'existing_image', 'short_description', 'meta_title', 'meta_description', 'json_schema']);
+        $this->reset(['title', 'slug', 'image', 'existing_image', 'short_description', 'meta_title', 'meta_description', 'json_schema', 'meta_keywords', 'canonical_url']);
         $this->drawer = true;
     }
 
@@ -60,6 +70,8 @@ use Toast, WithFileUploads, WithPagination;
         $this->meta_title = $category->meta_title ?? '';
         $this->meta_description = $category->meta_description ?? '';
         $this->json_schema = $category->json_schema ? json_encode($category->json_schema, JSON_PRETTY_PRINT) : '';
+        $this->meta_keywords = $category->meta_keywords ?? '';
+        $this->canonical_url = $category->canonical_url ?? '';
         $this->drawer = true;
     }
 
@@ -73,6 +85,8 @@ use Toast, WithFileUploads, WithPagination;
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
             'json_schema' => 'nullable|json',
+            'meta_keywords' => 'nullable|string',
+            'canonical_url' => 'nullable|url|max:255',
         ];
 
         $this->validate($rules);
@@ -92,6 +106,8 @@ use Toast, WithFileUploads, WithPagination;
             'meta_title' => $this->meta_title,
             'meta_description' => $this->meta_description,
             'json_schema' => $decodedSchema,
+            'meta_keywords' => $this->meta_keywords ?: null,
+            'canonical_url' => $this->canonical_url ?: null,
         ];
 
         if ($this->category) {

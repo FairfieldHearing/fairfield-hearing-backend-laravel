@@ -8,9 +8,11 @@ use App\Models\HearingAidModel;
 use App\Models\ExchangeSetting;
 use App\Models\ExchangeEstimate;
 use Illuminate\Http\Request;
+use App\Traits\HasSeo;
 
 class Exchange extends Component
 {
+    use HasSeo;
     public $brands;
     public $models = [];
 
@@ -239,11 +241,13 @@ class Exchange extends Component
     {
         $selectedModel = $this->selectedModelId ? HearingAidModel::with('manufacturer')->find($this->selectedModelId) : null;
 
-        return view('livewire.web.exchange', [
-            'selectedModel' => $selectedModel,
-        ])->layout('layouts.web', [
+        $defaults = [
             'title' => 'Exchange Your Old Hearing Aid | Fairfield Hearing Clinics',
             'description' => 'Exchange your old hearing aid for a new one at Fairfield Hearing Clinics. Get up to ₹25,000 exchange value plus up to 55% off on new hearing aids from Phonak, Signia, ReSound, Unitron, Widex & Bernafon.',
-        ]);
+        ];
+
+        return view('livewire.web.exchange', [
+            'selectedModel' => $selectedModel,
+        ])->layout('layouts.web', array_merge($defaults, $this->seo('exchange')));
     }
 }

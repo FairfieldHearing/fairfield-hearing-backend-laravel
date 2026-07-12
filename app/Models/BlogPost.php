@@ -17,6 +17,8 @@ class BlogPost extends Model
         'meta_title',
         'meta_description',
         'json_schema',
+        'meta_keywords',
+        'canonical_url',
     ];
 
     protected $casts = [

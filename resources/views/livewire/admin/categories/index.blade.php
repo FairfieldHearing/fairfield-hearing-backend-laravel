@@ -46,6 +46,8 @@
             <div class="divider">SEO Metadata</div>
             <x-input label="Meta Title" wire:model="meta_title" />
             <x-textarea label="Meta Description" wire:model="meta_description" rows="2" />
+            <x-textarea label="Meta Keywords" wire:model="meta_keywords" placeholder="Comma-separated keywords" rows="2" />
+            <x-input label="Canonical URL" wire:model="canonical_url" placeholder="{{ $category ? 'Automatic: ' . $this->automaticCanonical : 'https://...' }}" hint="{{ $category ? 'Left empty, it defaults to: ' . $this->automaticCanonical : '' }}" />
             <x-textarea label="JSON Schema (JSON-LD)" wire:model="json_schema" placeholder='{ "@context": "https://schema.org", ... }' rows="5" />
 
             <x-slot:actions>

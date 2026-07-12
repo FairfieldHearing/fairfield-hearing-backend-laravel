@@ -19,6 +19,8 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', \App\Livewire\Admin\Dashboard::class)->name('dashboard');
     Route::get('/categories', \App\Livewire\Admin\Categories\Index::class)->name('categories');
     Route::get('/posts', \App\Livewire\Admin\Posts\Index::class)->name('posts');
+    Route::get('/posts/create', \App\Livewire\Admin\Posts\Edit::class)->name('posts.create');
+    Route::get('/posts/{post}/edit', \App\Livewire\Admin\Posts\Edit::class)->name('posts.edit');
     Route::get('/faqs', \App\Livewire\Admin\Faqs\Index::class)->name('faqs');
     Route::get('/locations', \App\Livewire\Admin\Locations\Index::class)->name('locations');
     Route::get('/policies', \App\Livewire\Admin\Policies\Index::class)->name('policies');
@@ -30,6 +32,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/manufacturers', \App\Livewire\Admin\Manufacturers\Index::class)->name('manufacturers');
     Route::get('/models', \App\Livewire\Admin\HearingAidModels\Index::class)->name('models');
     Route::get('/exchange-settings', \App\Livewire\Admin\ExchangeSettings\Index::class)->name('exchange_settings');
+    Route::get('/page-settings', \App\Livewire\Admin\PageSettings\Index::class)->name('page_settings');
 });
 
 // Public Website Routes

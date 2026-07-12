@@ -173,3 +173,46 @@ test('exchange page livewire calculation logic and session estimates work', func
         'final_price' => 42000,
     ]);
 });
+
+test('seo meta keywords and canonical tags render correctly on public pages', function () {
+    // 1. Check static page setting overrides
+    $setting = \App\Models\PageSetting::where('page_key', 'home')->first();
+    $setting->update([
+        'meta_keywords' => 'test_keyword_1, test_keyword_2',
+        'canonical_url' => 'https://fairfieldhearing.in/canonical-test-home',
+    ]);
+
+    $response = $this->get('/');
+    $response->assertStatus(200);
+    $response->assertSee('<meta name="keywords" content="test_keyword_1, test_keyword_2">', false);
+    $response->assertSee('<link rel="canonical" href="https://fairfieldhearing.in/canonical-test-home">', false);
+    $response->assertSee('"@type": "MedicalBusiness"', false);
+
+    // 2. Check dynamic blog page overrides
+    $category = BlogCategory::firstOrCreate(
+        ['slug' => 'hearing-news'],
+        [
+            'title' => 'Hearing News',
+            'short_description' => 'News about hearing technology',
+        ]
+    );
+
+    $post = BlogPost::firstOrCreate(
+        ['slug' => 'new-seo-post'],
+        [
+            'blog_category_id' => $category->id,
+            'title' => 'New SEO Post',
+            'summary' => 'Common signs of hearing loss in adults.',
+            'content' => '<p>Content details</p>',
+            'author_name' => 'Wasiq Ali Khan',
+            'meta_keywords' => 'blog_seo_keyword_1, blog_seo_keyword_2',
+            'canonical_url' => 'https://fairfieldhearing.in/blogs/hearing-news/custom-canonical-post',
+        ]
+    );
+
+    $response = $this->get("/blogs/{$category->slug}/{$post->slug}");
+    $response->assertStatus(200);
+    $response->assertSee('<meta name="keywords" content="blog_seo_keyword_1, blog_seo_keyword_2">', false);
+    $response->assertSee('<link rel="canonical" href="https://fairfieldhearing.in/blogs/hearing-news/custom-canonical-post">', false);
+});
+

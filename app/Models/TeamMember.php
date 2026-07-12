@@ -22,6 +22,8 @@ class TeamMember extends Model
         'meta_title',
         'meta_description',
         'sort_order',
+        'meta_keywords',
+        'canonical_url',
     ];
 
     protected $casts = [

@@ -4,9 +4,12 @@ namespace App\Livewire\Web\Team;
 
 use App\Models\TeamMember;
 use Livewire\Component;
+use App\Traits\HasSeo;
 
 class Show extends Component
 {
+    use HasSeo;
+
     public $member;
 
     public function mount($slug)
@@ -42,6 +45,6 @@ class Show extends Component
             'expertiseItems' => $expertiseItems,
             'timelineItems' => $timelineItems,
             'physicianSchema' => $physicianSchema
-        ])->layout('layouts.web');
+        ])->layout('layouts.web', $this->seoForModel($m, $m->name . ' | Team Profile', $m->short_bio));
     }
 }

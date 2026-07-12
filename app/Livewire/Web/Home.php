@@ -5,9 +5,12 @@ namespace App\Livewire\Web;
 use App\Models\Location;
 use App\Models\Faq;
 use Livewire\Component;
+use App\Traits\HasSeo;
 
 class Home extends Component
 {
+    use HasSeo;
+
     public function render()
     {
         $locations = Location::all()->toArray();
@@ -63,6 +66,6 @@ class Home extends Component
             'manufacturers' => $manufacturers,
             'medicalBusinessSchema' => $medicalBusinessSchema,
             'faqSchema' => $faqSchema
-        ])->layout('layouts.web');
+        ])->layout('layouts.web', $this->seo('home'));
     }
 }

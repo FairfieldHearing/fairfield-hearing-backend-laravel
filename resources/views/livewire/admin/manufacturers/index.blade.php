@@ -51,16 +51,22 @@
                                 </div>
                             </td>
                             <td class="align-middle font-semibold text-lg">{{ $m->name }}</td>
-                            <td class="align-middle">
-                                @if($m->is_active)
-                                    <span class="badge badge-success">Active</span>
-                                @else
-                                    <span class="badge badge-ghost text-base-content/40">Inactive</span>
-                                @endif
+                            <td class="align-middle space-x-1">
+                                <button type="button" wire:click="toggleActive({{ $m->id }})" class="focus:outline-none" title="Click to toggle status">
+                                    @if($m->is_active)
+                                        <span class="badge badge-success cursor-pointer hover:opacity-85 transition-opacity">Active</span>
+                                    @else
+                                        <span class="badge badge-ghost text-base-content/40 cursor-pointer hover:opacity-85 transition-opacity">Inactive</span>
+                                    @endif
+                                </button>
                                 
-                                @if($m->show_on_homepage)
-                                    <span class="badge badge-info text-white">Homepage</span>
-                                @endif
+                                <button type="button" wire:click="toggleHomepage({{ $m->id }})" class="focus:outline-none" title="Click to toggle homepage visibility">
+                                    @if($m->show_on_homepage)
+                                        <span class="badge badge-info text-white cursor-pointer hover:opacity-85 transition-opacity">Homepage</span>
+                                    @else
+                                        <span class="badge badge-ghost text-base-content/40 cursor-pointer hover:opacity-85 transition-opacity">Hidden</span>
+                                    @endif
+                                </button>
                             </td>
                             <td class="text-right align-middle">
                                 <div class="flex justify-end gap-1">
@@ -84,13 +90,16 @@
         <x-form wire:submit="save">
             <x-input label="Brand Name" wire:model="name" placeholder="e.g. Signia" required />
             
-            <x-file label="Logo Image (PNG preferred)" wire:model="logo" accept="image/*" required="{{ !$manufacturer }}">
+            <div class="space-y-2">
+                <label class="label"><span class="label-text font-semibold">Logo Image (PNG preferred)</span></label>
+                <input type="file" wire:model="logo" accept="image/*" class="file-input file-input-bordered w-full" />
+                @error('logo') <span class="text-error text-xs block mt-1">{{ $message }}</span> @enderror
                 @if($manufacturer && !$logo)
                     <div class="mt-2 bg-base-200 p-3 rounded-md inline-block">
                         <img src="{{ $manufacturer->logo_url }}" class="h-16 w-auto object-contain" />
                     </div>
                 @endif
-            </x-file>
+            </div>
 
             <x-checkbox label="Active (System status)" wire:model="is_active" />
             <x-checkbox label="Show in homepage brand strip" wire:model="show_on_homepage" />

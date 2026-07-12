@@ -5,11 +5,12 @@ namespace App\Livewire\Web\Blogs;
 use App\Models\BlogPost;
 use App\Models\Faq;
 use Livewire\Component;
-use Livewire\Attributes\Layout;
+use App\Traits\HasSeo;
 
-#[Layout('layouts.web')]
 class Show extends Component
 {
+    use HasSeo;
+
     /** @var \App\Models\BlogPost */
     public $postModel;
 
@@ -108,6 +109,6 @@ class Show extends Component
             'authorPhoto' => $this->getAuthorPhoto($this->postModel->author_name),
             'postSchema' => $postSchema,
             'faqSchema' => $faqSchema,
-        ]);
+        ])->layout('layouts.web', $this->seoForModel($this->postModel, $this->postModel->title . ' | Fairfield Hearing Blogs', $this->postModel->summary));
     }
 }

@@ -57,8 +57,8 @@ class Index extends Component
     {
         $rules = [
             'name' => 'required|string|max:255',
-            'is_active' => 'required|boolean',
-            'show_on_homepage' => 'required|boolean',
+            'is_active' => 'boolean',
+            'show_on_homepage' => 'boolean',
             'logo' => $this->manufacturer ? 'nullable|image|max:2048' : 'required|image|max:2048',
         ];
 
@@ -103,6 +103,20 @@ class Index extends Component
         }
         $manufacturer->delete();
         $this->success('Manufacturer deleted successfully.', position: 'toast-bottom');
+    }
+
+    public function toggleActive(int $id): void
+    {
+        $m = Manufacturer::findOrFail($id);
+        $m->update(['is_active' => !$m->is_active]);
+        $this->success('Brand status updated.', position: 'toast-bottom');
+    }
+
+    public function toggleHomepage(int $id): void
+    {
+        $m = Manufacturer::findOrFail($id);
+        $m->update(['show_on_homepage' => !$m->show_on_homepage]);
+        $this->success('Homepage visibility updated.', position: 'toast-bottom');
     }
 
     public function updateOrder(array $orderedIds): void

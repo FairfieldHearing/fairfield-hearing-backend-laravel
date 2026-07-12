@@ -5,9 +5,12 @@ namespace App\Livewire\Web\Blogs;
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
 use Livewire\Component;
+use App\Traits\HasSeo;
 
 class Index extends Component
 {
+    use HasSeo;
+
     private function getPostCoverImage($slug)
     {
         if (str_contains($slug, 'styletto')) return "/assets/img/signia-styletto-ix-7ix-vs-5ix-vs-3ix.svg";
@@ -48,6 +51,6 @@ class Index extends Component
             'categories' => $categories,
             'posts' => $posts->toArray(),
             'blogSchema' => $blogSchema
-        ])->layout('layouts.web');
+        ])->layout('layouts.web', $this->seo('blogs_index'));
     }
 }

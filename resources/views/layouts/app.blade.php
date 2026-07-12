@@ -9,6 +9,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="shortcut icon" type="image/x-icon" href="/logo.jpeg" />
+    <script src="/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 <body class="min-h-screen font-sans antialiased bg-base-200">
@@ -71,6 +72,7 @@
                         <x-menu-item title="Manufacturers" icon="o-photo" link="{{ route('admin.manufacturers') }}" no-wire-navigate />
                         <x-menu-item title="Hearing Aid Models" icon="o-sparkles" link="{{ route('admin.models') }}" no-wire-navigate />
                         <x-menu-item title="Exchange Settings" icon="o-cog-6-tooth" link="{{ route('admin.exchange_settings') }}" no-wire-navigate />
+                        <x-menu-item title="Page SEO Settings" icon="o-adjustments-horizontal" link="{{ route('admin.page_settings') }}" no-wire-navigate />
                     @endcan
 
                     @if(auth()->user() && auth()->user()->hasAnyRole(['superadmin', 'leads_management', 'support']))

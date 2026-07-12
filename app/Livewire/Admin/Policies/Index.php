@@ -27,8 +27,18 @@ use Toast;
     public string $content = '';
     public string $meta_title = '';
     public string $meta_description = '';
+    public string $meta_keywords = '';
+    public string $canonical_url = '';
 
     public bool $drawer = false;
+
+    public function getAutomaticCanonicalProperty(): string
+    {
+        if (!$this->policy) {
+            return '';
+        }
+        return url("/policies/{$this->slug}");
+    }
 
     public function updatedTitle($value): void
     {
@@ -39,7 +49,7 @@ use Toast;
     {
         $this->resetValidation();
         $this->policy = null;
-        $this->reset(['title', 'slug', 'content', 'meta_title', 'meta_description']);
+        $this->reset(['title', 'slug', 'content', 'meta_title', 'meta_description', 'meta_keywords', 'canonical_url']);
         $this->drawer = true;
     }
 
@@ -52,6 +62,8 @@ use Toast;
         $this->content = $policy->content;
         $this->meta_title = $policy->meta_title ?? '';
         $this->meta_description = $policy->meta_description ?? '';
+        $this->meta_keywords = $policy->meta_keywords ?? '';
+        $this->canonical_url = $policy->canonical_url ?? '';
         $this->drawer = true;
     }
 
@@ -63,6 +75,8 @@ use Toast;
             'content' => 'required|string',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
+            'meta_keywords' => 'nullable|string',
+            'canonical_url' => 'nullable|url|max:255',
         ];
 
         $this->validate($rules);
@@ -73,6 +87,8 @@ use Toast;
             'content' => $this->content,
             'meta_title' => $this->meta_title,
             'meta_description' => $this->meta_description,
+            'meta_keywords' => $this->meta_keywords ?: null,
+            'canonical_url' => $this->canonical_url ?: null,
         ];
 
         if ($this->policy) {

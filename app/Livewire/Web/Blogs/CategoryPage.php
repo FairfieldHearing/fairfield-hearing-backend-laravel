@@ -5,9 +5,12 @@ namespace App\Livewire\Web\Blogs;
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
 use Livewire\Component;
+use App\Traits\HasSeo;
 
 class CategoryPage extends Component
 {
+    use HasSeo;
+
     public $category;
 
     public function mount($category)
@@ -39,6 +42,6 @@ class CategoryPage extends Component
             'category' => $this->category->toArray(),
             'posts' => $posts,
             'collectionSchema' => $collectionSchema
-        ])->layout('layouts.web');
+        ])->layout('layouts.web', $this->seoForModel($this->category, $this->category->title . ' | Category Archives', $this->category->short_description));
     }
 }

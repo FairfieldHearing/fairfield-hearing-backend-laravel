@@ -89,7 +89,7 @@ class Index extends Component
             'units' => 'required|integer|in:1,2',
             'key_features' => 'array',
             'key_features.*' => 'nullable|string|max:255',
-            'is_active' => 'required|boolean',
+            'is_active' => 'boolean',
         ]);
 
         // Clean up empty features and tag inputs
@@ -122,6 +122,13 @@ class Index extends Component
 
         $this->drawer = false;
         $this->reset(['manufacturer_id', 'name', 'mrp', 'discount_pct', 'tech_level', 'form_factor', 'units', 'key_features', 'tags_text', 'modelInstance']);
+    }
+
+    public function toggleActive(int $id): void
+    {
+        $m = HearingAidModel::findOrFail($id);
+        $m->update(['is_active' => !$m->is_active]);
+        $this->success('Model status updated.', position: 'toast-bottom');
     }
 
     public function delete(HearingAidModel $model): void

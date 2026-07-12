@@ -7,7 +7,16 @@
 
     <title>{{ $title ?? 'Fairfield Hearing Clinics | Free Hearing Test & Hearing Aids in Delhi' }}</title>
     <meta name="description" content="{{ $description ?? 'Fairfield Hearing Clinics — RCI-certified audiologists offering free hearing tests, hearing aid fitting and trials from Signia, Phonak, Widex & more. Book your free hearing test in Delhi today.' }}">
+    @if(!empty($keywords))
+    <meta name="keywords" content="{{ $keywords }}">
+    @endif
     <link rel="canonical" href="{{ $canonical ?? request()->url() }}">
+
+    @if(!empty($jsonSchema))
+    <script type="application/ld+json">
+        {!! is_array($jsonSchema) ? json_encode($jsonSchema, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) : $jsonSchema !!}
+    </script>
+    @endif
 
     <!-- Open Graph / WhatsApp preview -->
     <meta property="og:type" content="website">

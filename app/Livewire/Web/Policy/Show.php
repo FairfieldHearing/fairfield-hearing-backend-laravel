@@ -4,11 +4,12 @@ namespace App\Livewire\Web\Policy;
 
 use App\Models\PolicyPage;
 use Livewire\Component;
-use Livewire\Attributes\Layout;
+use App\Traits\HasSeo;
 
-#[Layout('layouts.web')]
 class Show extends Component
 {
+    use HasSeo;
+
     /** @var \App\Models\PolicyPage */
     public $policy;
 
@@ -57,6 +58,6 @@ class Show extends Component
             'policy' => $this->policy->toArray(),
             'policyContent' => $policyContent,
             'policySchema' => $policySchema
-        ]);
+        ])->layout('layouts.web', $this->seoForModel($this->policy));
     }
 }

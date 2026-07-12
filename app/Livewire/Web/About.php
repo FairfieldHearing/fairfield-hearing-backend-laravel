@@ -4,9 +4,12 @@ namespace App\Livewire\Web;
 
 use App\Models\TeamMember;
 use Livewire\Component;
+use App\Traits\HasSeo;
 
 class About extends Component
 {
+    use HasSeo;
+
     public function render()
     {
         $team = TeamMember::orderBy('id')->get()->toArray();
@@ -39,6 +42,6 @@ class About extends Component
             'audiologists' => $audiologists,
             'productSpecialists' => $productSpecialists,
             'aboutSchema' => $aboutSchema
-        ])->layout('layouts.web');
+        ])->layout('layouts.web', $this->seo('about'));
     }
 }

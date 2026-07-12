@@ -68,11 +68,13 @@
                                 ₹{{ number_format(round($m->mrp * (100 - $m->discount_pct) / 100)) }}
                             </td>
                             <td class="align-middle">
-                                @if($m->is_active)
-                                    <span class="badge badge-success text-xs">Active</span>
-                                @else
-                                    <span class="badge badge-ghost text-xs text-base-content/40">Inactive</span>
-                                @endif
+                                <button type="button" wire:click="toggleActive({{ $m->id }})" class="focus:outline-none" title="Click to toggle status">
+                                    @if($m->is_active)
+                                        <span class="badge badge-success text-xs cursor-pointer hover:opacity-85 transition-opacity">Active</span>
+                                    @else
+                                        <span class="badge badge-ghost text-xs text-base-content/40 cursor-pointer hover:opacity-85 transition-opacity">Inactive</span>
+                                    @endif
+                                </button>
                             </td>
                             <td class="text-right align-middle">
                                 <div class="flex justify-end gap-1">
