@@ -35,11 +35,16 @@
             <x-input label="Title" wire:model.live.debounce.500ms="title" required />
             <x-input label="Slug" wire:model="slug" required />
             
-            <x-file label="Category Image" wire:model="image" accept="image/*">
-                @if($existing_image && !$image)
+            <div class="space-y-2">
+                <label class="label"><span class="label-text font-semibold">Category Image</span></label>
+                <input type="file" wire:model="image" accept="image/*" class="file-input file-input-bordered w-full" />
+                @error('image') <span class="text-error text-xs block mt-1">{{ $message }}</span> @enderror
+                @if($image)
+                    <img src="{{ $image->temporaryUrl() }}" class="h-20 object-cover rounded-md mt-2" />
+                @elseif($existing_image)
                     <img src="{{ Storage::url($existing_image) }}" class="h-20 object-cover rounded-md mt-2" />
                 @endif
-            </x-file>
+            </div>
 
             <x-textarea label="Short Description" wire:model="short_description" rows="3" />
 

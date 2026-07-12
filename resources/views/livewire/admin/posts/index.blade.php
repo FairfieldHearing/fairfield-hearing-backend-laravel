@@ -13,11 +13,7 @@
     <x-card shadow>
         <x-table :headers="$headers" :rows="$rows" :sort-by="$sortBy">
             @scope('cell_featured_image', $post)
-                @if($post->featured_image)
-                    <img src="{{ Storage::url($post->featured_image) }}" class="w-12 h-12 object-cover rounded-md" />
-                @else
-                    <div class="w-12 h-12 bg-base-300 rounded-md flex items-center justify-center text-xs text-base-content/50">No Image</div>
-                @endif
+                <img src="{{ $post->featured_image_url }}" class="w-12 h-12 object-cover rounded-md" />
             @endscope
 
             @scope('cell_created_at', $post)

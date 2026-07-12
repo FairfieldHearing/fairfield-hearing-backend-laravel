@@ -23,8 +23,10 @@
                         <label class="label"><span class="label-text font-semibold">Featured Image</span></label>
                         <input type="file" wire:model="featured_image" accept="image/*" class="file-input file-input-bordered w-full" />
                         @error('featured_image') <span class="text-error text-xs block mt-1">{{ $message }}</span> @enderror
-                        @if($existing_featured_image && !$featured_image)
-                            <img src="{{ Storage::url($existing_featured_image) }}" class="h-20 object-cover rounded-md mt-2" />
+                        @if($featured_image)
+                            <img src="{{ $featured_image->temporaryUrl() }}" class="h-20 object-cover rounded-md mt-2" />
+                        @elseif($post && $post->exists)
+                            <img src="{{ $post->featured_image_url }}" class="h-20 object-cover rounded-md mt-2" />
                         @endif
                     </div>
 
