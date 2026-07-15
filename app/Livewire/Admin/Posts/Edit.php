@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Posts;
 
+use App\Helpers\ImageHelper;
 use Livewire\WithFileUploads;
 use Mary\Traits\Toast;
 use App\Models\BlogCategory;
@@ -134,6 +135,7 @@ class Edit extends Component
 
         $imagePath = $this->existing_featured_image;
         if ($this->featured_image) {
+            ImageHelper::compressAndResize($this->featured_image);
             $imagePath = $this->featured_image->store('blog_posts', 'public');
         }
 

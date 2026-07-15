@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Manufacturers;
 use Mary\Traits\Toast;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use App\Helpers\ImageHelper;
 use App\Models\Manufacturer;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -70,6 +71,7 @@ class Index extends Component
             if ($this->existing_logo_path && !str_starts_with($this->existing_logo_path, 'assets/')) {
                 Storage::disk('public')->delete($this->existing_logo_path);
             }
+            ImageHelper::compressAndResize($this->logo);
             $logoPath = $this->logo->store('manufacturers', 'public');
         }
 

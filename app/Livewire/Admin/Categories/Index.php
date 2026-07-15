@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\Categories;
 
+use App\Helpers\ImageHelper;
 use Livewire\WithFileUploads;
 use Mary\Traits\Toast;
 use Illuminate\Support\Collection;
@@ -93,6 +94,7 @@ use Toast, WithFileUploads, WithPagination;
 
         $imagePath = $this->existing_image;
         if ($this->image) {
+            ImageHelper::compressAndResize($this->image);
             $imagePath = $this->image->store('categories', 'public');
         }
 
