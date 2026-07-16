@@ -12,6 +12,7 @@ class BlogPost extends Model
         'slug',
         'summary',
         'featured_image',
+        'featured_image_media_id',
         'content',
         'author_name',
         'meta_title',
@@ -25,8 +26,16 @@ class BlogPost extends Model
         'json_schema' => 'array',
     ];
 
+    public function featuredImageMedia()
+    {
+        return $this->belongsTo(Media::class, 'featured_image_media_id');
+    }
+
     public function getFeaturedImageUrlAttribute(): string
     {
+        if ($this->featuredImageMedia) {
+            return $this->featuredImageMedia->url;
+        }
         if (!$this->featured_image) {
             return '/assets/img/logo.jpeg';
         }

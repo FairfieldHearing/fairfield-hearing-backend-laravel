@@ -19,8 +19,13 @@ class Show extends Component
         $this->postModel = BlogPost::with('category')->where('slug', $slug)->firstOrFail();
     }
 
-    public function getPostCoverImage(string $slug): string
+    public function getPostCoverImage(): string
     {
+        if ($this->postModel->featured_image) {
+            return \Illuminate\Support\Facades\Storage::url($this->postModel->featured_image);
+        }
+
+        $slug = $this->postModel->slug;
         if (str_contains($slug, 'styletto')) {
             return "/img/signia-styletto-ix-7ix-vs-5ix-vs-3ix.svg";
         }
@@ -57,6 +62,31 @@ class Show extends Component
             $postData['title'] = explode(' | ', $postData['meta_title'])[0];
         }
 
+        // Dynamically parse h2 headings for Table of Contents
+        $toc = [];
+        preg_match_all('/<h2[^>]*>(.*?)<\/h2>/i', $postData['content'], $matches);
+        if (!empty($matches[1])) {
+            foreach ($matches[1] as $heading) {
+                $cleanHeading = strip_tags($heading);
+                $id = str($cleanHeading)->slug()->toString();
+                $toc[] = [
+                    'text' => $cleanHeading,
+                    'id' => $id,
+                ];
+            }
+        }
+
+        // Inject IDs into <h2> tags in the content HTML so anchors function
+        $postData['content'] = preg_replace_callback('/<h2([^>]*)>(.*?)<\/h2>/i', function($matches) {
+            $attrs = $matches[1];
+            $text = $matches[2];
+            $id = str(strip_tags($text))->slug()->toString();
+            if (!str_contains($attrs, 'id=')) {
+                return "<h2{$attrs} id=\"{$id}\">{$text}</h2>";
+            }
+            return $matches[0];
+        }, $postData['content']);
+
         $category = $this->postModel->category ? $this->postModel->category->toArray() : ['title' => 'Hearing Health', 'slug' => 'hearing-health'];
         
         $faqs = Faq::where('blog_post_id', $this->postModel->id)->get()->map(function($f) {
@@ -69,7 +99,7 @@ class Show extends Component
             "@type" => "BlogPosting",
             "headline" => $postData['title'],
             "description" => $this->postModel->summary,
-            "image" => "https://fairfieldhearing.in" . $this->getPostCoverImage($this->postModel->slug),
+            "image" => "https://fairfieldhearing.in" . $this->getPostCoverImage(),
             "datePublished" => $this->postModel->created_at,
             "dateModified" => $this->postModel->updated_at ?: $this->postModel->created_at,
             "author" => [
@@ -105,7 +135,8 @@ class Show extends Component
             'post' => $postData,
             'category' => $category,
             'faqs' => $faqs,
-            'coverImage' => $this->getPostCoverImage($this->postModel->slug),
+            'toc' => $toc,
+            'coverImage' => $this->getPostCoverImage(),
             'authorPhoto' => $this->getAuthorPhoto($this->postModel->author_name),
             'postSchema' => $postSchema,
             'faqSchema' => $faqSchema,

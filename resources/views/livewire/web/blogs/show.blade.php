@@ -28,22 +28,18 @@
                     <h1>{{ $post['title'] }}</h1>
 
                     <p class="article__review">
-                        Written by <a href="/team/wasiq-ali-khan">{{ $post['author_name'] }}</a>, Senior Audiologist & Clinical Lead · Medically reviewed by
-                        <a href="/team/dr-nayeem-ahmad-siddiqui">Dr. Nayeem Ahmad Siddiqui</a> · Updated 26 Jun 2026
+                        Written by 
+                        @if($post['author_name'] === 'Wasiq Ali Khan')
+                            <a href="/team/wasiq-ali-khan">{{ $post['author_name'] }}</a>, Senior Audiologist & Clinical Lead · Medically reviewed by <a href="/team/dr-nayeem-ahmad-siddiqui">Dr. Nayeem Ahmad Siddiqui</a>
+                        @else
+                            {{ $post['author_name'] }}
+                        @endif
+                        · Updated {{ date('d M Y', strtotime($post['updated_at'] ?? $post['created_at'])) }}
                     </p>
 
                     <img class="article__cover" src="{{ $coverImage }}" alt="{{ $post['title'] }}">
 
-                    <nav class="toc" aria-label="Table of contents">
-                        <strong>In this article</strong>
-                        <ol>
-                            <li><a href="#what-the-styletto-ix-series-is">What the Styletto IX series is</a></li>
-                            <li><a href="#7ix-vs-5ix-vs-3ix-at-a-glance">7IX vs 5IX vs 3IX at a glance</a></li>
-                            <li><a href="#how-the-tiers-differ">How the tiers differ</a></li>
-                            <li><a href="#which-one-should-you-choose">Which one should you choose</a></li>
-                            <li><a href="#price-and-trial">Price and trial</a></li>
-                        </ol>
-                    </nav>
+
 
                     <!-- Article Body Content -->
                     <div class="fhc-article-content-body">
@@ -68,17 +64,19 @@
                         </div>
                     @endif
 
-                    <!-- Author Box -->
-                    <div class="author-box" style="margin-top: 40px; display: flex; align-items: center; gap: 20px; padding: 20px; background: #f9f9f9; border-radius: 8px;">
-                        <img src="{{ $authorPhoto }}" alt="{{ $post['author_name'] }}" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover;">
-                        <div>
-                            <h4 style="margin: 0 0 5px 0; font-size: 1.1em; color: #1b1b1b;">{{ $post['author_name'] }}</h4>
-                            <p style="margin: 0; font-size: 0.9em; color: #666;">
-                                Senior Audiologist & Clinical Lead at Fairfield Hearing Clinics.
-                                <a href="/about" style="color: #6b8e23; font-weight: 600; text-decoration: none;">View profile &rarr;</a>
-                            </p>
+                    @if($post['author_name'] === 'Wasiq Ali Khan')
+                        <!-- Author Box -->
+                        <div class="author-box" style="margin-top: 40px; display: flex; align-items: center; gap: 20px; padding: 20px; background: #f9f9f9; border-radius: 8px;">
+                            <img src="{{ $authorPhoto }}" alt="{{ $post['author_name'] }}" style="width: 64px; height: 64px; border-radius: 50%; object-fit: cover;">
+                            <div>
+                                <h4 style="margin: 0 0 5px 0; font-size: 1.1em; color: #1b1b1b;">{{ $post['author_name'] }}</h4>
+                                <p style="margin: 0; font-size: 0.9em; color: #666;">
+                                    Senior Audiologist & Clinical Lead at Fairfield Hearing Clinics.
+                                    <a href="/about" style="color: #6b8e23; font-weight: 600; text-decoration: none;">View profile &rarr;</a>
+                                </p>
+                            </div>
                         </div>
-                    </div>
+                    @endif
 
                 </div>
         </section>

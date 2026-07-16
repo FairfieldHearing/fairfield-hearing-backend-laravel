@@ -11,9 +11,7 @@
 
 <section class="section">
   <div class="container split">
-    <div class="media-frame" style="padding: "0", "background": "transparent", "aspectRatio": "auto"">
-      <img src="assets/img/tinnitus.svg" alt="Illustration representing tinnitus relief and soothing sound" style="width: "100%", "borderRadius": "var(--radius)"" >
-    </div>
+    <x-web-device-gallery :gallery="$gallery" default="assets/img/tinnitus.svg" alt="Tinnitus relief device" />
     <div>
       <span class="eyebrow">How we help</span>
       <h2>Bringing your tinnitus under control</h2>
@@ -22,6 +20,8 @@
     </div>
   </div>
 </section>
+
+
 
 <section class="section section--soft">
   <div class="container center">

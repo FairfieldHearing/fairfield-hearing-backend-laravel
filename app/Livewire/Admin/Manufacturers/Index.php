@@ -20,10 +20,9 @@ class Index extends Component
     // Form fields
     public ?Manufacturer $manufacturer = null;
     public string $name = '';
-    public $logo = null; // Will hold uploaded file
+    public $logo = null;
     public bool $is_active = true;
     public bool $show_on_homepage = true;
-    public ?string $existing_logo_path = null;
 
     public bool $drawer = false;
 
@@ -36,7 +35,7 @@ class Index extends Component
     {
         $this->resetValidation();
         $this->manufacturer = null;
-        $this->reset(['name', 'logo', 'is_active', 'show_on_homepage', 'existing_logo_path']);
+        $this->reset(['name', 'logo', 'is_active', 'show_on_homepage']);
         $this->is_active = true;
         $this->show_on_homepage = true;
         $this->drawer = true;
@@ -49,8 +48,7 @@ class Index extends Component
         $this->name = $manufacturer->name;
         $this->is_active = $manufacturer->is_active;
         $this->show_on_homepage = (bool)$manufacturer->show_on_homepage;
-        $this->existing_logo_path = $manufacturer->logo_path;
-        $this->logo = null;
+        $this->logo = $manufacturer->logo_path;
         $this->drawer = true;
     }
 
@@ -60,26 +58,25 @@ class Index extends Component
             'name' => 'required|string|max:255',
             'is_active' => 'boolean',
             'show_on_homepage' => 'boolean',
-            'logo' => $this->manufacturer ? 'nullable|image|max:2048' : 'required|image|max:2048',
+            'logo' => 'required|string|max:255',
         ];
 
         $this->validate($rules);
 
-        $logoPath = $this->existing_logo_path;
+        $logoMediaId = null;
         if ($this->logo) {
-            // Delete old file if it exists and was uploaded (not a seeded asset)
-            if ($this->existing_logo_path && !str_starts_with($this->existing_logo_path, 'assets/')) {
-                Storage::disk('public')->delete($this->existing_logo_path);
+            $media = \App\Models\Media::where('filepath', $this->logo)->first();
+            if ($media) {
+                $logoMediaId = $media->id;
             }
-            ImageHelper::compressAndResize($this->logo);
-            $logoPath = $this->logo->store('manufacturers', 'public');
         }
 
         $data = [
             'name' => $this->name,
             'is_active' => $this->is_active,
             'show_on_homepage' => $this->show_on_homepage,
-            'logo_path' => $logoPath,
+            'logo_path' => $this->logo,
+            'logo_media_id' => $logoMediaId,
         ];
 
         if ($this->manufacturer) {
@@ -94,7 +91,7 @@ class Index extends Component
         }
 
         $this->drawer = false;
-        $this->reset(['logo', 'manufacturer', 'name', 'is_active', 'show_on_homepage', 'existing_logo_path']);
+        $this->reset(['logo', 'manufacturer', 'name', 'is_active', 'show_on_homepage']);
     }
 
     public function delete(Manufacturer $manufacturer): void

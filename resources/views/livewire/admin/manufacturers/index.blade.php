@@ -92,17 +92,8 @@
             
             <div class="space-y-2">
                 <label class="label"><span class="label-text font-semibold">Logo Image (PNG preferred)</span></label>
-                <input type="file" wire:model="logo" accept="image/*" class="file-input file-input-bordered w-full" />
+                <livewire:admin.components.media-selector wire:model="logo" target-field="logo" folder="manufacturers" />
                 @error('logo') <span class="text-error text-xs block mt-1">{{ $message }}</span> @enderror
-                @if($logo)
-                    <div class="mt-2 bg-base-200 p-3 rounded-md inline-block">
-                        <img src="{{ $logo->temporaryUrl() }}" class="h-16 w-auto object-contain" />
-                    </div>
-                @elseif($manufacturer)
-                    <div class="mt-2 bg-base-200 p-3 rounded-md inline-block">
-                        <img src="{{ $manufacturer->logo_url }}" class="h-16 w-auto object-contain" />
-                    </div>
-                @endif
             </div>
 
             <x-checkbox label="Active (System status)" wire:model="is_active" />

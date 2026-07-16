@@ -11,9 +11,7 @@
 
 <section class="section">
   <div class="container split">
-    <div class="media-frame" style="padding: "0", "background": "transparent", "aspectRatio": "auto"">
-      <img src="assets/img/invisible.svg" alt="Illustration of an invisible in-canal hearing aid" style="width: "100%", "borderRadius": "var(--radius)"" >
-    </div>
+    <x-web-device-gallery :gallery="$gallery" default="assets/img/invisible.svg" alt="Invisible (IIC/CIC) hearing aid" />
     <div>
       <span class="eyebrow">How it works</span>
       <h2>Hidden deep in your ear</h2>
@@ -22,7 +20,6 @@
     </div>
   </div>
 </section>
-
 <section class="section section--soft">
   <div class="container center">
     <span class="eyebrow">Is it right for you?</span>

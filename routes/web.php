@@ -33,6 +33,9 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/models', \App\Livewire\Admin\HearingAidModels\Index::class)->name('models');
     Route::get('/exchange-settings', \App\Livewire\Admin\ExchangeSettings\Index::class)->name('exchange_settings');
     Route::get('/page-settings', \App\Livewire\Admin\PageSettings\Index::class)->name('page_settings');
+    Route::get('/media', \App\Livewire\Admin\Media\Index::class)->name('media');
+    Route::get('/media/galleries', \App\Livewire\Admin\Media\Galleries::class)->name('media.galleries');
+    Route::post('/media/upload-tinymce', [\App\Http\Controllers\Admin\MediaUploadController::class, 'upload'])->name('media.upload-tinymce');
 });
 
 // Public Website Routes

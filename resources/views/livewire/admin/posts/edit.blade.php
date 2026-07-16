@@ -10,7 +10,7 @@
         <!-- MAIN FORM -->
         <div class="lg:col-span-2 space-y-6">
             <x-card shadow class="bg-base-100">
-                <x-form wire:submit="save">
+                <x-form wire:submit="save" x-on:submit="if (window.quillEditor) { $wire.set('content', window.quillEditor.root.innerHTML); }">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <x-select label="Category" wire:model="blog_category_id" :options="$categories" option-value="id" option-label="title" required />
                         <x-input label="Author Name" wire:model="author_name" required />
@@ -21,57 +21,79 @@
 
                     <div class="space-y-2">
                         <label class="label"><span class="label-text font-semibold">Featured Image</span></label>
-                        <input type="file" wire:model="featured_image" accept="image/*" class="file-input file-input-bordered w-full" />
+                        <livewire:admin.components.media-selector wire:model="featured_image" target-field="featured_image" folder="blog_posts" />
                         @error('featured_image') <span class="text-error text-xs block mt-1">{{ $message }}</span> @enderror
-                        @if($featured_image)
-                            <img src="{{ $featured_image->temporaryUrl() }}" class="h-20 object-cover rounded-md mt-2" />
-                        @elseif($post && $post->exists)
-                            <img src="{{ $post->featured_image_url }}" class="h-20 object-cover rounded-md mt-2" />
-                        @endif
                     </div>
 
                     <x-textarea label="Summary" wire:model="summary" rows="3" />
                     
-                    <div class="space-y-2" wire:ignore>
+                    <div class="space-y-2" wire:ignore wire:key="post-content-editor-wrapper">
                         <label class="label"><span class="label-text font-semibold">Content (Rich Text Editor)</span></label>
-                        <div
-                            x-data="{}"
-                            x-init="
-                                tinymce.init({
-                                    target: $refs.editor,
-                                    license_key: 'gpl',
-                                    height: 550,
-                                    menubar: true,
-                                    promotion: false,
-                                    branding: false,
-                                    plugins: [
-                                        'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-                                        'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                                        'insertdatetime', 'media', 'table', 'help', 'wordcount'
-                                    ],
-                                    toolbar: 'undo redo | blocks | ' +
-                                        'bold italic backcolor | alignleft aligncenter ' +
-                                        'alignright alignjustify | bullist numlist outdent indent | ' +
-                                        'removeformat | code fullscreen | help',
-                                    setup: function(editor) {
-                                        editor.on('change', function() {
-                                            $wire.set('content', editor.getContent());
-                                        });
-                                        editor.on('init', function() {
-                                            editor.setContent($wire.get('content') || '');
-                                        });
-                                        $watch('$wire.content', function(newVal) {
-                                            if (newVal !== editor.getContent()) {
-                                                editor.setContent(newVal || '');
-                                            }
-                                        });
+                        
+                        <!-- Hidden textarea to safely hold the initial HTML content -->
+                        <textarea id="quill-initial-content" class="hidden">{!! e($content) !!}</textarea>
+
+                        <div 
+                            x-data="{
+                                initQuill() {
+                                    window.quillEditor = new Quill(this.$refs.quillCanvas, {
+                                        theme: 'snow',
+                                        modules: {
+                                            table: true,
+                                            toolbar: [
+                                                [{ 'header': [1, 2, 3, false] }],
+                                                ['bold', 'italic', 'underline', 'strike'],
+                                                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                                                ['link', 'image', 'video'],
+                                                ['table'],
+                                                ['clean']
+                                            ]
+                                        }
+                                    });
+
+                                    // Register image toolbar click to open media selector
+                                    window.quillEditor.getModule('toolbar').addHandler('image', () => {
+                                        window.dispatchEvent(new CustomEvent('open-media-selector-quill_editor_insert'));
+                                    });
+
+                                    // Set initial content from the hidden textarea value (safely handles HTML encoding/decoding)
+                                    const initialVal = document.getElementById('quill-initial-content').value;
+                                    window.quillEditor.root.innerHTML = initialVal || '';
+
+                                    // Sync content back to Livewire on changes
+                                    window.quillEditor.on('text-change', () => {
+                                        $wire.set('content', window.quillEditor.root.innerHTML);
+                                    });
+
+                                    // Watch for external content updates from the server
+                                    $watch('$wire.content', (newVal) => {
+                                        if (!window.quillEditor.hasFocus() && window.quillEditor.root.innerHTML !== newVal) {
+                                            window.quillEditor.root.innerHTML = newVal || '';
+                                        }
+                                    });
+                                }
+                            }"
+                            x-init="initQuill()"
+                            class="bg-base-100 rounded-lg border border-base-300 overflow-hidden"
+                        >
+                            <div x-ref="quillCanvas" class="min-h-[400px]"></div>
+                            
+                            <script>
+                                window.addEventListener('media-selected', function(e) {
+                                    if (e.detail.targetField === 'quill_editor_insert') {
+                                        if (window.quillEditor) {
+                                            const range = window.quillEditor.getSelection();
+                                            const index = range ? range.index : window.quillEditor.getLength();
+                                            window.quillEditor.insertEmbed(index, 'image', e.detail.url);
+                                        }
                                     }
                                 });
-                            "
-                        >
-                            <textarea x-ref="editor" class="textarea textarea-bordered w-full min-h-[500px]"></textarea>
+                            </script>
                         </div>
                     </div>
+
+                    <!-- Selector specifically for Quill insert content (placed outside wire:ignore) -->
+                    <livewire:admin.components.media-selector target-field="quill_editor_insert" folder="blog_posts" headless="true" />
 
                     <div class="flex justify-end gap-3 mt-6">
                         <x-button label="Cancel" link="{{ route('admin.posts') }}" class="btn-ghost" no-wire-navigate />

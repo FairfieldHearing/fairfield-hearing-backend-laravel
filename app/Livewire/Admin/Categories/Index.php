@@ -27,14 +27,13 @@ use Toast, WithFileUploads, WithPagination;
     public ?BlogCategory $category = null;
     public string $title = '';
     public string $slug = '';
-    public $image = null;
-    public ?string $existing_image = null;
-    public string $short_description = '';
-    public string $meta_title = '';
-    public string $meta_description = '';
-    public string $json_schema = '';
-    public string $meta_keywords = '';
-    public string $canonical_url = '';
+    public ?string $image = null;
+    public ?string $short_description = null;
+    public ?string $meta_title = null;
+    public ?string $meta_description = null;
+    public ?string $json_schema = null;
+    public ?string $meta_keywords = null;
+    public ?string $canonical_url = null;
 
     public bool $drawer = false;
 
@@ -55,7 +54,7 @@ use Toast, WithFileUploads, WithPagination;
     {
         $this->resetValidation();
         $this->category = null;
-        $this->reset(['title', 'slug', 'image', 'existing_image', 'short_description', 'meta_title', 'meta_description', 'json_schema', 'meta_keywords', 'canonical_url']);
+        $this->reset(['title', 'slug', 'image', 'short_description', 'meta_title', 'meta_description', 'json_schema', 'meta_keywords', 'canonical_url']);
         $this->drawer = true;
     }
 
@@ -65,8 +64,7 @@ use Toast, WithFileUploads, WithPagination;
         $this->category = $category;
         $this->title = $category->title;
         $this->slug = $category->slug;
-        $this->image = null;
-        $this->existing_image = $category->image;
+        $this->image = $category->image;
         $this->short_description = $category->short_description ?? '';
         $this->meta_title = $category->meta_title ?? '';
         $this->meta_description = $category->meta_description ?? '';
@@ -78,10 +76,14 @@ use Toast, WithFileUploads, WithPagination;
 
     public function save(): void
     {
+        // Clean empty strings to null to pass validation
+        $this->json_schema = $this->json_schema ?: null;
+        $this->canonical_url = $this->canonical_url ?: null;
+
         $rules = [
             'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:blog_categories,slug,' . ($this->category?->id ?? 'NULL'),
-            'image' => 'nullable|image|max:2048',
+            'image' => 'nullable|string|max:255',
             'short_description' => 'nullable|string',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
@@ -92,10 +94,12 @@ use Toast, WithFileUploads, WithPagination;
 
         $this->validate($rules);
 
-        $imagePath = $this->existing_image;
+        $imageMediaId = null;
         if ($this->image) {
-            ImageHelper::compressAndResize($this->image);
-            $imagePath = $this->image->store('categories', 'public');
+            $media = \App\Models\Media::where('filepath', $this->image)->first();
+            if ($media) {
+                $imageMediaId = $media->id;
+            }
         }
 
         $decodedSchema = $this->json_schema ? json_decode($this->json_schema, true) : null;
@@ -103,7 +107,8 @@ use Toast, WithFileUploads, WithPagination;
         $data = [
             'title' => $this->title,
             'slug' => $this->slug,
-            'image' => $imagePath,
+            'image' => $this->image,
+            'image_media_id' => $imageMediaId,
             'short_description' => $this->short_description,
             'meta_title' => $this->meta_title,
             'meta_description' => $this->meta_description,

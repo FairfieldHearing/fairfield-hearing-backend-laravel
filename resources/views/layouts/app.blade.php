@@ -10,6 +10,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="shortcut icon" type="image/x-icon" href="/logo.jpeg" />
     <script src="/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 <body class="min-h-screen font-sans antialiased bg-base-200">
@@ -54,13 +56,15 @@
                         <x-menu-separator />
                     @endif
 
-                    <x-menu-item title="Dashboard" icon="o-home" link="{{ route('admin.dashboard') }}" no-wire-navigate />
+                    <x-menu-item title="Dashboard" icon="o-home" link="{{ route('admin.dashboard') }}" no-wire-navigate exact />
 
                     @can('manage-blogs')
                         <x-menu-separator />
                         <span class="text-xs text-base-content/40 px-4 pt-2 font-bold uppercase tracking-wider block">Publications</span>
                         <x-menu-item title="Blog Categories" icon="o-folder" link="{{ route('admin.categories') }}" no-wire-navigate />
                         <x-menu-item title="Blog Posts" icon="o-document-text" link="{{ route('admin.posts') }}" no-wire-navigate />
+                        <x-menu-item title="Media Manager" icon="o-photo" link="{{ route('admin.media') }}" no-wire-navigate  exact/>
+                        <x-menu-item title="Device Galleries" icon="o-squares-2x2" link="{{ route('admin.media.galleries') }}" no-wire-navigate />
                     @endcan
 
                     @can('manage-content')
@@ -69,7 +73,7 @@
                         <x-menu-item title="FAQs" icon="o-question-mark-circle" link="{{ route('admin.faqs') }}" no-wire-navigate />
                         <x-menu-item title="Locations" icon="o-map-pin" link="{{ route('admin.locations') }}" no-wire-navigate />
                         <x-menu-item title="Policy Pages" icon="o-shield-check" link="{{ route('admin.policies') }}" no-wire-navigate />
-                        <x-menu-item title="Manufacturers" icon="o-photo" link="{{ route('admin.manufacturers') }}" no-wire-navigate />
+                        <x-menu-item title="Manufacturers" icon="o-building-office" link="{{ route('admin.manufacturers') }}" no-wire-navigate />
                         <x-menu-item title="Hearing Aid Models" icon="o-sparkles" link="{{ route('admin.models') }}" no-wire-navigate />
                         <x-menu-item title="Exchange Settings" icon="o-cog-6-tooth" link="{{ route('admin.exchange_settings') }}" no-wire-navigate />
                         <x-menu-item title="Page SEO Settings" icon="o-adjustments-horizontal" link="{{ route('admin.page_settings') }}" no-wire-navigate />

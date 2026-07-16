@@ -11,9 +11,7 @@
 
 <section class="section">
   <div class="container split">
-    <div class="media-frame" style="padding: "0", "background": "transparent", "aspectRatio": "auto"">
-      <img src="assets/img/bte.svg" alt="Illustration of a behind-the-ear hearing aid" style="width: "100%", "borderRadius": "var(--radius)"" >
-    </div>
+    <x-web-device-gallery :gallery="$gallery" default="assets/img/bte.svg" alt="Behind-the-Ear (BTE) hearing aid" />
     <div>
       <span class="eyebrow">How it works</span>
       <h2>Power that sits behind the ear</h2>

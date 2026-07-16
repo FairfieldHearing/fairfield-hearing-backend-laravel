@@ -21,16 +21,15 @@ class Edit extends Component
     public int $blog_category_id;
     public string $title = '';
     public string $slug = '';
-    public string $summary = '';
-    public $featured_image;
-    public ?string $existing_featured_image = null;
+    public ?string $summary = null;
+    public ?string $featured_image = null;
     public string $content = '';
     public string $author_name = '';
-    public string $meta_title = '';
-    public string $meta_description = '';
-    public string $json_schema = '';
-    public string $meta_keywords = '';
-    public string $canonical_url = '';
+    public ?string $meta_title = null;
+    public ?string $meta_description = null;
+    public ?string $json_schema = null;
+    public ?string $meta_keywords = null;
+    public ?string $canonical_url = null;
 
     // FAQs inline management
     public array $linkedFaqs = [];
@@ -47,7 +46,7 @@ class Edit extends Component
             $this->title = $post->title;
             $this->slug = $post->slug;
             $this->summary = $post->summary ?? '';
-            $this->existing_featured_image = $post->featured_image;
+            $this->featured_image = $post->featured_image;
             $this->content = $post->content;
             $this->author_name = $post->author_name;
             $this->meta_title = $post->meta_title ?? '';
@@ -116,12 +115,16 @@ class Edit extends Component
 
     public function save(): void
     {
+        // Clean empty strings to null to pass validation
+        $this->json_schema = $this->json_schema ?: null;
+        $this->canonical_url = $this->canonical_url ?: null;
+
         $rules = [
             'blog_category_id' => 'required|exists:blog_categories,id',
             'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:blog_posts,slug,' . ($this->post?->id ?? 'NULL'),
             'summary' => 'nullable|string',
-            'featured_image' => 'nullable|image|max:4096',
+            'featured_image' => 'nullable|string|max:255',
             'content' => 'required|string',
             'author_name' => 'required|string|max:255',
             'meta_title' => 'nullable|string|max:255',
@@ -133,10 +136,12 @@ class Edit extends Component
 
         $this->validate($rules);
 
-        $imagePath = $this->existing_featured_image;
+        $featuredImageMediaId = null;
         if ($this->featured_image) {
-            ImageHelper::compressAndResize($this->featured_image);
-            $imagePath = $this->featured_image->store('blog_posts', 'public');
+            $media = \App\Models\Media::where('filepath', $this->featured_image)->first();
+            if ($media) {
+                $featuredImageMediaId = $media->id;
+            }
         }
 
         $decodedSchema = $this->json_schema ? json_decode($this->json_schema, true) : null;
@@ -146,7 +151,8 @@ class Edit extends Component
             'title' => $this->title,
             'slug' => $this->slug,
             'summary' => $this->summary,
-            'featured_image' => $imagePath,
+            'featured_image' => $this->featured_image,
+            'featured_image_media_id' => $featuredImageMediaId,
             'content' => $this->content,
             'author_name' => $this->author_name,
             'meta_title' => $this->meta_title,
@@ -158,7 +164,8 @@ class Edit extends Component
 
         if ($this->post && $this->post->exists) {
             $this->post->update($data);
-            $this->success('Post updated successfully.', position: 'toast-bottom', redirectTo: route('admin.posts'));
+            $this->success('Post updated successfully.', position: 'toast-bottom');
+            $this->redirect(route('admin.posts'), navigate: false);
         } else {
             $createdPost = BlogPost::create($data);
             // Save temporary FAQs
@@ -170,7 +177,8 @@ class Edit extends Component
                     'type' => 'blog_post'
                 ]);
             }
-            $this->success('Post created successfully.', position: 'toast-bottom', redirectTo: route('admin.posts'));
+            $this->success('Post created successfully.', position: 'toast-bottom');
+            $this->redirect(route('admin.posts'), navigate: false);
         }
     }
 

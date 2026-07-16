@@ -45,6 +45,11 @@
                     </a>
                 </li>
                 <li>
+                    <a href="/blogs" {{ request()->is('blogs') || request()->is('blogs/*') ? 'aria-current="page"' : '' }} @click="isOpen = false">
+                        Blogs
+                    </a>
+                </li>
+                <li>
                     <a href="{{ request()->is('/') ? '#clinics' : '/#clinics' }}" @click="isOpen = false">
                         Clinics
                     </a>

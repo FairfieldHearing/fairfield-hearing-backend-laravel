@@ -11,9 +11,7 @@
 
 <section class="section">
   <div class="container split">
-    <div class="media-frame" style="padding: "0", "background": "transparent", "aspectRatio": "auto"">
-      <img src="assets/img/ric.svg" alt="Illustration of a receiver-in-canal hearing aid" style="width: "100%", "borderRadius": "var(--radius)"" >
-    </div>
+    <x-web-device-gallery :gallery="$gallery" default="assets/img/ric.svg" alt="Receiver-in-Canal (RIC) hearing aid" />
     <div>
       <span class="eyebrow">How it works</span>
       <h2>Small body, speaker in the ear</h2>

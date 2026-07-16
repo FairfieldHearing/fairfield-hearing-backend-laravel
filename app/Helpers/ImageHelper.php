@@ -15,7 +15,7 @@ class ImageHelper
      * @param mixed $file The uploaded file (TemporaryUploadedFile or UploadedFile)
      * @return void
      */
-    public static function compressAndResize(mixed $file): void
+    public static function compressAndResize(mixed $file, int $maxWidth = 1000, int $maxHeight = 1000): void
     {
         if (!$file || !($file instanceof UploadedFile)) {
             return;
@@ -41,10 +41,6 @@ class ImageHelper
 
             list($width, $height, $type) = $info;
 
-            // Calculate new dimensions keeping aspect ratio
-            $maxWidth = 1000;
-            $maxHeight = 1000;
-
             $newWidth = $width;
             $newHeight = $height;
 
@@ -52,9 +48,6 @@ class ImageHelper
                 $ratio = min($maxWidth / $width, $maxHeight / $height);
                 $newWidth = (int) round($width * $ratio);
                 $newHeight = (int) round($height * $ratio);
-            } else {
-                // If the image is smaller than 1000x1000, we don't resize it, but we can still compress it.
-                // However, we only need to perform GD recreation if we want to compress it. Let's process it anyway to compress.
             }
 
             // Load image depending on type

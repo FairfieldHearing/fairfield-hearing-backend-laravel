@@ -11,9 +11,7 @@
 
 <section class="section">
   <div class="container split">
-    <div class="media-frame" style="padding: "0", "background": "transparent", "aspectRatio": "auto"">
-      <img src="assets/img/bluetooth.svg" alt="Illustration of a Bluetooth hearing aid connecting to a phone" style="width: "100%", "borderRadius": "var(--radius)"" >
-    </div>
+    <x-web-device-gallery :gallery="$gallery" default="assets/img/bluetooth.svg" alt="Bluetooth streaming hearing aids" />
     <div>
       <span class="eyebrow">How it works</span>
       <h2>Your ears, wirelessly connected</h2>
@@ -22,6 +20,8 @@
     </div>
   </div>
 </section>
+
+
 
 <section class="section section--soft">
   <div class="container center">

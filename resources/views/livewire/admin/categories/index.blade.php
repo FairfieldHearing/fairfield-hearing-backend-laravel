@@ -14,7 +14,7 @@
         <x-table :headers="$headers" :rows="$rows" :sort-by="$sortBy" with-pagination>
             @scope('cell_image', $cat)
                 @if($cat->image)
-                    <img src="{{ Storage::url($cat->image) }}" class="w-12 h-12 object-cover rounded-md" />
+                    <img src="{{ $cat->image_url }}" class="w-12 h-12 object-cover rounded-md" />
                 @else
                     <div class="w-12 h-12 bg-base-300 rounded-md flex items-center justify-center text-xs text-base-content/50">No Image</div>
                 @endif
@@ -37,13 +37,8 @@
             
             <div class="space-y-2">
                 <label class="label"><span class="label-text font-semibold">Category Image</span></label>
-                <input type="file" wire:model="image" accept="image/*" class="file-input file-input-bordered w-full" />
+                <livewire:admin.components.media-selector wire:model="image" target-field="image" folder="categories" />
                 @error('image') <span class="text-error text-xs block mt-1">{{ $message }}</span> @enderror
-                @if($image)
-                    <img src="{{ $image->temporaryUrl() }}" class="h-20 object-cover rounded-md mt-2" />
-                @elseif($existing_image)
-                    <img src="{{ Storage::url($existing_image) }}" class="h-20 object-cover rounded-md mt-2" />
-                @endif
             </div>
 
             <x-textarea label="Short Description" wire:model="short_description" rows="3" />
