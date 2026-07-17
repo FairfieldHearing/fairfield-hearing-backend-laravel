@@ -29,6 +29,11 @@ class Lead extends Model
         return $this->belongsTo(FormSubmission::class, 'form_submission_id');
     }
 
+    public function formSubmission()
+    {
+        return $this->belongsTo(FormSubmission::class, 'form_submission_id');
+    }
+
     public function assignedUser()
     {
         return $this->belongsTo(User::class, 'assigned_user_id');

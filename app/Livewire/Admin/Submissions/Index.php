@@ -50,6 +50,11 @@ class Index extends Component
 
     public function convertToTicket(FormSubmission $submission): void
     {
+        if (\App\Models\Ticket::where('form_submission_id', $submission->id)->exists()) {
+            $this->warning('This submission has already been converted to a Support Ticket.', position: 'toast-bottom');
+            return;
+        }
+
         $customer = \App\Models\Customer::firstOrCreate(
             ['email' => $submission->email ?: 'no-email@fairfield-hearing.com'],
             [
@@ -61,6 +66,7 @@ class Index extends Component
         \App\Models\Ticket::create([
             'ticket_number' => 'TCK-' . strtoupper(str()->random(6)),
             'customer_id' => $customer->id,
+            'form_submission_id' => $submission->id,
             'subject' => 'Service Inquiry: ' . ($submission->hearing_problem ?: 'General'),
             'message' => $submission->message ?: 'Raised from Form Submission.',
             'status' => 'open',
@@ -100,6 +106,7 @@ class Index extends Component
             ['key' => 'mobile_number', 'label' => 'Mobile', 'sortable' => true],
             ['key' => 'email', 'label' => 'E-mail', 'sortable' => true],
             ['key' => 'location.name', 'label' => 'Preferred Clinic', 'sortable' => false],
+            ['key' => 'status', 'label' => 'Status', 'sortable' => false],
             ['key' => 'created_at', 'label' => 'Date Received', 'sortable' => true],
         ];
     }
@@ -107,7 +114,7 @@ class Index extends Component
     public function submissions()
     {
         return FormSubmission::query()
-            ->with('location')
+            ->with(['location', 'lead', 'ticket'])
             ->when($this->search, function ($query) {
                 $query->where('full_name', 'like', '%' . $this->search . '%')
                     ->orWhere('mobile_number', 'like', '%' . $this->search . '%')

@@ -9,6 +9,16 @@
     <!-- TABLE -->
     <x-card shadow>
         <x-table :headers="$headers" :rows="$rows" :sort-by="$sortBy" with-pagination>
+            @scope('cell_status', $sub)
+                @if($sub->lead)
+                    <span class="badge badge-success text-xs font-semibold py-1 px-2">Lead</span>
+                @elseif($sub->ticket)
+                    <span class="badge badge-info text-xs font-semibold py-1 px-2">Ticket</span>
+                @else
+                    <span class="badge badge-ghost text-xs text-base-content/60 py-1 px-2">New</span>
+                @endif
+            @endscope
+
             @scope('cell_created_at', $sub)
                 {{ $sub->created_at->format('M d, Y H:i') }}
             @endscope

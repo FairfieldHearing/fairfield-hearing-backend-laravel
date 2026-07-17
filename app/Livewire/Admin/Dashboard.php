@@ -10,34 +10,6 @@ use App\Models\Ticket;
 
 class Dashboard extends Component
 {
-public array $leadChart = [];
-
-    public function mount()
-    {
-        $new = Lead::where('status', 'new')->count();
-        $contacted = Lead::where('status', 'contacted')->count();
-        $inProgress = Lead::where('status', 'in_progress')->count();
-        $won = Lead::where('status', 'won')->count();
-        $lost = Lead::where('status', 'lost')->count();
-
-        $this->leadChart = [
-            'type' => 'doughnut',
-            'data' => [
-                'labels' => ['New', 'Contacted', 'In Progress', 'Won (Purchased)', 'Lost'],
-                'datasets' => [
-                    [
-                        'label' => 'Leads Status',
-                        'data' => [$new, $contacted, $inProgress, $won, $lost],
-                        'backgroundColor' => ['#3b82f6', '#06b6d4', '#f59e0b', '#10b981', '#ef4444'],
-                    ]
-                ]
-            ],
-            'options' => [
-                'responsive' => true,
-                'maintainAspectRatio' => false,
-            ]
-        ];
-    }
 
     public function with(): array
     {
@@ -46,6 +18,13 @@ public array $leadChart = [];
             'totalSubmissions' => FormSubmission::count(),
             'totalLeads' => Lead::count(),
             'openTickets' => Ticket::where('status', 'open')->count(),
+            'totalCategories' => \App\Models\BlogCategory::count(),
+            'totalManufacturers' => \App\Models\Manufacturer::count(),
+            'totalModels' => \App\Models\HearingAidModel::count(),
+            'totalStaff' => \App\Models\User::count(),
+            'recentSubmissions' => FormSubmission::with(['location', 'lead', 'ticket'])->latest()->take(5)->get(),
+            'recentLeads' => Lead::with(['location', 'assignedUser'])->latest()->take(5)->get(),
+            'recentTickets' => Ticket::with(['customer', 'assignedUser'])->where('status', 'open')->latest()->take(5)->get(),
         ];
     }
 
@@ -53,5 +32,4 @@ public array $leadChart = [];
     {
         return view('livewire.admin.dashboard', $this->with())->layout('layouts.app');
     }
-
 }

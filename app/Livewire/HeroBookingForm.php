@@ -42,7 +42,7 @@ class HeroBookingForm extends Component
                 $locationId = $mainClinic ? $mainClinic['id'] : null;
                 $messageSuffix = "Request a home visit.";
             } else {
-                $selected = collect($this->locations)->first(fn ($l) => String($l['id']) === $this->selectedClinic || ($l['slug'] ?? '') === $this->selectedClinic);
+                $selected = collect($this->locations)->first(fn ($l) => (string)$l['id'] === $this->selectedClinic || ($l['slug'] ?? '') === $this->selectedClinic);
                 $locationId = $selected ? $selected['id'] : (collect($this->locations)->first()['id'] ?? null);
             }
 
@@ -61,7 +61,7 @@ class HeroBookingForm extends Component
             // Dispatch event for WhatsApp redirection
             $chosenClinicName = $this->selectedClinic === 'home-visit' 
                 ? "Home Visit Request" 
-                : (collect($this->locations)->first(fn($l) => String($l['id']) === $this->selectedClinic)['name'] ?? '');
+                : (collect($this->locations)->first(fn($l) => (string)$l['id'] === $this->selectedClinic)['name'] ?? '');
 
             $waMessage = "Hi Fairfield Hearing Clinic, I'd like to book a FREE hearing test.\nName: {$this->name}\nPhone: {$this->phone}\nClinic: {$chosenClinicName}";
 

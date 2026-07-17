@@ -26,4 +26,14 @@ class FormSubmission extends Model
     {
         return $this->belongsTo(ExchangeEstimate::class, 'exchange_estimate_id');
     }
+
+    public function lead()
+    {
+        return $this->hasOne(Lead::class, 'form_submission_id');
+    }
+
+    public function ticket()
+    {
+        return $this->hasOne(Ticket::class, 'form_submission_id');
+    }
 }
