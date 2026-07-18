@@ -46,3 +46,6 @@ window.CKEditorPlugins = [
     ImageResize,
     Undo
 ];
+
+// Dispatch custom event to signal CKEditor is ready
+window.dispatchEvent(new CustomEvent('ckeditor-loaded'));

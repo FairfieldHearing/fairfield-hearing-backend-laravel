@@ -165,85 +165,103 @@
                                 editor: null,
                                 content: '',
                                 initEditor() {
-                                    if (typeof window.ClassicEditor === 'undefined') {
-                                        console.error('ClassicEditor not loaded!');
-                                        return;
-                                    }
-                                    window.ClassicEditor
-                                        .create(this.$refs.editorCanvas, {
-                                            licenseKey: 'GPL',
-                                            plugins: window.CKEditorPlugins || [],
-                                            toolbar: {
-                                                items: [
-                                                    'heading', '|',
-                                                    'bold', 'italic', 'underline', 'strikethrough', '|',
-                                                    'alignment', '|',
-                                                    'bulletedList', 'numberedList', '|',
-                                                    'insertTable', '|',
-                                                    'undo', 'redo'
-                                                ]
-                                            },
-                                            heading: {
-                                                options: [
-                                                    { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
-                                                    { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
-                                                    { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' }
-                                                ]
-                                            },
-                                            table: {
-                                                contentToolbar: [
-                                                    'tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties'
-                                                ]
-                                            },
-                                            image: {
-                                                toolbar: [
-                                                    'imageStyle:inline', 'imageStyle:block', 'imageStyle:side', '|',
-                                                    'toggleImageCaption', 'imageTextAlternative', '|',
-                                                    'resizeImage'
-                                                ]
-                                            }
-                                        })
-                                        .then(editor => {
-                                            this.editor = editor;
-                                            
-                                            // Sync content to Livewire
-                                            editor.model.document.on('change:data', () => {
-                                                this.content = editor.getData();
-                                                $wire.set('content', this.content);
+                                    const doInit = () => {
+                                        if (typeof window.ClassicEditor === 'undefined') {
+                                            return false;
+                                        }
+                                        if (this.editor) {
+                                            return true;
+                                        }
+                                        window.ClassicEditor
+                                            .create(this.$refs.editorCanvas, {
+                                                licenseKey: 'GPL',
+                                                plugins: window.CKEditorPlugins || [],
+                                                toolbar: {
+                                                    items: [
+                                                        'heading', '|',
+                                                        'bold', 'italic', 'underline', 'strikethrough', '|',
+                                                        'alignment', '|',
+                                                        'bulletedList', 'numberedList', '|',
+                                                        'insertTable', '|',
+                                                        'undo', 'redo'
+                                                    ]
+                                                },
+                                                heading: {
+                                                    options: [
+                                                        { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                                                        { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                                                        { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' }
+                                                    ]
+                                                },
+                                                table: {
+                                                    contentToolbar: [
+                                                        'tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties'
+                                                    ]
+                                                },
+                                                image: {
+                                                    toolbar: [
+                                                        'imageStyle:inline', 'imageStyle:block', 'imageStyle:side', '|',
+                                                        'toggleImageCaption', 'imageTextAlternative', '|',
+                                                        'resizeImage'
+                                                    ]
+                                                }
+                                            })
+                                            .then(editor => {
+                                                this.editor = editor;
+                                                
+                                                // Sync content to Livewire
+                                                editor.model.document.on('change:data', () => {
+                                                    this.content = editor.getData();
+                                                    $wire.set('content', this.content);
+                                                });
+
+                                                // Listen for media selector events
+                                                const handleSelection = (e) => {
+                                                    let payload = null;
+                                                    if (e && e.detail) {
+                                                        payload = Array.isArray(e.detail) ? e.detail[0] : (e.detail.detail ? e.detail.detail : e.detail);
+                                                    } else if (e) {
+                                                        payload = Array.isArray(e) ? e[0] : e;
+                                                    }
+
+                                                    if (payload && payload.targetField === 'custom_editor_insert') {
+                                                        let imageUrl = payload.url;
+                                                        if (!imageUrl && payload.filepath) {
+                                                            imageUrl = payload.filepath.startsWith('assets/') || payload.filepath.startsWith('/assets/')
+                                                                ? '/' + payload.filepath.replace(/^\//, '')
+                                                                : '/storage/' + payload.filepath;
+                                                        }
+
+                                                        if (imageUrl && this.editor) {
+                                                            this.editor.focus();
+                                                            this.editor.execute('insertImage', { source: imageUrl });
+                                                        }
+                                                    }
+                                                };
+
+                                                window.addEventListener('media-selected', handleSelection);
+                                                if (typeof Livewire !== 'undefined') {
+                                                    Livewire.on('media-selected', handleSelection);
+                                                }
+                                            })
+                                            .catch(error => {
+                                                console.error(error);
                                             });
+                                        return true;
+                                    };
 
-                                            // Listen for media selector events
-                                            const handleSelection = (e) => {
-                                                let payload = null;
-                                                if (e && e.detail) {
-                                                    payload = Array.isArray(e.detail) ? e.detail[0] : (e.detail.detail ? e.detail.detail : e.detail);
-                                                } else if (e) {
-                                                    payload = Array.isArray(e) ? e[0] : e;
-                                                }
-
-                                                if (payload && payload.targetField === 'custom_editor_insert') {
-                                                    let imageUrl = payload.url;
-                                                    if (!imageUrl && payload.filepath) {
-                                                        imageUrl = payload.filepath.startsWith('assets/') || payload.filepath.startsWith('/assets/')
-                                                            ? '/' + payload.filepath.replace(/^\//, '')
-                                                            : '/storage/' + payload.filepath;
-                                                    }
-
-                                                    if (imageUrl && this.editor) {
-                                                        this.editor.focus();
-                                                        this.editor.execute('insertImage', { source: imageUrl });
-                                                    }
-                                                }
-                                            };
-
-                                            window.addEventListener('media-selected', handleSelection);
-                                            if (typeof Livewire !== 'undefined') {
-                                                Livewire.on('media-selected', handleSelection);
+                                    if (!doInit()) {
+                                        const interval = setInterval(() => {
+                                            if (doInit()) {
+                                                clearInterval(interval);
                                             }
-                                        })
-                                        .catch(error => {
-                                            console.error(error);
-                                        });
+                                        }, 100);
+                                        window.addEventListener('ckeditor-loaded', () => {
+                                            if (doInit()) {
+                                                clearInterval(interval);
+                                            }
+                                        }, { once: true });
+                                    }
                                 }
                             }"
                             x-init="initEditor()"
