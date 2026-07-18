@@ -1,4 +1,64 @@
 <div>
+    <style>
+        .ql-editor {
+            font-size: 17px !important;
+            line-height: 1.8 !important;
+            color: #333333 !important;
+            font-family: 'Inter', sans-serif !important;
+        }
+        .ql-editor h2 {
+            font-family: 'Lora', 'Playfair Display', serif !important;
+            font-size: 28px !important;
+            margin: 40px 0 20px 0 !important;
+            color: #111111 !important;
+            font-weight: 600 !important;
+        }
+        .ql-editor h3 {
+            font-family: 'Inter', sans-serif !important;
+            font-size: 20px !important;
+            font-weight: 700 !important;
+            margin: 30px 0 15px 0 !important;
+            color: #111111 !important;
+            border-left: 3px solid #a8cf45 !important;
+            padding-left: 10px !important;
+        }
+        .ql-editor p {
+            margin-bottom: 20px !important;
+        }
+        .ql-editor ul, .ql-editor ol {
+            padding-left: 20px !important;
+            margin-bottom: 25px !important;
+        }
+        .ql-editor li {
+            margin-bottom: 10px !important;
+            padding-left: 5px !important;
+        }
+        .ql-editor table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            font-size: 15px !important;
+            margin: 25px 0 !important;
+            background: #ffffff !important;
+            border: 1px solid #e0e0e0 !important;
+            border-radius: 8px !important;
+        }
+        .ql-editor th {
+            background-color: #111111 !important;
+            color: #ffffff !important;
+            padding: 12px 16px !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+        }
+        .ql-editor td {
+            padding: 12px 16px !important;
+            border-bottom: 1px solid #eeeeee !important;
+            color: #333333 !important;
+        }
+        .ql-editor tbody tr:nth-child(even) {
+            background-color: #fcfdf9 !important;
+        }
+    </style>
+
     <!-- HEADER -->
     <x-header title="{{ $post ? 'Edit Post: ' . $post->title : 'Create New Blog Post' }}" subtitle="Write and customize your article settings" separator progress-indicator>
         <x-slot:actions>
