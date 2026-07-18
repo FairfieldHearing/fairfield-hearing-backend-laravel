@@ -90,9 +90,12 @@
                     <div class="space-y-2" wire:ignore wire:key="post-content-editor-wrapper">
                         <label class="label"><span class="label-text font-semibold">Content (Rich Text Editor)</span></label>
                         
+                        <!-- Safe JSON script block to pass database content to Alpine/Quill without HTML attribute quote collisions -->
+                        <script id="quill-content-source" type="application/json">{!! json_encode($content) !!}</script>
+
                         <div 
                             x-data="{
-                                initQuill(initialContent) {
+                                initQuill() {
                                     window.quillEditor = new Quill(this.$refs.quillCanvas, {
                                         theme: 'snow',
                                         modules: {
@@ -113,8 +116,9 @@
                                         window.dispatchEvent(new CustomEvent('open-media-selector-quill_editor_insert'));
                                     });
 
-                                    // Set initial content from parameter
-                                    window.quillEditor.root.innerHTML = initialContent || '';
+                                    // Safely read and parse initial content from the JSON script block
+                                    const initialVal = JSON.parse(document.getElementById('quill-content-source').textContent);
+                                    window.quillEditor.root.innerHTML = initialVal || '';
 
                                     // Sync content back to Livewire on changes
                                     window.quillEditor.on('text-change', () => {
@@ -129,7 +133,7 @@
                                     });
                                 }
                             }"
-                            x-init="initQuill(@js($content))"
+                            x-init="initQuill()"
                             class="bg-base-100 rounded-lg border border-base-300 overflow-hidden"
                         >
                             <div x-ref="quillCanvas" class="min-h-[400px]"></div>
