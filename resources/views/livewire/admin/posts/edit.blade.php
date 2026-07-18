@@ -11,7 +11,7 @@
         <!-- MAIN FORM -->
         <div class="lg:col-span-2 space-y-6">
             <x-card shadow class="bg-base-100">
-                <x-form wire:submit="save" x-on:submit="if (window.quillEditor) { $wire.set('content', window.quillEditor.root.innerHTML); }">
+                <x-form wire:submit="save">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <x-select label="Category" wire:model="blog_category_id" :options="$categories" option-value="id" option-label="title" required />
                         <x-input label="Author Name" wire:model="author_name" required />
@@ -31,8 +31,19 @@
                     <div class="space-y-2">
                         <!-- Load open-source TinyMCE CDN -->
                         <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js" referrerpolicy="origin"></script>
-                        <x-editor wire:model="content" label="Content" gpl-license />
+                        <x-editor 
+                            wire:model="content" 
+                            label="Content" 
+                            gpl-license 
+                            :config="[
+                                'plugins' => 'custom_image_plugin',
+                                'toolbar' => 'undo redo | align bullist numlist | outdent indent | custom_image quicktable'
+                            ]"
+                        />
                     </div>
+
+                    <!-- Headless Selector for Editor Image Insertion -->
+                    <livewire:admin.components.media-selector target-field="custom_editor_insert" folder="blog_posts" headless="true" />
 
                     <div class="flex justify-end gap-3 mt-6">
                         <x-button label="Cancel" link="{{ route('admin.posts') }}" class="btn-ghost" no-wire-navigate />
@@ -84,3 +95,57 @@
         </div>
     </div>
 </div>
+
+<script>
+    // Register custom image manager plugin on TinyMCE statically
+    if (typeof window.tinymce === 'undefined') {
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof window.tinymce !== 'undefined') {
+                registerTinyMceImagePlugin();
+            }
+        });
+    } else {
+        registerTinyMceImagePlugin();
+    }
+
+    function registerTinyMceImagePlugin() {
+        window.tinymce.PluginManager.add('custom_image_plugin', function(editor) {
+            editor.ui.registry.addButton('custom_image', {
+                icon: 'image',
+                tooltip: 'Insert Image from Media Manager',
+                onAction: function () {
+                    window.activeTinyMceEditor = editor;
+                    window.dispatchEvent(new CustomEvent('open-media-selector-custom_editor_insert'));
+                }
+            });
+        });
+    }
+
+    // Connect custom Media Selector events to TinyMCE
+    const handleTinyMceMedia = (e) => {
+        let payload = null;
+        if (e && e.detail) {
+            payload = Array.isArray(e.detail) ? e.detail[0] : (e.detail.detail ? e.detail.detail : e.detail);
+        } else if (e) {
+            payload = Array.isArray(e) ? e[0] : e;
+        }
+
+        if (payload && payload.targetField === 'custom_editor_insert') {
+            let imageUrl = payload.url;
+            if (!imageUrl && payload.filepath) {
+                imageUrl = payload.filepath.startsWith('assets/') || payload.filepath.startsWith('/assets/')
+                    ? '/' + payload.filepath.replace(/^\//, '')
+                    : '/storage/' + payload.filepath;
+            }
+
+            if (imageUrl && window.activeTinyMceEditor) {
+                window.activeTinyMceEditor.insertContent(`<img src="${imageUrl}" alt="" style="max-width: 100%; height: auto;" />`);
+            }
+        }
+    };
+
+    window.addEventListener('media-selected', handleTinyMceMedia);
+    if (typeof Livewire !== 'undefined') {
+        Livewire.on('media-selected', handleTinyMceMedia);
+    }
+</script>
