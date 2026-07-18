@@ -383,75 +383,78 @@
                             @click.away="selectedCell = null; selectedTable = null; selectedImg = null;"
                             class="bg-base-100 rounded-lg border border-base-300 overflow-hidden flex flex-col"
                         >
-                            <!-- MAIN TOOLBAR -->
-                            <div class="flex flex-wrap items-center gap-1.5 p-2 bg-base-200 border-b border-base-300">
-                                <button type="button" @click="exec('bold')" class="btn btn-sm btn-ghost p-2" title="Bold"><i class="bi bi-type-bold"></i></button>
-                                <button type="button" @click="exec('italic')" class="btn btn-sm btn-ghost p-2" title="Italic"><i class="bi bi-type-italic"></i></button>
-                                <button type="button" @click="exec('underline')" class="btn btn-sm btn-ghost p-2" title="Underline"><i class="bi bi-type-underline"></i></button>
-                                <button type="button" @click="exec('strikeThrough')" class="btn btn-sm btn-ghost p-2" title="Strikethrough"><i class="bi bi-type-strikethrough"></i></button>
-                                
-                                <div class="w-px h-6 bg-base-300 mx-1"></div>
+                            <!-- STICKY TOOLBAR HEADER -->
+                            <div class="sticky top-0 z-[45] bg-base-200 border-b border-base-300 flex flex-col shadow-sm">
+                                <!-- MAIN TOOLBAR -->
+                                <div class="flex flex-wrap items-center gap-1.5 p-2 bg-base-200">
+                                    <button type="button" @click="exec('bold')" class="btn btn-sm btn-ghost p-2" title="Bold"><i class="bi bi-type-bold"></i></button>
+                                    <button type="button" @click="exec('italic')" class="btn btn-sm btn-ghost p-2" title="Italic"><i class="bi bi-type-italic"></i></button>
+                                    <button type="button" @click="exec('underline')" class="btn btn-sm btn-ghost p-2" title="Underline"><i class="bi bi-type-underline"></i></button>
+                                    <button type="button" @click="exec('strikeThrough')" class="btn btn-sm btn-ghost p-2" title="Strikethrough"><i class="bi bi-type-strikethrough"></i></button>
+                                    
+                                    <div class="w-px h-6 bg-base-300 mx-1"></div>
 
-                                <button type="button" @click="exec('formatBlock', '<h2>')" class="btn btn-sm btn-ghost text-xs font-bold px-2.5" title="Heading 2">H2</button>
-                                <button type="button" @click="exec('formatBlock', '<h3>')" class="btn btn-sm btn-ghost text-xs font-bold px-2.5" title="Heading 3">H3</button>
-                                <button type="button" @click="exec('formatBlock', '<p>')" class="btn btn-sm btn-ghost p-2" title="Normal text"><i class="bi bi-file-text"></i></button>
+                                    <button type="button" @click="exec('formatBlock', '<h2>')" class="btn btn-sm btn-ghost text-xs font-bold px-2.5" title="Heading 2">H2</button>
+                                    <button type="button" @click="exec('formatBlock', '<h3>')" class="btn btn-sm btn-ghost text-xs font-bold px-2.5" title="Heading 3">H3</button>
+                                    <button type="button" @click="exec('formatBlock', '<p>')" class="btn btn-sm btn-ghost p-2" title="Normal text"><i class="bi bi-file-text"></i></button>
 
-                                <div class="w-px h-6 bg-base-300 mx-1"></div>
+                                    <div class="w-px h-6 bg-base-300 mx-1"></div>
 
-                                <button type="button" @click="exec('justifyLeft')" class="btn btn-sm btn-ghost p-2" title="Align Left"><i class="bi bi-align-left"></i></button>
-                                <button type="button" @click="exec('justifyCenter')" class="btn btn-sm btn-ghost p-2" title="Align Center"><i class="bi bi-align-center"></i></button>
-                                <button type="button" @click="exec('justifyRight')" class="btn btn-sm btn-ghost p-2" title="Align Right"><i class="bi bi-align-right"></i></button>
+                                    <button type="button" @click="exec('justifyLeft')" class="btn btn-sm btn-ghost p-2" title="Align Left"><i class="bi bi-align-left"></i></button>
+                                    <button type="button" @click="exec('justifyCenter')" class="btn btn-sm btn-ghost p-2" title="Align Center"><i class="bi bi-align-center"></i></button>
+                                    <button type="button" @click="exec('justifyRight')" class="btn btn-sm btn-ghost p-2" title="Align Right"><i class="bi bi-align-right"></i></button>
 
-                                <div class="w-px h-6 bg-base-300 mx-1"></div>
+                                    <div class="w-px h-6 bg-base-300 mx-1"></div>
 
-                                <button type="button" @click="exec('insertUnorderedList')" class="btn btn-sm btn-ghost p-2" title="Bullet List"><i class="bi bi-list-ul"></i></button>
-                                <button type="button" @click="exec('insertOrderedList')" class="btn btn-sm btn-ghost p-2" title="Numbered List"><i class="bi bi-list-ol"></i></button>
-                                
-                                <div class="w-px h-6 bg-base-300 mx-1"></div>
+                                    <button type="button" @click="exec('insertUnorderedList')" class="btn btn-sm btn-ghost p-2" title="Bullet List"><i class="bi bi-list-ul"></i></button>
+                                    <button type="button" @click="exec('insertOrderedList')" class="btn btn-sm btn-ghost p-2" title="Numbered List"><i class="bi bi-list-ol"></i></button>
+                                    
+                                    <div class="w-px h-6 bg-base-300 mx-1"></div>
 
-                                <button type="button" @click="saveSelection(); window.dispatchEvent(new CustomEvent('open-media-selector-custom_editor_insert'))" class="btn btn-sm btn-ghost p-2" title="Insert Image">
-                                    <i class="bi bi-image"></i>
-                                </button>
-                                <button type="button" @click="insertTable()" class="btn btn-sm btn-ghost p-2" title="Insert Table">
-                                    <i class="bi bi-table"></i>
-                                </button>
+                                    <button type="button" @click="saveSelection(); window.dispatchEvent(new CustomEvent('open-media-selector-custom_editor_insert'))" class="btn btn-sm btn-ghost p-2" title="Insert Image">
+                                        <i class="bi bi-image"></i>
+                                    </button>
+                                    <button type="button" @click="insertTable()" class="btn btn-sm btn-ghost p-2" title="Insert Table">
+                                        <i class="bi bi-table"></i>
+                                    </button>
 
-                                <button type="button" @click="exec('removeFormat')" class="btn btn-sm btn-ghost p-2" title="Clear Formatting">
-                                    <i class="bi bi-eraser"></i>
-                                </button>
+                                    <button type="button" @click="exec('removeFormat')" class="btn btn-sm btn-ghost p-2" title="Clear Formatting">
+                                        <i class="bi bi-eraser"></i>
+                                    </button>
+                                </div>
+
+                                <!-- DYNAMIC TABLE SUB-TOOLBAR (Visible only when cell is focused) -->
+                                <template x-if="selectedCell && selectedTable">
+                                    <div class="flex flex-wrap items-center gap-1.5 p-2 bg-info/10 border-t border-base-300 text-xs text-info-content">
+                                        <span class="font-semibold mr-1"><i class="bi bi-table mr-1"></i> Table Settings:</span>
+                                        <button type="button" @click="addRow(false)" class="btn btn-xs btn-outline btn-info gap-1"><i class="bi bi-arrow-bar-up"></i> + Row Above</button>
+                                        <button type="button" @click="addRow(true)" class="btn btn-xs btn-outline btn-info gap-1"><i class="bi bi-arrow-bar-down"></i> + Row Below</button>
+                                        <button type="button" @click="addColumn(false)" class="btn btn-xs btn-outline btn-info gap-1"><i class="bi bi-arrow-bar-left"></i> + Col Left</button>
+                                        <button type="button" @click="addColumn(true)" class="btn btn-xs btn-outline btn-info gap-1"><i class="bi bi-arrow-bar-right"></i> + Col Right</button>
+                                        <div class="w-px h-4 bg-base-300 mx-1"></div>
+                                        <button type="button" @click="deleteRow()" class="btn btn-xs btn-outline btn-error gap-1"><i class="bi bi-trash"></i> Row</button>
+                                        <button type="button" @click="deleteColumn()" class="btn btn-xs btn-outline btn-error gap-1"><i class="bi bi-trash"></i> Col</button>
+                                        <button type="button" @click="deleteTable()" class="btn btn-xs btn-error gap-1 ml-auto"><i class="bi bi-trash3-fill"></i> Delete Table</button>
+                                    </div>
+                                </template>
+
+                                <!-- DYNAMIC IMAGE SUB-TOOLBAR (Visible only when image is focused) -->
+                                <template x-if="selectedImg">
+                                    <div class="flex flex-wrap items-center gap-1.5 p-2 bg-success/10 border-t border-base-300 text-xs text-success-content">
+                                        <span class="font-semibold mr-1"><i class="bi bi-image mr-1"></i> Image Settings:</span>
+                                        <button type="button" @click="resizeImg(25)" class="btn btn-xs btn-outline btn-success">25% Width</button>
+                                        <button type="button" @click="resizeImg(50)" class="btn btn-xs btn-outline btn-success">50% Width</button>
+                                        <button type="button" @click="resizeImg(75)" class="btn btn-xs btn-outline btn-success">75% Width</button>
+                                        <button type="button" @click="resizeImg(100)" class="btn btn-xs btn-outline btn-success">100% Width</button>
+                                        <div class="w-px h-4 bg-base-300 mx-1"></div>
+                                        <button type="button" @click="alignImg('left')" class="btn btn-xs btn-outline btn-success gap-1"><i class="bi bi-justify-left"></i> Align Left</button>
+                                        <button type="button" @click="alignImg('center')" class="btn btn-xs btn-outline btn-success gap-1"><i class="bi bi-justify"></i> Align Center</button>
+                                        <button type="button" @click="alignImg('right')" class="btn btn-xs btn-outline btn-success gap-1"><i class="bi bi-justify-right"></i> Align Right</button>
+                                        <div class="w-px h-4 bg-base-300 mx-1"></div>
+                                        <button type="button" @click="deleteImg()" class="btn btn-xs btn-error gap-1 ml-auto"><i class="bi bi-trash"></i> Delete Image</button>
+                                    </div>
+                                </template>
                             </div>
-
-                            <!-- DYNAMIC TABLE SUB-TOOLBAR (Visible only when cell is focused) -->
-                            <template x-if="selectedCell && selectedTable">
-                                <div class="flex flex-wrap items-center gap-1.5 p-2 bg-info/10 border-b border-base-300 text-xs text-info-content">
-                                    <span class="font-semibold mr-1"><i class="bi bi-table mr-1"></i> Table Settings:</span>
-                                    <button type="button" @click="addRow(false)" class="btn btn-xs btn-outline btn-info gap-1"><i class="bi bi-arrow-bar-up"></i> + Row Above</button>
-                                    <button type="button" @click="addRow(true)" class="btn btn-xs btn-outline btn-info gap-1"><i class="bi bi-arrow-bar-down"></i> + Row Below</button>
-                                    <button type="button" @click="addColumn(false)" class="btn btn-xs btn-outline btn-info gap-1"><i class="bi bi-arrow-bar-left"></i> + Col Left</button>
-                                    <button type="button" @click="addColumn(true)" class="btn btn-xs btn-outline btn-info gap-1"><i class="bi bi-arrow-bar-right"></i> + Col Right</button>
-                                    <div class="w-px h-4 bg-base-300 mx-1"></div>
-                                    <button type="button" @click="deleteRow()" class="btn btn-xs btn-outline btn-error gap-1"><i class="bi bi-trash"></i> Row</button>
-                                    <button type="button" @click="deleteColumn()" class="btn btn-xs btn-outline btn-error gap-1"><i class="bi bi-trash"></i> Col</button>
-                                    <button type="button" @click="deleteTable()" class="btn btn-xs btn-error gap-1 ml-auto"><i class="bi bi-trash3-fill"></i> Delete Table</button>
-                                </div>
-                            </template>
-
-                            <!-- DYNAMIC IMAGE SUB-TOOLBAR (Visible only when image is focused) -->
-                            <template x-if="selectedImg">
-                                <div class="flex flex-wrap items-center gap-1.5 p-2 bg-success/10 border-b border-base-300 text-xs text-success-content">
-                                    <span class="font-semibold mr-1"><i class="bi bi-image mr-1"></i> Image Settings:</span>
-                                    <button type="button" @click="resizeImg(25)" class="btn btn-xs btn-outline btn-success">25% Width</button>
-                                    <button type="button" @click="resizeImg(50)" class="btn btn-xs btn-outline btn-success">50% Width</button>
-                                    <button type="button" @click="resizeImg(75)" class="btn btn-xs btn-outline btn-success">75% Width</button>
-                                    <button type="button" @click="resizeImg(100)" class="btn btn-xs btn-outline btn-success">100% Width</button>
-                                    <div class="w-px h-4 bg-base-300 mx-1"></div>
-                                    <button type="button" @click="alignImg('left')" class="btn btn-xs btn-outline btn-success gap-1"><i class="bi bi-justify-left"></i> Align Left</button>
-                                    <button type="button" @click="alignImg('center')" class="btn btn-xs btn-outline btn-success gap-1"><i class="bi bi-justify"></i> Align Center</button>
-                                    <button type="button" @click="alignImg('right')" class="btn btn-xs btn-outline btn-success gap-1"><i class="bi bi-justify-right"></i> Align Right</button>
-                                    <div class="w-px h-4 bg-base-300 mx-1"></div>
-                                    <button type="button" @click="deleteImg()" class="btn btn-xs btn-error gap-1 ml-auto"><i class="bi bi-trash"></i> Delete Image</button>
-                                </div>
-                            </template>
 
                             <!-- CANVAS -->
                             <div 
