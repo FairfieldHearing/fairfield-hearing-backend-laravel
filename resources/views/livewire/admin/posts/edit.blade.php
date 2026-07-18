@@ -32,8 +32,7 @@
                         
                         <div 
                             x-data="{
-                                content: @js($content),
-                                initQuill() {
+                                initQuill(initialContent) {
                                     window.quillEditor = new Quill(this.$refs.quillCanvas, {
                                         theme: 'snow',
                                         modules: {
@@ -54,8 +53,8 @@
                                         window.dispatchEvent(new CustomEvent('open-media-selector-quill_editor_insert'));
                                     });
 
-                                    // Set initial content from Alpine component state
-                                    window.quillEditor.root.innerHTML = this.content || '';
+                                    // Set initial content from parameter
+                                    window.quillEditor.root.innerHTML = initialContent || '';
 
                                     // Sync content back to Livewire on changes
                                     window.quillEditor.on('text-change', () => {
@@ -70,7 +69,7 @@
                                     });
                                 }
                             }"
-                            x-init="initQuill()"
+                            x-init="initQuill(@js($content))"
                             class="bg-base-100 rounded-lg border border-base-300 overflow-hidden"
                         >
                             <div x-ref="quillCanvas" class="min-h-[400px]"></div>
