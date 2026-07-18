@@ -96,6 +96,11 @@
                         <div 
                             x-data="{
                                 content: '',
+                                selectedCell: null,
+                                selectedTable: null,
+                                resizingImg: null,
+                                startX: 0,
+                                startWidth: 0,
                                 initEditor() {
                                     // Load initial content from the JSON block
                                     const sourceEl = document.getElementById('custom-content-source');
@@ -111,6 +116,13 @@
                                         if (payload && payload.targetField === 'custom_editor_insert') {
                                             this.$refs.editorCanvas.focus();
                                             
+                                            // Restore selection if saved
+                                            if (this.savedRange) {
+                                                const sel = window.getSelection();
+                                                sel.removeAllRanges();
+                                                sel.addRange(this.savedRange);
+                                            }
+
                                             // Resolve target image URL
                                             let imageUrl = payload.url;
                                             if (!imageUrl && payload.filepath) {
@@ -122,14 +134,9 @@
                                             if (imageUrl) {
                                                 const imgHtml = `<img src='${imageUrl}' alt='Blog image' style='max-width:100%; height:auto; margin: 15px 0; border-radius: 8px; display: block;' />`;
                                                 
-                                                // Restore selection if saved
                                                 if (this.savedRange) {
-                                                    const sel = window.getSelection();
-                                                    sel.removeAllRanges();
-                                                    sel.addRange(this.savedRange);
                                                     document.execCommand('insertHTML', false, imgHtml);
                                                 } else {
-                                                    // Fallback: append if selection wasn't focused
                                                     this.$refs.editorCanvas.innerHTML += imgHtml;
                                                 }
                                                 this.syncContent();
@@ -175,6 +182,123 @@
                                     `;
                                     this.exec('insertHTML', tableHtml);
                                 },
+                                // Image Drag Resizing (Pan)
+                                handleImgMouseDown(e) {
+                                    if (e.target.tagName === 'IMG') {
+                                        const img = e.target;
+                                        const rect = img.getBoundingClientRect();
+                                        const mouseX = e.clientX - rect.left;
+                                        const mouseY = e.clientY - rect.top;
+                                        
+                                        // Trigger drag resize if clicking near the bottom-right corner (within 20px)
+                                        if (rect.width - mouseX < 20 && rect.height - mouseY < 20) {
+                                            e.preventDefault();
+                                            this.resizingImg = img;
+                                            this.startX = e.clientX;
+                                            this.startWidth = img.offsetWidth;
+                                            
+                                            const onMouseMove = (moveEvent) => {
+                                                if (this.resizingImg) {
+                                                    const deltaX = moveEvent.clientX - this.startX;
+                                                    const newWidth = Math.max(50, this.startWidth + deltaX);
+                                                    const canvasWidth = this.$refs.editorCanvas.offsetWidth;
+                                                    const percentWidth = Math.min(100, Math.round((newWidth / canvasWidth) * 100));
+                                                    this.resizingImg.style.width = percentWidth + '%';
+                                                    this.resizingImg.style.height = 'auto';
+                                                }
+                                            };
+                                            
+                                            const onMouseUp = () => {
+                                                this.resizingImg = null;
+                                                window.removeEventListener('mousemove', onMouseMove);
+                                                window.removeEventListener('mouseup', onMouseUp);
+                                                this.syncContent();
+                                            };
+                                            
+                                            window.addEventListener('mousemove', onMouseMove);
+                                            window.addEventListener('mouseup', onMouseUp);
+                                        }
+                                    }
+                                },
+                                handleImgMouseMove(e) {
+                                    if (e.target.tagName === 'IMG') {
+                                        const img = e.target;
+                                        const rect = img.getBoundingClientRect();
+                                        const mouseX = e.clientX - rect.left;
+                                        const mouseY = e.clientY - rect.top;
+                                        if (rect.width - mouseX < 20 && rect.height - mouseY < 20) {
+                                            img.style.cursor = 'se-resize';
+                                        } else {
+                                            img.style.cursor = 'default';
+                                        }
+                                    }
+                                },
+                                // Table dynamic rows / columns manipulation
+                                handleEditorClick(e) {
+                                    const cell = e.target.closest('td, th');
+                                    if (cell) {
+                                        this.selectedCell = cell;
+                                        this.selectedTable = cell.closest('table');
+                                    } else {
+                                        this.selectedCell = null;
+                                        this.selectedTable = null;
+                                    }
+                                },
+                                addRow(below = true) {
+                                    if (!this.selectedCell || !this.selectedTable) return;
+                                    const row = this.selectedCell.parentElement;
+                                    const rowIndex = row.rowIndex;
+                                    const targetIndex = below ? rowIndex + 1 : rowIndex;
+                                    const newRow = this.selectedTable.insertRow(targetIndex);
+                                    for (let i = 0; i < row.cells.length; i++) {
+                                        const newCell = newRow.insertCell(i);
+                                        newCell.innerHTML = 'Cell';
+                                    }
+                                    this.syncContent();
+                                },
+                                addColumn(right = true) {
+                                    if (!this.selectedCell || !this.selectedTable) return;
+                                    const cellIndex = this.selectedCell.cellIndex;
+                                    const targetIndex = right ? cellIndex + 1 : cellIndex;
+                                    for (let i = 0; i < this.selectedTable.rows.length; i++) {
+                                        const row = this.selectedTable.rows[i];
+                                        const isHeader = row.parentElement.tagName === 'THEAD' || row.cells[cellIndex].tagName === 'TH';
+                                        const newCell = document.createElement(isHeader ? 'th' : 'td');
+                                        newCell.innerHTML = isHeader ? 'Header' : 'Cell';
+                                        row.insertBefore(newCell, row.cells[targetIndex]);
+                                    }
+                                    this.syncContent();
+                                },
+                                deleteRow() {
+                                    if (!this.selectedCell || !this.selectedTable) return;
+                                    this.selectedCell.parentElement.remove();
+                                    this.selectedCell = null;
+                                    this.selectedTable = null;
+                                    this.syncContent();
+                                },
+                                deleteColumn() {
+                                    if (!this.selectedCell || !this.selectedTable) return;
+                                    const cellIndex = this.selectedCell.cellIndex;
+                                    for (let i = 0; i < this.selectedTable.rows.length; i++) {
+                                        this.selectedTable.rows[i].deleteCell(cellIndex);
+                                    }
+                                    this.selectedCell = null;
+                                    this.selectedTable = null;
+                                    this.syncContent();
+                                },
+                                deleteTable() {
+                                    if (this.selectedTable) {
+                                        const wrapper = this.selectedTable.closest('.fhc-article-table-wrapper');
+                                        if (wrapper) {
+                                            wrapper.remove();
+                                        } else {
+                                            this.selectedTable.remove();
+                                        }
+                                        this.selectedCell = null;
+                                        this.selectedTable = null;
+                                        this.syncContent();
+                                    }
+                                },
                                 syncContent() {
                                     this.content = this.$refs.editorCanvas.innerHTML;
                                     $wire.set('content', this.content);
@@ -183,52 +307,68 @@
                             x-init="initEditor()"
                             class="bg-base-100 rounded-lg border border-base-300 overflow-hidden flex flex-col"
                         >
-                            <!-- TOOLBAR -->
+                            <!-- MAIN TOOLBAR -->
                             <div class="flex flex-wrap items-center gap-1.5 p-2 bg-base-200 border-b border-base-300">
-                                <button type="button" @click="exec('bold')" class="btn btn-sm btn-ghost font-bold text-xs" title="Bold">Bold</button>
-                                <button type="button" @click="exec('italic')" class="btn btn-sm btn-ghost italic text-xs font-serif" title="Italic">Italic</button>
-                                <button type="button" @click="exec('underline')" class="btn btn-sm btn-ghost underline text-xs font-serif" title="Underline">Underline</button>
-                                <button type="button" @click="exec('strikeThrough')" class="btn btn-sm btn-ghost line-through text-xs" title="Strike">Strike</button>
+                                <button type="button" @click="exec('bold')" class="btn btn-sm btn-ghost p-2" title="Bold"><i class="bi bi-type-bold"></i></button>
+                                <button type="button" @click="exec('italic')" class="btn btn-sm btn-ghost p-2" title="Italic"><i class="bi bi-type-italic"></i></button>
+                                <button type="button" @click="exec('underline')" class="btn btn-sm btn-ghost p-2" title="Underline"><i class="bi bi-type-underline"></i></button>
+                                <button type="button" @click="exec('strikeThrough')" class="btn btn-sm btn-ghost p-2" title="Strikethrough"><i class="bi bi-type-strikethrough"></i></button>
                                 
                                 <div class="w-px h-6 bg-base-300 mx-1"></div>
 
-                                <button type="button" @click="exec('formatBlock', '<h2>')" class="btn btn-sm btn-ghost text-xs font-bold" title="H2">H2</button>
-                                <button type="button" @click="exec('formatBlock', '<h3>')" class="btn btn-sm btn-ghost text-xs font-bold" title="H3">H3</button>
-                                <button type="button" @click="exec('formatBlock', '<p>')" class="btn btn-sm btn-ghost text-xs font-bold" title="Paragraph">Normal</button>
+                                <button type="button" @click="exec('formatBlock', '<h2>')" class="btn btn-sm btn-ghost text-xs font-bold px-2.5" title="Heading 2">H2</button>
+                                <button type="button" @click="exec('formatBlock', '<h3>')" class="btn btn-sm btn-ghost text-xs font-bold px-2.5" title="Heading 3">H3</button>
+                                <button type="button" @click="exec('formatBlock', '<p>')" class="btn btn-sm btn-ghost p-2" title="Normal text"><i class="bi bi-file-text"></i></button>
 
                                 <div class="w-px h-6 bg-base-300 mx-1"></div>
 
-                                <button type="button" @click="exec('justifyLeft')" class="btn btn-sm btn-ghost text-xs" title="Align Left">Align L</button>
-                                <button type="button" @click="exec('justifyCenter')" class="btn btn-sm btn-ghost text-xs" title="Align Center">Align C</button>
-                                <button type="button" @click="exec('justifyRight')" class="btn btn-sm btn-ghost text-xs" title="Align Right">Align R</button>
+                                <button type="button" @click="exec('justifyLeft')" class="btn btn-sm btn-ghost p-2" title="Align Left"><i class="bi bi-align-left"></i></button>
+                                <button type="button" @click="exec('justifyCenter')" class="btn btn-sm btn-ghost p-2" title="Align Center"><i class="bi bi-align-center"></i></button>
+                                <button type="button" @click="exec('justifyRight')" class="btn btn-sm btn-ghost p-2" title="Align Right"><i class="bi bi-align-right"></i></button>
 
                                 <div class="w-px h-6 bg-base-300 mx-1"></div>
 
-                                <button type="button" @click="exec('insertUnorderedList')" class="btn btn-sm btn-ghost text-xs" title="Bullet List">List</button>
+                                <button type="button" @click="exec('insertUnorderedList')" class="btn btn-sm btn-ghost p-2" title="Bullet List"><i class="bi bi-list-ul"></i></button>
+                                <button type="button" @click="exec('insertOrderedList')" class="btn btn-sm btn-ghost p-2" title="Numbered List"><i class="bi bi-list-ol"></i></button>
                                 
                                 <div class="w-px h-6 bg-base-300 mx-1"></div>
 
-                                <!-- Custom Image Button -->
-                                <button type="button" @click="saveSelection(); window.dispatchEvent(new CustomEvent('open-media-selector-custom_editor_insert'))" class="btn btn-sm btn-ghost text-xs" title="Insert Image">
-                                    + Image
+                                <button type="button" @click="saveSelection(); window.dispatchEvent(new CustomEvent('open-media-selector-custom_editor_insert'))" class="btn btn-sm btn-ghost p-2" title="Insert Image">
+                                    <i class="bi bi-image"></i>
+                                </button>
+                                <button type="button" @click="insertTable()" class="btn btn-sm btn-ghost p-2" title="Insert Table">
+                                    <i class="bi bi-table"></i>
                                 </button>
 
-                                <!-- Table button -->
-                                <button type="button" @click="insertTable()" class="btn btn-sm btn-ghost text-xs" title="Insert Table">
-                                    + Table
-                                </button>
-
-                                <button type="button" @click="exec('removeFormat')" class="btn btn-sm btn-ghost text-xs" title="Clear Format">
-                                    Clear Format
+                                <button type="button" @click="exec('removeFormat')" class="btn btn-sm btn-ghost p-2" title="Clear Formatting">
+                                    <i class="bi bi-eraser"></i>
                                 </button>
                             </div>
+
+                            <!-- DYNAMIC TABLE SUB-TOOLBAR (Visible only when cell is focused) -->
+                            <template x-if="selectedCell && selectedTable">
+                                <div class="flex flex-wrap items-center gap-1.5 p-2 bg-info/10 border-b border-base-300 text-xs text-info-content">
+                                    <span class="font-semibold mr-1"><i class="bi bi-table mr-1"></i> Table Settings:</span>
+                                    <button type="button" @click="addRow(false)" class="btn btn-xs btn-outline btn-info gap-1"><i class="bi bi-arrow-bar-up"></i> + Row Above</button>
+                                    <button type="button" @click="addRow(true)" class="btn btn-xs btn-outline btn-info gap-1"><i class="bi bi-arrow-bar-down"></i> + Row Below</button>
+                                    <button type="button" @click="addColumn(false)" class="btn btn-xs btn-outline btn-info gap-1"><i class="bi bi-arrow-bar-left"></i> + Col Left</button>
+                                    <button type="button" @click="addColumn(true)" class="btn btn-xs btn-outline btn-info gap-1"><i class="bi bi-arrow-bar-right"></i> + Col Right</button>
+                                    <div class="w-px h-4 bg-base-300 mx-1"></div>
+                                    <button type="button" @click="deleteRow()" class="btn btn-xs btn-outline btn-error gap-1"><i class="bi bi-trash"></i> Row</button>
+                                    <button type="button" @click="deleteColumn()" class="btn btn-xs btn-outline btn-error gap-1"><i class="bi bi-trash"></i> Col</button>
+                                    <button type="button" @click="deleteTable()" class="btn btn-xs btn-error gap-1 ml-auto"><i class="bi bi-trash3-fill"></i> Delete Table</button>
+                                </div>
+                            </template>
 
                             <!-- CANVAS -->
                             <div 
                                 x-ref="editorCanvas"
                                 contenteditable="true"
-                                @blur="syncContent()"
-                                @keyup="syncContent()"
+                                @click="handleEditorClick($event)"
+                                @mousedown="handleImgMouseDown($event)"
+                                @mousemove="handleImgMouseMove($event)"
+                                @blur="syncContent(); selectedCell = null; selectedTable = null;"
+                                @keyup="syncContent(); handleEditorClick($event);"
                                 @paste="setTimeout(() => syncContent(), 10)"
                                 class="p-5 min-h-[400px] outline-none bg-base-100 ql-editor overflow-y-auto"
                             ></div>
