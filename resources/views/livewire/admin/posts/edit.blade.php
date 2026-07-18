@@ -400,9 +400,9 @@
 
                                     <div class="w-px h-6 bg-base-300 mx-1"></div>
 
-                                    <button type="button" @click="exec('justifyLeft')" class="btn btn-sm btn-ghost p-2" title="Align Left"><i class="bi bi-align-left"></i></button>
-                                    <button type="button" @click="exec('justifyCenter')" class="btn btn-sm btn-ghost p-2" title="Align Center"><i class="bi bi-align-center"></i></button>
-                                    <button type="button" @click="exec('justifyRight')" class="btn btn-sm btn-ghost p-2" title="Align Right"><i class="bi bi-align-right"></i></button>
+                                    <button type="button" @click="exec('justifyLeft')" class="btn btn-sm btn-ghost p-2" title="Align Left"><i class="bi bi-text-left"></i></button>
+                                    <button type="button" @click="exec('justifyCenter')" class="btn btn-sm btn-ghost p-2" title="Align Center"><i class="bi bi-text-center"></i></button>
+                                    <button type="button" @click="exec('justifyRight')" class="btn btn-sm btn-ghost p-2" title="Align Right"><i class="bi bi-text-right"></i></button>
 
                                     <div class="w-px h-6 bg-base-300 mx-1"></div>
 
@@ -447,9 +447,9 @@
                                         <button type="button" @click="resizeImg(75)" class="btn btn-xs btn-outline btn-success">75% Width</button>
                                         <button type="button" @click="resizeImg(100)" class="btn btn-xs btn-outline btn-success">100% Width</button>
                                         <div class="w-px h-4 bg-base-300 mx-1"></div>
-                                        <button type="button" @click="alignImg('left')" class="btn btn-xs btn-outline btn-success gap-1"><i class="bi bi-justify-left"></i> Align Left</button>
-                                        <button type="button" @click="alignImg('center')" class="btn btn-xs btn-outline btn-success gap-1"><i class="bi bi-justify"></i> Align Center</button>
-                                        <button type="button" @click="alignImg('right')" class="btn btn-xs btn-outline btn-success gap-1"><i class="bi bi-justify-right"></i> Align Right</button>
+                                        <button type="button" @click="alignImg('left')" class="btn btn-xs btn-outline btn-success gap-1"><i class="bi bi-text-left"></i> Align Left</button>
+                                        <button type="button" @click="alignImg('center')" class="btn btn-xs btn-outline btn-success gap-1"><i class="bi bi-text-center"></i> Align Center</button>
+                                        <button type="button" @click="alignImg('right')" class="btn btn-xs btn-outline btn-success gap-1"><i class="bi bi-text-right"></i> Align Right</button>
                                         <div class="w-px h-4 bg-base-300 mx-1"></div>
                                         <button type="button" @click="deleteImg()" class="btn btn-xs btn-error gap-1 ml-auto"><i class="bi bi-trash"></i> Delete Image</button>
                                     </div>
