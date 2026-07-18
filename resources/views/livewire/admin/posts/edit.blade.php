@@ -98,6 +98,7 @@
                                 content: '',
                                 selectedCell: null,
                                 selectedTable: null,
+                                selectedImg: null,
                                 resizingImg: null,
                                 startX: 0,
                                 startWidth: 0,
@@ -271,15 +272,51 @@
                                         }
                                     }
                                 },
+                                // Image Alignment / Sizing Options
+                                alignImg(dir) {
+                                    if (!this.selectedImg) return;
+                                    if (dir === 'left') {
+                                        this.selectedImg.style.display = 'inline-block';
+                                        this.selectedImg.style.float = 'left';
+                                        this.selectedImg.style.margin = '0 15px 15px 0';
+                                    } else if (dir === 'right') {
+                                        this.selectedImg.style.display = 'inline-block';
+                                        this.selectedImg.style.float = 'right';
+                                        this.selectedImg.style.margin = '0 0 15px 15px';
+                                    } else if (dir === 'center') {
+                                        this.selectedImg.style.display = 'block';
+                                        this.selectedImg.style.float = 'none';
+                                        this.selectedImg.style.margin = '15px auto';
+                                    }
+                                    this.syncContent();
+                                },
+                                resizeImg(percent) {
+                                    if (!this.selectedImg) return;
+                                    this.selectedImg.style.width = percent + '%';
+                                    this.selectedImg.style.height = 'auto';
+                                    this.syncContent();
+                                },
+                                deleteImg() {
+                                    if (!this.selectedImg) return;
+                                    this.selectedImg.remove();
+                                    this.selectedImg = null;
+                                    this.syncContent();
+                                },
                                 // Table dynamic rows / columns manipulation
                                 handleEditorClick(e) {
                                     const cell = e.target.closest('td, th');
                                     if (cell) {
                                         this.selectedCell = cell;
                                         this.selectedTable = cell.closest('table');
+                                        this.selectedImg = null;
+                                    } else if (e.target.tagName === 'IMG') {
+                                        this.selectedImg = e.target;
+                                        this.selectedCell = null;
+                                        this.selectedTable = null;
                                     } else {
                                         this.selectedCell = null;
                                         this.selectedTable = null;
+                                        this.selectedImg = null;
                                     }
                                 },
                                 addRow(below = true) {
@@ -343,7 +380,7 @@
                                 }
                             }"
                             x-init="initEditor()"
-                            @click.away="selectedCell = null; selectedTable = null;"
+                            @click.away="selectedCell = null; selectedTable = null; selectedImg = null;"
                             class="bg-base-100 rounded-lg border border-base-300 overflow-hidden flex flex-col"
                         >
                             <!-- MAIN TOOLBAR -->
@@ -396,6 +433,23 @@
                                     <button type="button" @click="deleteRow()" class="btn btn-xs btn-outline btn-error gap-1"><i class="bi bi-trash"></i> Row</button>
                                     <button type="button" @click="deleteColumn()" class="btn btn-xs btn-outline btn-error gap-1"><i class="bi bi-trash"></i> Col</button>
                                     <button type="button" @click="deleteTable()" class="btn btn-xs btn-error gap-1 ml-auto"><i class="bi bi-trash3-fill"></i> Delete Table</button>
+                                </div>
+                            </template>
+
+                            <!-- DYNAMIC IMAGE SUB-TOOLBAR (Visible only when image is focused) -->
+                            <template x-if="selectedImg">
+                                <div class="flex flex-wrap items-center gap-1.5 p-2 bg-success/10 border-b border-base-300 text-xs text-success-content">
+                                    <span class="font-semibold mr-1"><i class="bi bi-image mr-1"></i> Image Settings:</span>
+                                    <button type="button" @click="resizeImg(25)" class="btn btn-xs btn-outline btn-success">25% Width</button>
+                                    <button type="button" @click="resizeImg(50)" class="btn btn-xs btn-outline btn-success">50% Width</button>
+                                    <button type="button" @click="resizeImg(75)" class="btn btn-xs btn-outline btn-success">75% Width</button>
+                                    <button type="button" @click="resizeImg(100)" class="btn btn-xs btn-outline btn-success">100% Width</button>
+                                    <div class="w-px h-4 bg-base-300 mx-1"></div>
+                                    <button type="button" @click="alignImg('left')" class="btn btn-xs btn-outline btn-success gap-1"><i class="bi bi-justify-left"></i> Align Left</button>
+                                    <button type="button" @click="alignImg('center')" class="btn btn-xs btn-outline btn-success gap-1"><i class="bi bi-justify"></i> Align Center</button>
+                                    <button type="button" @click="alignImg('right')" class="btn btn-xs btn-outline btn-success gap-1"><i class="bi bi-justify-right"></i> Align Right</button>
+                                    <div class="w-px h-4 bg-base-300 mx-1"></div>
+                                    <button type="button" @click="deleteImg()" class="btn btn-xs btn-error gap-1 ml-auto"><i class="bi bi-trash"></i> Delete Image</button>
                                 </div>
                             </template>
 
