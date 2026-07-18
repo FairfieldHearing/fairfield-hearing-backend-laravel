@@ -170,41 +170,41 @@
                         >
                             <!-- TOOLBAR -->
                             <div class="flex flex-wrap items-center gap-1.5 p-2 bg-base-200 border-b border-base-300">
-                                <button type="button" @click="exec('bold')" class="btn btn-sm btn-ghost p-1" title="Bold"><x-icon name="o-bold" class="w-4 h-4" /></button>
-                                <button type="button" @click="exec('italic')" class="btn btn-sm btn-ghost p-1" title="Italic"><x-icon name="o-italic" class="w-4 h-4" /></button>
-                                <button type="button" @click="exec('underline')" class="btn btn-sm btn-ghost p-1" title="Underline"><span class="underline font-serif">U</span></button>
-                                <button type="button" @click="exec('strikeThrough')" class="btn btn-sm btn-ghost p-1" title="Strike"><span class="line-through">S</span></button>
+                                <button type="button" @click="exec('bold')" class="btn btn-sm btn-ghost font-bold text-xs" title="Bold">Bold</button>
+                                <button type="button" @click="exec('italic')" class="btn btn-sm btn-ghost italic text-xs font-serif" title="Italic">Italic</button>
+                                <button type="button" @click="exec('underline')" class="btn btn-sm btn-ghost underline text-xs font-serif" title="Underline">Underline</button>
+                                <button type="button" @click="exec('strikeThrough')" class="btn btn-sm btn-ghost line-through text-xs" title="Strike">Strike</button>
                                 
                                 <div class="w-px h-6 bg-base-300 mx-1"></div>
 
                                 <button type="button" @click="exec('formatBlock', '<h2>')" class="btn btn-sm btn-ghost text-xs font-bold" title="H2">H2</button>
                                 <button type="button" @click="exec('formatBlock', '<h3>')" class="btn btn-sm btn-ghost text-xs font-bold" title="H3">H3</button>
-                                <button type="button" @click="exec('formatBlock', '<p>')" class="btn btn-sm btn-ghost text-xs font-bold" title="Paragraph">P</button>
+                                <button type="button" @click="exec('formatBlock', '<p>')" class="btn btn-sm btn-ghost text-xs font-bold" title="Paragraph">Normal</button>
 
                                 <div class="w-px h-6 bg-base-300 mx-1"></div>
 
-                                <button type="button" @click="exec('justifyLeft')" class="btn btn-sm btn-ghost p-1" title="Align Left"><x-icon name="o-bars-3-left" class="w-4 h-4" /></button>
-                                <button type="button" @click="exec('justifyCenter')" class="btn btn-sm btn-ghost p-1" title="Align Center"><x-icon name="o-bars-3" class="w-4 h-4" /></button>
-                                <button type="button" @click="exec('justifyRight')" class="btn btn-sm btn-ghost p-1" title="Align Right"><x-icon name="o-bars-3-right" class="w-4 h-4" /></button>
+                                <button type="button" @click="exec('justifyLeft')" class="btn btn-sm btn-ghost text-xs" title="Align Left">Align L</button>
+                                <button type="button" @click="exec('justifyCenter')" class="btn btn-sm btn-ghost text-xs" title="Align Center">Align C</button>
+                                <button type="button" @click="exec('justifyRight')" class="btn btn-sm btn-ghost text-xs" title="Align Right">Align R</button>
 
                                 <div class="w-px h-6 bg-base-300 mx-1"></div>
 
-                                <button type="button" @click="exec('insertUnorderedList')" class="btn btn-sm btn-ghost p-1" title="Bullet List"><x-icon name="o-list-bullet" class="w-4 h-4" /></button>
+                                <button type="button" @click="exec('insertUnorderedList')" class="btn btn-sm btn-ghost text-xs" title="Bullet List">List</button>
                                 
                                 <div class="w-px h-6 bg-base-300 mx-1"></div>
 
                                 <!-- Custom Image Button -->
-                                <button type="button" @click="saveSelection(); window.dispatchEvent(new CustomEvent('open-media-selector-custom_editor_insert'))" class="btn btn-sm btn-ghost p-1" title="Insert Image">
-                                    <x-icon name="o-photo" class="w-4 h-4" />
+                                <button type="button" @click="saveSelection(); window.dispatchEvent(new CustomEvent('open-media-selector-custom_editor_insert'))" class="btn btn-sm btn-ghost text-xs" title="Insert Image">
+                                    + Image
                                 </button>
 
                                 <!-- Table button -->
-                                <button type="button" @click="insertTable()" class="btn btn-sm btn-ghost p-1" title="Insert Table">
-                                    <x-icon name="o-table-cells" class="w-4 h-4" />
+                                <button type="button" @click="insertTable()" class="btn btn-sm btn-ghost text-xs" title="Insert Table">
+                                    + Table
                                 </button>
 
-                                <button type="button" @click="exec('removeFormat')" class="btn btn-sm btn-ghost p-1" title="Clear Format">
-                                    <x-icon name="o-x-mark" class="w-4 h-4" />
+                                <button type="button" @click="exec('removeFormat')" class="btn btn-sm btn-ghost text-xs" title="Clear Format">
+                                    Clear Format
                                 </button>
                             </div>
 
