@@ -109,40 +109,54 @@
                                         this.$refs.editorCanvas.innerHTML = this.content;
                                     }
 
-                                    // Listen for image selection
-                                    window.addEventListener('media-selected', (e) => {
-                                        // Unpack payload depending on Livewire v3 event detail format
-                                        const payload = Array.isArray(e.detail) ? e.detail[0] : (e.detail.detail ? e.detail.detail : e.detail);
-                                        if (payload && payload.targetField === 'custom_editor_insert') {
-                                            this.$refs.editorCanvas.focus();
-                                            
-                                            // Restore selection if saved
-                                            if (this.savedRange) {
-                                                const sel = window.getSelection();
-                                                sel.removeAllRanges();
-                                                sel.addRange(this.savedRange);
-                                            }
+                                     // Listen for image selection
+                                     const handleSelection = (e) => {
+                                         // Unpack payload depending on Livewire v3 event detail format
+                                         let payload = null;
+                                         if (e && e.detail) {
+                                             payload = Array.isArray(e.detail) ? e.detail[0] : (e.detail.detail ? e.detail.detail : e.detail);
+                                         } else if (e) {
+                                             payload = Array.isArray(e) ? e[0] : e;
+                                         }
 
-                                            // Resolve target image URL
-                                            let imageUrl = payload.url;
-                                            if (!imageUrl && payload.filepath) {
-                                                imageUrl = payload.filepath.startsWith('assets/') || payload.filepath.startsWith('/assets/')
-                                                    ? '/' + payload.filepath.replace(/^\//, '')
-                                                    : '/storage/' + payload.filepath;
-                                            }
+                                         if (payload && payload.targetField === 'custom_editor_insert') {
+                                             this.$refs.editorCanvas.focus();
+                                             
+                                             // Restore selection if saved
+                                             if (this.savedRange) {
+                                                 const sel = window.getSelection();
+                                                 sel.removeAllRanges();
+                                                 sel.addRange(this.savedRange);
+                                             }
 
-                                            if (imageUrl) {
-                                                const imgHtml = `<img src='${imageUrl}' alt='Blog image' style='max-width:100%; height:auto; margin: 15px 0; border-radius: 8px; display: block;' />`;
-                                                
-                                                if (this.savedRange) {
-                                                    document.execCommand('insertHTML', false, imgHtml);
-                                                } else {
-                                                    this.$refs.editorCanvas.innerHTML += imgHtml;
-                                                }
-                                                this.syncContent();
-                                            }
-                                        }
-                                    });
+                                             // Resolve target image URL
+                                             let imageUrl = payload.url;
+                                             if (!imageUrl && payload.filepath) {
+                                                 imageUrl = payload.filepath.startsWith('assets/') || payload.filepath.startsWith('/assets/')
+                                                     ? '/' + payload.filepath.replace(/^\//, '')
+                                                     : '/storage/' + payload.filepath;
+                                             }
+
+                                             if (imageUrl) {
+                                                 const imgHtml = `<img src='${imageUrl}' alt='Blog image' style='max-width:100%; height:auto; margin: 15px 0; border-radius: 8px; display: block;' />`;
+                                                 
+                                                 if (this.savedRange) {
+                                                     document.execCommand('insertHTML', false, imgHtml);
+                                                 } else {
+                                                     this.$refs.editorCanvas.innerHTML += imgHtml;
+                                                 }
+                                                 this.syncContent();
+                                             }
+                                         }
+                                     };
+
+                                     // Support native DOM events
+                                     window.addEventListener('media-selected', handleSelection);
+
+                                     // Support Livewire v3 event dispatching system
+                                     if (typeof Livewire !== 'undefined') {
+                                         Livewire.on('media-selected', handleSelection);
+                                     }
                                 },
                                 savedRange: null,
                                 saveSelection() {
