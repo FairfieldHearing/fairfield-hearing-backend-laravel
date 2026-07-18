@@ -381,44 +381,44 @@
                             }"
                             x-init="initEditor()"
                             @click.away="selectedCell = null; selectedTable = null; selectedImg = null;"
-                            class="bg-base-100 rounded-lg border border-base-300 overflow-hidden flex flex-col"
+                            class="bg-base-100 rounded-lg border border-base-300 flex flex-col"
                         >
                             <!-- STICKY TOOLBAR HEADER -->
-                            <div class="sticky top-0 z-[45] bg-base-200 border-b border-base-300 flex flex-col shadow-sm">
+                            <div class="sticky top-0 z-[45] bg-base-200 border-b border-base-300 flex flex-col shadow-sm rounded-t-lg">
                                 <!-- MAIN TOOLBAR -->
                                 <div class="flex flex-wrap items-center gap-1.5 p-2 bg-base-200">
-                                    <button type="button" @click="exec('bold')" class="btn btn-sm btn-ghost p-2" title="Bold"><i class="bi bi-type-bold"></i></button>
-                                    <button type="button" @click="exec('italic')" class="btn btn-sm btn-ghost p-2" title="Italic"><i class="bi bi-type-italic"></i></button>
-                                    <button type="button" @click="exec('underline')" class="btn btn-sm btn-ghost p-2" title="Underline"><i class="bi bi-type-underline"></i></button>
-                                    <button type="button" @click="exec('strikeThrough')" class="btn btn-sm btn-ghost p-2" title="Strikethrough"><i class="bi bi-type-strikethrough"></i></button>
+                                    <button type="button" @click="exec('bold')" class="btn btn-ghost p-2" title="Bold"><i class="bi bi-type-bold"></i></button>
+                                    <button type="button" @click="exec('italic')" class="btn btn-ghost p-2" title="Italic"><i class="bi bi-type-italic"></i></button>
+                                    <button type="button" @click="exec('underline')" class="btn btn-ghost p-2" title="Underline"><i class="bi bi-type-underline"></i></button>
+                                    <button type="button" @click="exec('strikeThrough')" class="btn btn-ghost p-2" title="Strikethrough"><i class="bi bi-type-strikethrough"></i></button>
                                     
                                     <div class="w-px h-6 bg-base-300 mx-1"></div>
 
-                                    <button type="button" @click="exec('formatBlock', '<h2>')" class="btn btn-sm btn-ghost text-xs font-bold px-2.5" title="Heading 2">H2</button>
-                                    <button type="button" @click="exec('formatBlock', '<h3>')" class="btn btn-sm btn-ghost text-xs font-bold px-2.5" title="Heading 3">H3</button>
-                                    <button type="button" @click="exec('formatBlock', '<p>')" class="btn btn-sm btn-ghost p-2" title="Normal text"><i class="bi bi-file-text"></i></button>
+                                    <button type="button" @click="exec('formatBlock', '<h2>')" class="btn btn-ghost font-bold px-2.5" title="Heading 2">H2</button>
+                                    <button type="button" @click="exec('formatBlock', '<h3>')" class="btn btn-ghost font-bold px-2.5" title="Heading 3">H3</button>
+                                    <button type="button" @click="exec('formatBlock', '<p>')" class="btn btn-ghost p-2" title="Normal text"><i class="bi bi-file-text"></i></button>
 
                                     <div class="w-px h-6 bg-base-300 mx-1"></div>
 
-                                    <button type="button" @click="exec('justifyLeft')" class="btn btn-sm btn-ghost p-2" title="Align Left"><i class="bi bi-text-left"></i></button>
-                                    <button type="button" @click="exec('justifyCenter')" class="btn btn-sm btn-ghost p-2" title="Align Center"><i class="bi bi-text-center"></i></button>
-                                    <button type="button" @click="exec('justifyRight')" class="btn btn-sm btn-ghost p-2" title="Align Right"><i class="bi bi-text-right"></i></button>
+                                    <button type="button" @click="exec('justifyLeft')" class="btn btn-ghost p-2" title="Align Left"><i class="bi bi-text-left"></i></button>
+                                    <button type="button" @click="exec('justifyCenter')" class="btn btn-ghost p-2" title="Align Center"><i class="bi bi-text-center"></i></button>
+                                    <button type="button" @click="exec('justifyRight')" class="btn btn-ghost p-2" title="Align Right"><i class="bi bi-text-right"></i></button>
 
                                     <div class="w-px h-6 bg-base-300 mx-1"></div>
 
-                                    <button type="button" @click="exec('insertUnorderedList')" class="btn btn-sm btn-ghost p-2" title="Bullet List"><i class="bi bi-list-ul"></i></button>
-                                    <button type="button" @click="exec('insertOrderedList')" class="btn btn-sm btn-ghost p-2" title="Numbered List"><i class="bi bi-list-ol"></i></button>
+                                    <button type="button" @click="exec('insertUnorderedList')" class="btn btn-ghost p-2" title="Bullet List"><i class="bi bi-list-ul"></i></button>
+                                    <button type="button" @click="exec('insertOrderedList')" class="btn btn-ghost p-2" title="Numbered List"><i class="bi bi-list-ol"></i></button>
                                     
                                     <div class="w-px h-6 bg-base-300 mx-1"></div>
 
-                                    <button type="button" @click="saveSelection(); window.dispatchEvent(new CustomEvent('open-media-selector-custom_editor_insert'))" class="btn btn-sm btn-ghost p-2" title="Insert Image">
+                                    <button type="button" @click="saveSelection(); window.dispatchEvent(new CustomEvent('open-media-selector-custom_editor_insert'))" class="btn btn-ghost p-2" title="Insert Image">
                                         <i class="bi bi-image"></i>
                                     </button>
-                                    <button type="button" @click="insertTable()" class="btn btn-sm btn-ghost p-2" title="Insert Table">
+                                    <button type="button" @click="insertTable()" class="btn btn-ghost p-2" title="Insert Table">
                                         <i class="bi bi-table"></i>
                                     </button>
 
-                                    <button type="button" @click="exec('removeFormat')" class="btn btn-sm btn-ghost p-2" title="Clear Formatting">
+                                    <button type="button" @click="exec('removeFormat')" class="btn btn-ghost p-2" title="Clear Formatting">
                                         <i class="bi bi-eraser"></i>
                                     </button>
                                 </div>
@@ -466,7 +466,7 @@
                                 @blur="syncContent();"
                                 @keyup="syncContent(); handleEditorClick($event);"
                                 @paste="setTimeout(() => syncContent(), 10)"
-                                class="p-5 min-h-[400px] outline-none bg-base-100 ql-editor overflow-y-auto"
+                                class="p-5 min-h-[400px] outline-none bg-base-100 ql-editor overflow-y-auto rounded-b-lg"
                             ></div>
                         </div>
                     </div>
