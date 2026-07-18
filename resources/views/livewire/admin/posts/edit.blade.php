@@ -120,15 +120,10 @@
                                     const initialVal = JSON.parse(document.getElementById('quill-content-source').textContent);
                                     window.quillEditor.root.innerHTML = initialVal || '';
 
-                                    // Sync content back to Livewire on changes
-                                    window.quillEditor.on('text-change', () => {
-                                        $wire.set('content', window.quillEditor.root.innerHTML);
-                                    });
-
-                                    // Watch for external content updates from the server
-                                    $watch('$wire.content', (newVal) => {
-                                        if (!window.quillEditor.hasFocus() && window.quillEditor.root.innerHTML !== newVal) {
-                                            window.quillEditor.root.innerHTML = newVal || '';
+                                    // Sync content back to Livewire only when editor loses focus (blur)
+                                    window.quillEditor.on('selection-change', (range) => {
+                                        if (range === null) {
+                                            $wire.set('content', window.quillEditor.root.innerHTML);
                                         }
                                     });
                                 }
