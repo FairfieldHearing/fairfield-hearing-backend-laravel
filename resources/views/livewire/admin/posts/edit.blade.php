@@ -1,5 +1,4 @@
 <div>
-    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/super-build/ckeditor.js"></script>
     <style>
         .ck-editor__editable_inline {
             min-height: 450px;
@@ -25,7 +24,7 @@
             padding-left: 10px !important;
         }
         .ck-editor__editable_inline p {
-            margin-bottom: 20px !important;
+            margin-bottom: 14px !important;
         }
         /* Custom overrides to match blog theme comparison table */
         .ck-editor__editable_inline table {
@@ -91,7 +90,7 @@
             padding-left: 10px !important;
         }
         .ql-editor p {
-            margin-bottom: 20px !important;
+            margin-bottom: 14px !important;
         }
         .ql-editor ul, .ql-editor ol {
             padding-left: 20px !important;
@@ -166,8 +165,14 @@
                                 editor: null,
                                 content: '',
                                 initEditor() {
-                                    CKEDITOR.ClassicEditor
+                                    if (typeof window.ClassicEditor === 'undefined') {
+                                        console.error('ClassicEditor not loaded!');
+                                        return;
+                                    }
+                                    window.ClassicEditor
                                         .create(this.$refs.editorCanvas, {
+                                            licenseKey: 'GPL',
+                                            plugins: window.CKEditorPlugins || [],
                                             toolbar: {
                                                 items: [
                                                     'heading', '|',
@@ -196,21 +201,11 @@
                                                     'toggleImageCaption', 'imageTextAlternative', '|',
                                                     'resizeImage'
                                                 ]
-                                            },
-                                            removePlugins: [
-                                                'AIAssistant', 'CKBox', 'CKFinder', 'EasyImage', 'RealTimeCollaborativeComments', 'RealTimeCollaborativeTrackChanges', 'RealTimeCollaborativeRevisionHistory', 'PresenceList', 'Comments', 'TrackChanges', 'TrackChangesDataTemplates', 'RevisionHistory', 'Pagination', 'WProofreader', 'MathType', 'SlashCommand', 'Template', 'DocumentOutline', 'FormatPainter', 'TableOfContents', 'ExportPdf', 'ExportWord', 'ImportWord'
-                                            ]
+                                            }
                                         })
                                         .then(editor => {
                                             this.editor = editor;
                                             
-                                            // Load initial content
-                                            const sourceEl = document.getElementById('custom-content-source');
-                                            if (sourceEl) {
-                                                const initialContent = JSON.parse(sourceEl.textContent) || '';
-                                                editor.setData(initialContent);
-                                            }
-
                                             // Sync content to Livewire
                                             editor.model.document.on('change:data', () => {
                                                 this.content = editor.getData();
@@ -263,7 +258,7 @@
                             </div>
                             
                             <!-- Canvas Target -->
-                            <div x-ref="editorCanvas" class="border border-base-300 rounded-b-lg"></div>
+                            <div x-ref="editorCanvas" class="border border-base-300 rounded-b-lg">{!! $content !!}</div>
                         </div>
                     </div>
 
