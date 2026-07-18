@@ -1683,18 +1683,19 @@ ul {
             background: #ffffff;
         }
         .fhc-article-table th {
-            background-color: #587f2e;
+            background-color: #111111;
             color: #ffffff;
             padding: 14px 18px;
-            font-weight: 700;
-            font-size: 15px;
-            border: 1px solid #e0e0e0;
+            font-weight: 600;
+            font-size: 14px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
         .fhc-article-table td {
             padding: 14px 18px;
-            border: 1px solid #e0e0e0;
+            border-bottom: 1px solid #eeeeee;
             color: #333333;
-            font-weight: 400;
+            font-weight: 500;
         }
         /* Zebra Striping */
         .fhc-article-table tbody tr:nth-child(even) {
@@ -1706,7 +1707,7 @@ ul {
             transition: background-color 0.2s ease;
         }
         .fhc-article-table tr:last-child td {
-            border-bottom: 1px solid #e0e0e0;
+            border-bottom: none;
         }
         /* Highlighting Price Text */
         .fhc-article-price-text {
