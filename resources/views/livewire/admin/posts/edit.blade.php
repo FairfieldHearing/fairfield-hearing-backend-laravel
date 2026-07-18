@@ -319,6 +319,7 @@
                                 }
                             }"
                             x-init="initEditor()"
+                            @click.away="selectedCell = null; selectedTable = null;"
                             class="bg-base-100 rounded-lg border border-base-300 overflow-hidden flex flex-col"
                         >
                             <!-- MAIN TOOLBAR -->
@@ -381,7 +382,7 @@
                                 @click="handleEditorClick($event)"
                                 @mousedown="handleImgMouseDown($event)"
                                 @mousemove="handleImgMouseMove($event)"
-                                @blur="syncContent(); selectedCell = null; selectedTable = null;"
+                                @blur="syncContent();"
                                 @keyup="syncContent(); handleEditorClick($event);"
                                 @paste="setTimeout(() => syncContent(), 10)"
                                 class="p-5 min-h-[400px] outline-none bg-base-100 ql-editor overflow-y-auto"
