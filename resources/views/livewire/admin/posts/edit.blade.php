@@ -30,11 +30,9 @@
                     <div class="space-y-2" wire:ignore wire:key="post-content-editor-wrapper">
                         <label class="label"><span class="label-text font-semibold">Content (Rich Text Editor)</span></label>
                         
-                        <!-- Hidden textarea to safely hold the initial HTML content -->
-                        <textarea id="quill-initial-content" class="hidden">{!! e($content) !!}</textarea>
-
                         <div 
                             x-data="{
+                                content: @js($content),
                                 initQuill() {
                                     window.quillEditor = new Quill(this.$refs.quillCanvas, {
                                         theme: 'snow',
@@ -56,9 +54,8 @@
                                         window.dispatchEvent(new CustomEvent('open-media-selector-quill_editor_insert'));
                                     });
 
-                                    // Set initial content from the hidden textarea value (safely handles HTML encoding/decoding)
-                                    const initialVal = document.getElementById('quill-initial-content').value;
-                                    window.quillEditor.root.innerHTML = initialVal || '';
+                                    // Set initial content from Alpine component state
+                                    window.quillEditor.root.innerHTML = this.content || '';
 
                                     // Sync content back to Livewire on changes
                                     window.quillEditor.on('text-change', () => {

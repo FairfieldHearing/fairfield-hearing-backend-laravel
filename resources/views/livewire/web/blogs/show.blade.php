@@ -46,6 +46,24 @@
                         {!! $post['content'] !!}
                     </div>
 
+                    <!-- Call To Action Banner -->
+                    <div class="blog-cta-banner" style="background-color: var(--green-dark, #445e15); border-radius: 12px; padding: clamp(20px, 4vw, 36px); margin-top: 40px; margin-bottom: 40px; color: #ffffff; display: flex; flex-direction: column; align-items: center; text-align: center;">
+                        <div class="blog-cta-banner__content" style="max-width: 800px; width: 100%; display: flex; flex-direction: column; align-items: center;">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px; text-align: center; justify-content: center;">
+                                <div style="width: 4px; height: 28px; background-color: var(--lime, #aacc00); border-radius: 2px; flex-shrink: 0;"></div>
+                                <h3 style="color: #ffffff; font-family: var(--font-body); font-weight: 700; font-size: clamp(1.15rem, 2.5vw, 1.45rem); margin: 0; line-height: 1.2;">
+                                    Not sure which hearing aid is right for you?
+                                </h3>
+                            </div>
+                            <p style="color: #eef3e2; font-size: clamp(0.9rem, 1.8vw, 1.05rem); line-height: 1.5; margin-bottom: 24px; font-weight: 400; max-width: 720px;">
+                                Get a free hearing test and an honest, expert recommendation — with a no-obligation trial.
+                            </p>
+                            <a href="/book-a-test" style="background-color: #ffffff; color: var(--green-dark, #445e15); padding: 12px 40px; border-radius: 30px; font-weight: 600; font-size: 1.05rem; text-decoration: underline; display: inline-block; transition: transform var(--t), background-color var(--t), color var(--t); text-underline-offset: 4px;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+                                Book Your Free Test
+                            </a>
+                        </div>
+                    </div>
+
                     <!-- Linked FAQs -->
                     @if(count($faqs) > 0)
                         <h2 style="margin-top: 40px; margin-bottom: 20px;">Frequently asked questions</h2>
