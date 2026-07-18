@@ -9,8 +9,6 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="shortcut icon" type="image/x-icon" href="/logo.jpeg" />
-    <link href="/quill/quill.snow.css" rel="stylesheet">
-    <script src="/quill/quill.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 </head>
 <body class="min-h-screen font-sans antialiased bg-base-200">

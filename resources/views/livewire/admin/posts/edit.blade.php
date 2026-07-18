@@ -90,65 +90,138 @@
                     <div class="space-y-2" wire:ignore wire:key="post-content-editor-wrapper">
                         <label class="label"><span class="label-text font-semibold">Content (Rich Text Editor)</span></label>
                         
-                        <!-- Safe JSON script block to pass database content to Alpine/Quill without HTML attribute quote collisions -->
-                        <script id="quill-content-source" type="application/json">{!! json_encode($content) !!}</script>
+                        <!-- Safe JSON script block to pass database content to Alpine without HTML attribute quote collisions -->
+                        <script id="custom-content-source" type="application/json">{!! json_encode($content) !!}</script>
 
                         <div 
                             x-data="{
-                                initQuill() {
-                                    window.quillEditor = new Quill(this.$refs.quillCanvas, {
-                                        theme: 'snow',
-                                        modules: {
-                                            table: true,
-                                            toolbar: [
-                                                [{ 'header': [1, 2, 3, false] }],
-                                                ['bold', 'italic', 'underline', 'strike'],
-                                                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                                                ['link', 'image', 'video'],
-                                                ['table'],
-                                                ['clean']
-                                            ]
+                                content: '',
+                                initEditor() {
+                                    // Load initial content from the JSON block
+                                    const sourceEl = document.getElementById('custom-content-source');
+                                    if (sourceEl) {
+                                        this.content = JSON.parse(sourceEl.textContent) || '';
+                                        this.$refs.editorCanvas.innerHTML = this.content;
+                                    }
+
+                                    // Listen for image selection
+                                    window.addEventListener('media-selected', (e) => {
+                                        if (e.detail.targetField === 'custom_editor_insert') {
+                                            this.$refs.editorCanvas.focus();
+                                            
+                                            // Restore selection if lost
+                                            if (this.savedRange) {
+                                                const sel = window.getSelection();
+                                                sel.removeAllRanges();
+                                                sel.addRange(this.savedRange);
+                                            }
+
+                                            const imgHtml = `<img src='${e.detail.url}' alt='Blog image' style='max-width:100%; height:auto; margin: 15px 0; border-radius: 8px;' />`;
+                                            document.execCommand('insertHTML', false, imgHtml);
+                                            this.syncContent();
                                         }
                                     });
-
-                                    // Register image toolbar click to open media selector
-                                    window.quillEditor.getModule('toolbar').addHandler('image', () => {
-                                        window.dispatchEvent(new CustomEvent('open-media-selector-quill_editor_insert'));
-                                    });
-
-                                    // Safely read and parse initial content from the JSON script block
-                                    const initialVal = JSON.parse(document.getElementById('quill-content-source').textContent);
-                                    window.quillEditor.root.innerHTML = initialVal || '';
-
-                                    // Sync content back to Livewire only when editor loses focus (blur)
-                                    window.quillEditor.on('selection-change', (range) => {
-                                        if (range === null) {
-                                            $wire.set('content', window.quillEditor.root.innerHTML);
-                                        }
-                                    });
+                                },
+                                savedRange: null,
+                                saveSelection() {
+                                    const sel = window.getSelection();
+                                    if (sel.getRangeAt && sel.rangeCount) {
+                                        this.savedRange = sel.getRangeAt(0);
+                                    }
+                                },
+                                exec(cmd, val = null) {
+                                    this.$refs.editorCanvas.focus();
+                                    document.execCommand(cmd, false, val);
+                                    this.syncContent();
+                                },
+                                insertTable() {
+                                    const tableHtml = `
+                                        <div class='fhc-article-table-wrapper'>
+                                            <table class='fhc-article-table'>
+                                                <thead>
+                                                    <tr>
+                                                        <th>Header 1</th>
+                                                        <th>Header 2</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>Data 1</td>
+                                                        <td>Data 2</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Data 3</td>
+                                                        <td>Data 4</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <p><br></p>
+                                    `;
+                                    this.exec('insertHTML', tableHtml);
+                                },
+                                syncContent() {
+                                    this.content = this.$refs.editorCanvas.innerHTML;
+                                    $wire.set('content', this.content);
                                 }
                             }"
-                            x-init="initQuill()"
-                            class="bg-base-100 rounded-lg border border-base-300 overflow-hidden"
+                            x-init="initEditor()"
+                            class="bg-base-100 rounded-lg border border-base-300 overflow-hidden flex flex-col"
                         >
-                            <div x-ref="quillCanvas" class="min-h-[400px]"></div>
-                            
-                            <script>
-                                window.addEventListener('media-selected', function(e) {
-                                    if (e.detail.targetField === 'quill_editor_insert') {
-                                        if (window.quillEditor) {
-                                            const range = window.quillEditor.getSelection();
-                                            const index = range ? range.index : window.quillEditor.getLength();
-                                            window.quillEditor.insertEmbed(index, 'image', e.detail.url);
-                                        }
-                                    }
-                                });
-                            </script>
+                            <!-- TOOLBAR -->
+                            <div class="flex flex-wrap items-center gap-1.5 p-2 bg-base-200 border-b border-base-300">
+                                <button type="button" @click="exec('bold')" class="btn btn-sm btn-ghost p-1" title="Bold"><x-icon name="o-bold" class="w-4 h-4" /></button>
+                                <button type="button" @click="exec('italic')" class="btn btn-sm btn-ghost p-1" title="Italic"><x-icon name="o-italic" class="w-4 h-4" /></button>
+                                <button type="button" @click="exec('underline')" class="btn btn-sm btn-ghost p-1" title="Underline"><span class="underline font-serif">U</span></button>
+                                <button type="button" @click="exec('strikeThrough')" class="btn btn-sm btn-ghost p-1" title="Strike"><span class="line-through">S</span></button>
+                                
+                                <div class="w-px h-6 bg-base-300 mx-1"></div>
+
+                                <button type="button" @click="exec('formatBlock', '<h2>')" class="btn btn-sm btn-ghost text-xs font-bold" title="H2">H2</button>
+                                <button type="button" @click="exec('formatBlock', '<h3>')" class="btn btn-sm btn-ghost text-xs font-bold" title="H3">H3</button>
+                                <button type="button" @click="exec('formatBlock', '<p>')" class="btn btn-sm btn-ghost text-xs font-bold" title="Paragraph">P</button>
+
+                                <div class="w-px h-6 bg-base-300 mx-1"></div>
+
+                                <button type="button" @click="exec('justifyLeft')" class="btn btn-sm btn-ghost p-1" title="Align Left"><x-icon name="o-bars-3-left" class="w-4 h-4" /></button>
+                                <button type="button" @click="exec('justifyCenter')" class="btn btn-sm btn-ghost p-1" title="Align Center"><x-icon name="o-bars-3" class="w-4 h-4" /></button>
+                                <button type="button" @click="exec('justifyRight')" class="btn btn-sm btn-ghost p-1" title="Align Right"><x-icon name="o-bars-3-right" class="w-4 h-4" /></button>
+
+                                <div class="w-px h-6 bg-base-300 mx-1"></div>
+
+                                <button type="button" @click="exec('insertUnorderedList')" class="btn btn-sm btn-ghost p-1" title="Bullet List"><x-icon name="o-list-bullet" class="w-4 h-4" /></button>
+                                
+                                <div class="w-px h-6 bg-base-300 mx-1"></div>
+
+                                <!-- Custom Image Button -->
+                                <button type="button" @click="saveSelection(); window.dispatchEvent(new CustomEvent('open-media-selector-custom_editor_insert'))" class="btn btn-sm btn-ghost p-1" title="Insert Image">
+                                    <x-icon name="o-photo" class="w-4 h-4" />
+                                </button>
+
+                                <!-- Table button -->
+                                <button type="button" @click="insertTable()" class="btn btn-sm btn-ghost p-1" title="Insert Table">
+                                    <x-icon name="o-table-cells" class="w-4 h-4" />
+                                </button>
+
+                                <button type="button" @click="exec('removeFormat')" class="btn btn-sm btn-ghost p-1" title="Clear Format">
+                                    <x-icon name="o-x-mark" class="w-4 h-4" />
+                                </button>
+                            </div>
+
+                            <!-- CANVAS -->
+                            <div 
+                                x-ref="editorCanvas"
+                                contenteditable="true"
+                                @blur="syncContent()"
+                                @keyup="syncContent()"
+                                @paste="setTimeout(() => syncContent(), 10)"
+                                class="p-5 min-h-[400px] outline-none bg-base-100 ql-editor overflow-y-auto"
+                            ></div>
                         </div>
                     </div>
 
-                    <!-- Selector specifically for Quill insert content (placed outside wire:ignore) -->
-                    <livewire:admin.components.media-selector target-field="quill_editor_insert" folder="blog_posts" headless="true" />
+                    <!-- Selector specifically for Custom Editor insert content (placed outside wire:ignore) -->
+                    <livewire:admin.components.media-selector target-field="custom_editor_insert" folder="blog_posts" headless="true" />
 
                     <div class="flex justify-end gap-3 mt-6">
                         <x-button label="Cancel" link="{{ route('admin.posts') }}" class="btn-ghost" no-wire-navigate />
