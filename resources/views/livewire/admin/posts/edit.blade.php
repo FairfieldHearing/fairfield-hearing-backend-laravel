@@ -176,18 +176,42 @@
                                             <table class='fhc-article-table'>
                                                 <thead>
                                                     <tr>
-                                                        <th>Header 1</th>
-                                                        <th>Header 2</th>
+                                                        <th>Feature</th>
+                                                        <th>Styletto 7IX</th>
+                                                        <th>Styletto 5IX</th>
+                                                        <th>Styletto 3IX</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <tr>
-                                                        <td>Data 1</td>
-                                                        <td>Data 2</td>
+                                                        <td>Tier</td>
+                                                        <td>Premium</td>
+                                                        <td>Advanced</td>
+                                                        <td>Essential</td>
                                                     </tr>
                                                     <tr>
-                                                        <td>Data 3</td>
-                                                        <td>Data 4</td>
+                                                        <td>Automatic programs</td>
+                                                        <td>Most</td>
+                                                        <td>More</td>
+                                                        <td>Core</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Speech in noise</td>
+                                                        <td>Excellent</td>
+                                                        <td>Very good</td>
+                                                        <td>Good</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Best for</td>
+                                                        <td>Busy, noisy lifestyles</td>
+                                                        <td>Mixed daily life</td>
+                                                        <td>Quieter, routine settings</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Design / rechargeable / Bluetooth</td>
+                                                        <td>Same</td>
+                                                        <td>Same</td>
+                                                        <td>Same</td>
                                                     </tr>
                                                 </tbody>
                                             </table>
