@@ -106,19 +106,34 @@
 
                                     // Listen for image selection
                                     window.addEventListener('media-selected', (e) => {
-                                        if (e.detail.targetField === 'custom_editor_insert') {
+                                        // Unpack payload depending on Livewire v3 event detail format
+                                        const payload = Array.isArray(e.detail) ? e.detail[0] : (e.detail.detail ? e.detail.detail : e.detail);
+                                        if (payload && payload.targetField === 'custom_editor_insert') {
                                             this.$refs.editorCanvas.focus();
                                             
-                                            // Restore selection if lost
-                                            if (this.savedRange) {
-                                                const sel = window.getSelection();
-                                                sel.removeAllRanges();
-                                                sel.addRange(this.savedRange);
+                                            // Resolve target image URL
+                                            let imageUrl = payload.url;
+                                            if (!imageUrl && payload.filepath) {
+                                                imageUrl = payload.filepath.startsWith('assets/') || payload.filepath.startsWith('/assets/')
+                                                    ? '/' + payload.filepath.replace(/^\//, '')
+                                                    : '/storage/' + payload.filepath;
                                             }
 
-                                            const imgHtml = `<img src='${e.detail.url}' alt='Blog image' style='max-width:100%; height:auto; margin: 15px 0; border-radius: 8px;' />`;
-                                            document.execCommand('insertHTML', false, imgHtml);
-                                            this.syncContent();
+                                            if (imageUrl) {
+                                                const imgHtml = `<img src='${imageUrl}' alt='Blog image' style='max-width:100%; height:auto; margin: 15px 0; border-radius: 8px; display: block;' />`;
+                                                
+                                                // Restore selection if saved
+                                                if (this.savedRange) {
+                                                    const sel = window.getSelection();
+                                                    sel.removeAllRanges();
+                                                    sel.addRange(this.savedRange);
+                                                    document.execCommand('insertHTML', false, imgHtml);
+                                                } else {
+                                                    // Fallback: append if selection wasn't focused
+                                                    this.$refs.editorCanvas.innerHTML += imgHtml;
+                                                }
+                                                this.syncContent();
+                                            }
                                         }
                                     });
                                 },
