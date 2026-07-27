@@ -65,8 +65,7 @@
 
                     <div class="flex justify-end gap-3 mt-6">
                         <x-button label="Cancel" link="{{ route('admin.posts') }}" class="btn-ghost" no-wire-navigate />
-                        <x-button label="Save Article" type="submit" class="btn-primary" spinner="save" 
-                                  onclick="if (typeof tinymce !== 'undefined' && tinymce.activeEditor) { @this.set('content', tinymce.activeEditor.getContent(), false); }" />
+                        <x-button label="Save Article" type="submit" class="btn-primary" spinner="save" onclick="syncTinyMceContent()" />
                     </div>
                 </x-form>
             </x-card>
@@ -177,5 +176,18 @@
     window.addEventListener('media-selected', handleTinyMceMedia);
     if (typeof Livewire !== 'undefined') {
         Livewire.on('media-selected', handleTinyMceMedia);
+    }
+
+    function syncTinyMceContent() {
+        if (typeof window.tinymce !== 'undefined' && window.tinymce.activeEditor) {
+            const html = window.tinymce.activeEditor.getContent();
+            const wireEl = document.querySelector('[wire\\:id]');
+            if (wireEl && window.Livewire) {
+                const component = window.Livewire.find(wireEl.getAttribute('wire:id'));
+                if (component) {
+                    component.set('content', html, false);
+                }
+            }
+        }
     }
 </script>
