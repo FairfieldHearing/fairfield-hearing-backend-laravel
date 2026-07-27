@@ -66,10 +66,13 @@ class Show extends Component
         $renderedHtml = '';
         $content = $this->postModel->content;
 
-        if (is_string($content)) {
+        // Loop un-wrapping in case stored content is double-encoded or stringified
+        while (is_string($content)) {
             $decoded = json_decode($content, true);
-            if (is_array($decoded)) {
+            if (json_last_error() === JSON_ERROR_NONE && (is_array($decoded) || is_string($decoded))) {
                 $content = $decoded;
+            } else {
+                break;
             }
         }
 
@@ -77,6 +80,10 @@ class Show extends Component
             foreach ($content as $block) {
                 if (is_string($block)) {
                     $renderedHtml .= $block;
+                    continue;
+                }
+
+                if (!is_array($block)) {
                     continue;
                 }
 
@@ -127,8 +134,12 @@ class Show extends Component
                     }
                 }
             }
-        } else {
-            $renderedHtml = str_replace('\\n', "\n", (string)$this->postModel->content);
+        }
+
+        // Fallback if renderedHtml is still empty but raw content exists
+        if (empty(trim($renderedHtml))) {
+            $rawContent = is_string($this->postModel->content) ? $this->postModel->content : json_encode($this->postModel->content);
+            $renderedHtml = str_replace('\\n', "\n", (string)$rawContent);
             $renderedHtml = preg_replace_callback('/<h2([^>]*)>(.*?)<\/h2>/i', function($matches) {
                 $attrs = $matches[1];
                 $text = $matches[2];
