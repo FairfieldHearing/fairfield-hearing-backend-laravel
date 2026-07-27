@@ -21,21 +21,7 @@ class Show extends Component
 
     public function getPostCoverImage(): string
     {
-        if ($this->postModel->featured_image) {
-            return \Illuminate\Support\Facades\Storage::url($this->postModel->featured_image);
-        }
-
-        $slug = $this->postModel->slug;
-        if (str_contains($slug, 'styletto')) {
-            return "/img/signia-styletto-ix-7ix-vs-5ix-vs-3ix.svg";
-        }
-        if (str_contains($slug, 'severe')) {
-            return "/img/best-hearing-aids-for-severe-to-profound-loss.svg";
-        }
-        if (str_contains($slug, 'senior')) {
-            return "/img/best-hearing-aids-for-senior-citizens.svg";
-        }
-        return "/img/logo.jpeg";
+        return $this->postModel->featured_image_url;
     }
 
     public function getAuthorPhoto(string $author): string
