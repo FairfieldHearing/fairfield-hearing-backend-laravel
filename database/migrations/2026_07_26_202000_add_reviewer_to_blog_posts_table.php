@@ -13,11 +13,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('blog_posts', function (Blueprint $table) {
-            $hasAuthorId = Schema::hasColumn('blog_posts', 'author_id');
-            $hasAuthorName = Schema::hasColumn('blog_posts', 'author_name');
+            if (!Schema::hasColumn('blog_posts', 'author_id')) {
+                $table->unsignedBigInteger('author_id')->nullable()->after('blog_category_id');
+            }
 
             if (!Schema::hasColumn('blog_posts', 'reviewer_id')) {
-                if ($hasAuthorId) {
+                if (Schema::hasColumn('blog_posts', 'author_id')) {
                     $table->unsignedBigInteger('reviewer_id')->nullable()->after('author_id');
                 } else {
                     $table->unsignedBigInteger('reviewer_id')->nullable();
@@ -25,13 +26,22 @@ return new class extends Migration
             }
 
             if (!Schema::hasColumn('blog_posts', 'reviewer_name')) {
-                if ($hasAuthorName) {
+                if (Schema::hasColumn('blog_posts', 'author_name')) {
                     $table->string('reviewer_name')->nullable()->after('author_name');
                 } else {
                     $table->string('reviewer_name')->nullable();
                 }
             }
         });
+
+        // Backfill author_id if null using team_members
+        $teamMembers = DB::table('team_members')->get();
+        foreach ($teamMembers as $tm) {
+            DB::table('blog_posts')
+                ->whereNull('author_id')
+                ->where('author_name', $tm->name)
+                ->update(['author_id' => $tm->id]);
+        }
 
         // Set default reviewer (Dr. Nayeem Ahmad Siddiqui) for existing blog posts
         $drNayeem = DB::table('team_members')->where('slug', 'dr-nayeem-ahmad-siddiqui')->first();
