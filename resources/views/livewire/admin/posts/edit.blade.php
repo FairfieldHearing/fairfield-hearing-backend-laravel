@@ -80,8 +80,7 @@
 
                     <div class="flex justify-end gap-3 mt-6">
                         <x-button label="Cancel" link="{{ route('admin.posts') }}" class="btn-ghost" no-wire-navigate />
-                        <x-button label="Save Article" type="submit" class="btn-primary" spinner="save" 
-                                  onclick="if (typeof window.tinymce !== 'undefined' && window.tinymce.activeEditor) { const el = document.querySelector('[x-data]'); if (el && el._x_dataStack) { el._x_dataStack[0].value = window.tinymce.activeEditor.getContent(); } }" />
+                        <x-button label="Save Article" wire:click="save" class="btn-primary" spinner="save" />
                     </div>
                 </x-form>
             </x-card>
