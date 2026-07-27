@@ -13,11 +13,23 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('blog_posts', function (Blueprint $table) {
+            $hasAuthorId = Schema::hasColumn('blog_posts', 'author_id');
+            $hasAuthorName = Schema::hasColumn('blog_posts', 'author_name');
+
             if (!Schema::hasColumn('blog_posts', 'reviewer_id')) {
-                $table->unsignedBigInteger('reviewer_id')->nullable()->after('author_id');
+                if ($hasAuthorId) {
+                    $table->unsignedBigInteger('reviewer_id')->nullable()->after('author_id');
+                } else {
+                    $table->unsignedBigInteger('reviewer_id')->nullable();
+                }
             }
+
             if (!Schema::hasColumn('blog_posts', 'reviewer_name')) {
-                $table->string('reviewer_name')->nullable()->after('author_name');
+                if ($hasAuthorName) {
+                    $table->string('reviewer_name')->nullable()->after('author_name');
+                } else {
+                    $table->string('reviewer_name')->nullable();
+                }
             }
         });
 
