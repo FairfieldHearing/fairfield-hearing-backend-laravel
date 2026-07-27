@@ -255,10 +255,11 @@ class Edit extends Component
             $dom->loadHTML('<?xml encoding="utf-8" ?><div>' . $rawHtml . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
             libxml_clear_errors();
 
+            /** @var \DOMElement|null $container */
             $container = $dom->getElementsByTagName('div')->item(0);
             if ($container && $container->hasChildNodes()) {
                 foreach ($container->childNodes as $node) {
-                    if ($node->nodeType !== XML_ELEMENT_NODE) {
+                    if (!$node instanceof \DOMElement) {
                         continue;
                     }
 
@@ -274,6 +275,7 @@ class Edit extends Component
                             ]
                         ];
                     } elseif ($tagName === 'div' && str_contains($node->getAttribute('class'), 'takeaways')) {
+                        /** @var \DOMElement|null $titleNode */
                         $titleNode = $node->getElementsByTagName('h2')->item(0);
                         $titleText = $titleNode ? trim($titleNode->textContent) : 'Key takeaways';
                         $listItems = [];
@@ -313,6 +315,7 @@ class Edit extends Component
                         }
                         $rows = [];
                         foreach ($node->getElementsByTagName('tr') as $tr) {
+                            /** @var \DOMElement $tr */
                             $row = [];
                             foreach ($tr->getElementsByTagName('td') as $td) {
                                 $innerHtml = '';
@@ -357,6 +360,8 @@ class Edit extends Component
                 ['type' => 'paragraph', 'data' => ['text' => trim($rawHtml)]]
             ];
         }
+
+        $decodedSchema = $this->json_schema ? json_decode($this->json_schema, true) : null;
 
         $data = [
             'blog_category_id' => $this->blog_category_id,

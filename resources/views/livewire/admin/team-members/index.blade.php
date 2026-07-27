@@ -1,7 +1,7 @@
 <div>
     <!-- HEADER -->
     <x-header title="Team Members" subtitle="Manage clinic audiologists, ENT specialists, and directors" separator progress-indicator>
-        <x-slot:middle class="!justify-end">
+        <x-slot:middle class="justify-end!">
             <x-input placeholder="Search team members..." wire:model.live.debounce.300ms="search" clearable icon="o-magnifying-glass" />
         </x-slot:middle>
         <x-slot:actions>
