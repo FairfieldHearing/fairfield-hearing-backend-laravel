@@ -16,7 +16,7 @@ class Show extends Component
 
     public function mount(string $category, string $slug): void
     {
-        $this->postModel = BlogPost::with('category')->where('slug', $slug)->firstOrFail();
+        $this->postModel = BlogPost::with(['category', 'author', 'reviewer'])->where('slug', $slug)->firstOrFail();
     }
 
     public function getPostCoverImage(): string
@@ -40,6 +40,12 @@ class Show extends Component
 
     public function getAuthorPhoto(string $author): string
     {
+        if ($this->postModel->author && $this->postModel->author->photo) {
+            return str_starts_with($this->postModel->author->photo, 'assets/') || str_starts_with($this->postModel->author->photo, '/assets/')
+                ? '/' . ltrim($this->postModel->author->photo, '/')
+                : \Illuminate\Support\Facades\Storage::url($this->postModel->author->photo);
+        }
+
         if (str_contains($author, 'Wasiq')) {
             return "/assets/img/wasiq-ali-khan.jpg";
         }
@@ -55,37 +61,73 @@ class Show extends Component
     public function render()
     {
         $postData = $this->postModel->toArray();
-        $postData['content'] = str_replace('\\n', "\n", $postData['content']);
-        
+
+        // Convert JSON array blocks or HTML content string to rendered HTML
+        $renderedHtml = '';
+        if (is_array($this->postModel->content)) {
+            foreach ($this->postModel->content as $block) {
+                $type = $block['type'] ?? '';
+                $data = $block['data'] ?? [];
+
+                if ($type === 'paragraph') {
+                    $renderedHtml .= '<p>' . ($data['text'] ?? '') . '</p>';
+                } elseif ($type === 'heading') {
+                    $level = $data['level'] ?? 2;
+                    $text = $data['text'] ?? '';
+                    $id = str(strip_tags($text))->slug()->toString();
+                    $renderedHtml .= "<h{$level} id=\"{$id}\">{$text}</h{$level}>";
+                } elseif ($type === 'takeaways') {
+                    $title = $data['title'] ?? 'Key takeaways';
+                    $items = $data['items'] ?? [];
+                    $renderedHtml .= '<div class="takeaways"><h2>' . e($title) . '</h2><ul>';
+                    foreach ($items as $item) {
+                        $renderedHtml .= '<li>' . $item . '</li>';
+                    }
+                    $renderedHtml .= '</ul></div>';
+                } elseif ($type === 'list') {
+                    $items = $data['items'] ?? [];
+                    $renderedHtml .= '<ul>';
+                    foreach ($items as $item) {
+                        $renderedHtml .= '<li>' . $item . '</li>';
+                    }
+                    $renderedHtml .= '</ul>';
+                } elseif ($type === 'table') {
+                    $headers = $data['headers'] ?? [];
+                    $rows = $data['rows'] ?? [];
+                    $renderedHtml .= '<table><thead><tr>';
+                    foreach ($headers as $th) {
+                        $renderedHtml .= '<th>' . e($th) . '</th>';
+                    }
+                    $renderedHtml .= '</tr></thead><tbody>';
+                    foreach ($rows as $row) {
+                        $renderedHtml .= '<tr>';
+                        foreach ($row as $td) {
+                            $renderedHtml .= '<td>' . $td . '</td>';
+                        }
+                        $renderedHtml .= '</tr>';
+                    }
+                    $renderedHtml .= '</tbody></table>';
+                }
+            }
+        } else {
+            $renderedHtml = str_replace('\\n', "\n", (string)$this->postModel->content);
+            $renderedHtml = preg_replace_callback('/<h2([^>]*)>(.*?)<\/h2>/i', function($matches) {
+                $attrs = $matches[1];
+                $text = $matches[2];
+                $id = str(strip_tags($text))->slug()->toString();
+                if (!str_contains($attrs, 'id=')) {
+                    return "<h2{$attrs} id=\"{$id}\">{$text}</h2>";
+                }
+                return $matches[0];
+            }, $renderedHtml);
+        }
+
+        $postData['content'] = $renderedHtml;
+
         // Clean title: use meta_title prefix if available
         if (!empty($postData['meta_title'])) {
             $postData['title'] = explode(' | ', $postData['meta_title'])[0];
         }
-
-        // Dynamically parse h2 headings for Table of Contents
-        $toc = [];
-        preg_match_all('/<h2[^>]*>(.*?)<\/h2>/i', $postData['content'], $matches);
-        if (!empty($matches[1])) {
-            foreach ($matches[1] as $heading) {
-                $cleanHeading = strip_tags($heading);
-                $id = str($cleanHeading)->slug()->toString();
-                $toc[] = [
-                    'text' => $cleanHeading,
-                    'id' => $id,
-                ];
-            }
-        }
-
-        // Inject IDs into <h2> tags in the content HTML so anchors function
-        $postData['content'] = preg_replace_callback('/<h2([^>]*)>(.*?)<\/h2>/i', function($matches) {
-            $attrs = $matches[1];
-            $text = $matches[2];
-            $id = str(strip_tags($text))->slug()->toString();
-            if (!str_contains($attrs, 'id=')) {
-                return "<h2{$attrs} id=\"{$id}\">{$text}</h2>";
-            }
-            return $matches[0];
-        }, $postData['content']);
 
         $category = $this->postModel->category ? $this->postModel->category->toArray() : ['title' => 'Hearing Health', 'slug' => 'hearing-health'];
         
@@ -131,13 +173,19 @@ class Show extends Component
             ])->toArray()
         ] : null;
 
+        $relatedPosts = BlogPost::with('category')
+            ->where('id', '!=', $this->postModel->id)
+            ->latest()
+            ->take(2)
+            ->get();
+
         return view('livewire.web.blogs.show', [
             'post' => $postData,
             'category' => $category,
             'faqs' => $faqs,
-            'toc' => $toc,
             'coverImage' => $this->getPostCoverImage(),
             'authorPhoto' => $this->getAuthorPhoto($this->postModel->author_name),
+            'relatedPosts' => $relatedPosts,
             'postSchema' => $postSchema,
             'faqSchema' => $faqSchema,
         ])->layout('layouts.web', $this->seoForModel($this->postModel, $this->postModel->title . ' | Fairfield Hearing Blogs', $this->postModel->summary));

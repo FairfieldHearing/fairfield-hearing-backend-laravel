@@ -27,6 +27,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/submissions', \App\Livewire\Admin\Submissions\Index::class)->name('submissions');
     Route::get('/leads', \App\Livewire\Admin\Leads\Index::class)->name('leads');
     Route::get('/tickets', \App\Livewire\Admin\Tickets\Index::class)->name('tickets');
+    Route::get('/team-members', \App\Livewire\Admin\TeamMembers\Index::class)->name('team_members');
     Route::get('/staff', \App\Livewire\Admin\Users\Index::class)->name('staff');
     Route::get('/password', \App\Livewire\Admin\Password::class)->name('password');
     Route::get('/manufacturers', \App\Livewire\Admin\Manufacturers\Index::class)->name('manufacturers');

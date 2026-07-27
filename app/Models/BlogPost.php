@@ -8,6 +8,8 @@ class BlogPost extends Model
 {
     protected $fillable = [
         'blog_category_id',
+        'author_id',
+        'reviewer_id',
         'title',
         'slug',
         'summary',
@@ -15,6 +17,7 @@ class BlogPost extends Model
         'featured_image_media_id',
         'content',
         'author_name',
+        'reviewer_name',
         'meta_title',
         'meta_description',
         'json_schema',
@@ -23,8 +26,19 @@ class BlogPost extends Model
     ];
 
     protected $casts = [
+        'content' => 'array',
         'json_schema' => 'array',
     ];
+
+    public function author()
+    {
+        return $this->belongsTo(TeamMember::class, 'author_id');
+    }
+
+    public function reviewer()
+    {
+        return $this->belongsTo(TeamMember::class, 'reviewer_id');
+    }
 
     public function featuredImageMedia()
     {

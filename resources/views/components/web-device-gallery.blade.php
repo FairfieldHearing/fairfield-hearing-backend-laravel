@@ -2,11 +2,11 @@
 
 <div style="width: 100%; height: auto; position: relative;">
     @if(count($gallery) === 1)
-        <!-- Single Image: Shadow directly on the image, matched width, 4:3 aspect ratio, object-fit cover -->
-        <img src="{{ $gallery[0]->media->url }}" alt="{{ $alt }}" style="width: 100%; aspect-ratio: 4/3; object-fit: cover; object-position: center; border-radius: var(--radius); box-shadow: 0 15px 35px rgba(0,0,0,0.12);" />
+        <!-- Single Image: Shadow directly on the image, matched width, square 1:1 aspect ratio, object-fit cover -->
+        <img src="{{ $gallery[0]->media->url }}" alt="{{ $alt }}" style="width: 100%; aspect-ratio: 1/1; object-fit: cover; object-position: center; border-radius: var(--radius); box-shadow: 0 15px 35px rgba(0,0,0,0.12);" />
     @elseif(count($gallery) > 1)
-        <!-- AlpineJS Slideshow: Shadow on the slideshow container, matched width, 4:3 aspect ratio, object-fit cover -->
-        <div x-data="{ active: 0, itemsCount: {{ count($gallery) }} }" class="relative w-full" style="width: 100%; aspect-ratio: 4/3; position: relative; border-radius: var(--radius); box-shadow: 0 15px 35px rgba(0,0,0,0.12); background: transparent;">
+        <!-- AlpineJS Slideshow: Shadow on the slideshow container, matched width, square 1:1 aspect ratio, object-fit cover -->
+        <div x-data="{ active: 0, itemsCount: {{ count($gallery) }} }" class="relative w-full" style="width: 100%; aspect-ratio: 1/1; position: relative; border-radius: var(--radius); box-shadow: 0 15px 35px rgba(0,0,0,0.12); background: transparent;">
             <div class="w-full h-full flex items-center justify-center" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: transparent; overflow: hidden; border-radius: var(--radius);">
                 @php
                     // Sort gallery items by is_featured DESC then sort_order ASC

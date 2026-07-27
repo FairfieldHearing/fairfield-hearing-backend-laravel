@@ -12,9 +12,10 @@
         <div class="lg:col-span-2 space-y-6">
             <x-card shadow class="bg-base-100">
                 <x-form wire:submit="save">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <x-select label="Category" wire:model="blog_category_id" :options="$categories" option-value="id" option-label="title" required />
-                        <x-input label="Author Name" wire:model="author_name" required />
+                        <x-select label="Author (Team Member)" wire:model.live="author_id" :options="$authors" option-value="id" option-label="name" placeholder="Select Author" required />
+                        <x-select label="Medically Reviewed By" wire:model.live="reviewer_id" :options="$authors" option-value="id" option-label="name" placeholder="Select Reviewer (Optional)" />
                     </div>
 
                     <x-input label="Title" wire:model.live.debounce.500ms="title" required />
@@ -36,8 +37,8 @@
                             label="Content" 
                             gpl-license 
                             :config="[
-                                'plugins' => 'custom_image_plugin',
-                                'toolbar' => 'undo redo | align bullist numlist | outdent indent | custom_image quicktable'
+                                'plugins' => 'custom_image_plugin key_takeaways_plugin table link lists code',
+                                'toolbar' => 'undo redo | blocks | bold italic underline | bullist numlist | key_takeaways custom_image table link | code'
                             ]"
                         />
                     </div>
@@ -116,6 +117,17 @@
                 onAction: function () {
                     window.activeTinyMceEditor = editor;
                     window.dispatchEvent(new CustomEvent('open-media-selector-custom_editor_insert'));
+                }
+            });
+        });
+
+        window.tinymce.PluginManager.add('key_takeaways_plugin', function(editor) {
+            editor.ui.registry.addButton('key_takeaways', {
+                icon: 'star',
+                text: 'Key Takeaways',
+                tooltip: 'Insert Key Takeaways Box',
+                onAction: function () {
+                    editor.insertContent('<div class="takeaways"><h2>Key takeaways</h2><ul><li>First takeaway point...</li><li>Second takeaway point...</li></ul></div><p>&nbsp;</p>');
                 }
             });
         });

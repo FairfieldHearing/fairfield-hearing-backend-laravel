@@ -65,6 +65,7 @@
                         <span class="text-xs text-base-content/40 px-4 pt-2 font-bold uppercase tracking-wider block">Clinical Content</span>
                         <x-menu-item title="FAQs" icon="o-question-mark-circle" link="{{ route('admin.faqs') }}" no-wire-navigate />
                         <x-menu-item title="Locations" icon="o-map-pin" link="{{ route('admin.locations') }}" no-wire-navigate />
+                        <x-menu-item title="Team Members" icon="o-user-group" link="{{ route('admin.team_members') }}" no-wire-navigate />
                         <x-menu-item title="Policy Pages" icon="o-shield-check" link="{{ route('admin.policies') }}" no-wire-navigate />
                         <x-menu-item title="Manufacturers" icon="o-building-office" link="{{ route('admin.manufacturers') }}" no-wire-navigate />
                         <x-menu-item title="Hearing Aid Models" icon="o-sparkles" link="{{ route('admin.models') }}" no-wire-navigate />
