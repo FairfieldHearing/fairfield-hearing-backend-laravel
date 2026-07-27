@@ -61,14 +61,7 @@
                 @foreach($posts as $post)
                     @php
                         $catSlug = $post['category']['slug'] ?? 'general';
-                        $coverImg = '/assets/img/logo.jpeg';
-                        if (str_contains($post['slug'], 'styletto')) {
-                            $coverImg = '/assets/img/signia-styletto-ix-7ix-vs-5ix-vs-3ix.svg';
-                        } elseif (str_contains($post['slug'], 'severe')) {
-                            $coverImg = '/assets/img/best-hearing-aids-for-severe-to-profound-loss.svg';
-                        } elseif (str_contains($post['slug'], 'senior')) {
-                            $coverImg = '/assets/img/best-hearing-aids-for-senior-citizens.svg';
-                        }
+                        $coverImg = $post['cover_image'] ?? '/assets/img/logo.jpeg';
                         $formattedDate = date('d M Y', strtotime($post['created_at']));
                     @endphp
                     <article class="post-card">
