@@ -53,13 +53,8 @@ class BlogPost extends Model
         if (!$this->featured_image) {
             return '/assets/img/logo.jpeg';
         }
-        if (
-            str_starts_with($this->featured_image, 'assets/') || 
-            str_starts_with($this->featured_image, '/assets/') ||
-            str_starts_with($this->featured_image, 'img/') || 
-            str_starts_with($this->featured_image, '/img/')
-        ) {
-            return '/' . ltrim($this->featured_image, '/');
+        if (str_starts_with($this->featured_image, 'http://') || str_starts_with($this->featured_image, 'https://')) {
+            return $this->featured_image;
         }
         return \Illuminate\Support\Facades\Storage::url($this->featured_image);
     }
