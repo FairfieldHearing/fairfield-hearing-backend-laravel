@@ -29,7 +29,22 @@
 
                     <x-textarea label="Summary" wire:model="summary" rows="3" />
                     
-                    <div class="space-y-2" wire:ignore>
+                    <div class="space-y-2" wire:ignore
+                         x-data="{
+                             init() {
+                                 const syncContent = () => {
+                                     if (window.tinymce && window.tinymce.activeEditor) {
+                                         @this.set('content', window.tinymce.activeEditor.getContent());
+                                     }
+                                 };
+                                 $watch('$wire.content', value => {
+                                     if (window.tinymce && window.tinymce.activeEditor && window.tinymce.activeEditor.getContent() !== value) {
+                                         window.tinymce.activeEditor.setContent(value || '');
+                                     }
+                                 });
+                                 window.addEventListener('before-save-article', syncContent);
+                             }
+                         }">
                         <!-- Load open-source TinyMCE CDN -->
                         <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js" referrerpolicy="origin"></script>
                         <x-editor 
@@ -48,7 +63,8 @@
 
                     <div class="flex justify-end gap-3 mt-6">
                         <x-button label="Cancel" link="{{ route('admin.posts') }}" class="btn-ghost" no-wire-navigate />
-                        <x-button label="Save Article" type="submit" class="btn-primary" spinner="save" />
+                        <x-button label="Save Article" type="submit" class="btn-primary" spinner="save" 
+                                  onclick="if (window.tinymce && window.tinymce.activeEditor) { @this.set('content', window.tinymce.activeEditor.getContent()); }" />
                     </div>
                 </x-form>
             </x-card>
