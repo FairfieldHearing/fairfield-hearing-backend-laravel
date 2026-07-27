@@ -12,6 +12,22 @@
         <div class="lg:col-span-2 space-y-6">
             <x-card shadow class="bg-base-100">
                 <x-form wire:submit="save">
+                    @if ($errors->any())
+                        <div class="alert alert-error shadow-lg mb-4">
+                            <div>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <div>
+                                    <h3 class="font-bold">Validation Errors:</h3>
+                                    <ul class="list-disc list-inside text-xs mt-1">
+                                        @foreach ($errors->all() as $error)
+                                            <li>{{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <x-select label="Category" wire:model="blog_category_id" :options="$categories" option-value="id" option-label="title" required />
                         <x-select label="Author (Team Member)" wire:model="author_id" :options="$authors" option-value="id" option-label="name" placeholder="Select Author" required />
@@ -29,22 +45,7 @@
 
                     <x-textarea label="Summary" wire:model="summary" rows="3" />
                     
-                    <div class="space-y-2" wire:ignore
-                         x-data="{
-                             init() {
-                                 const syncContent = () => {
-                                     if (window.tinymce && window.tinymce.activeEditor) {
-                                         @this.set('content', window.tinymce.activeEditor.getContent());
-                                     }
-                                 };
-                                 $watch('$wire.content', value => {
-                                     if (window.tinymce && window.tinymce.activeEditor && window.tinymce.activeEditor.getContent() !== value) {
-                                         window.tinymce.activeEditor.setContent(value || '');
-                                     }
-                                 });
-                                 window.addEventListener('before-save-article', syncContent);
-                             }
-                         }">
+                    <div class="space-y-2" wire:ignore>
                         <!-- Load open-source TinyMCE CDN -->
                         <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js" referrerpolicy="origin"></script>
                         <x-editor 
@@ -56,6 +57,7 @@
                                 'toolbar' => 'undo redo | blocks | bold italic underline | bullist numlist | key_takeaways custom_image table link | code'
                             ]"
                         />
+                        @error('content') <span class="text-error text-xs block mt-1">{{ $message }}</span> @enderror
                     </div>
 
                     <!-- Headless Selector for Editor Image Insertion -->
@@ -64,7 +66,7 @@
                     <div class="flex justify-end gap-3 mt-6">
                         <x-button label="Cancel" link="{{ route('admin.posts') }}" class="btn-ghost" no-wire-navigate />
                         <x-button label="Save Article" type="submit" class="btn-primary" spinner="save" 
-                                  onclick="if (window.tinymce && window.tinymce.activeEditor) { @this.set('content', window.tinymce.activeEditor.getContent()); }" />
+                                  onclick="if (typeof tinymce !== 'undefined' && tinymce.activeEditor) { @this.set('content', tinymce.activeEditor.getContent(), false); }" />
                     </div>
                 </x-form>
             </x-card>
