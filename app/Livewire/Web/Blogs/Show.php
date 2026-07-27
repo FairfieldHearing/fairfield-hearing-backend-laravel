@@ -64,8 +64,22 @@ class Show extends Component
 
         // Convert JSON array blocks or HTML content string to rendered HTML
         $renderedHtml = '';
-        if (is_array($this->postModel->content)) {
-            foreach ($this->postModel->content as $block) {
+        $content = $this->postModel->content;
+
+        if (is_string($content)) {
+            $decoded = json_decode($content, true);
+            if (is_array($decoded)) {
+                $content = $decoded;
+            }
+        }
+
+        if (is_array($content)) {
+            foreach ($content as $block) {
+                if (is_string($block)) {
+                    $renderedHtml .= $block;
+                    continue;
+                }
+
                 $type = $block['type'] ?? '';
                 $data = $block['data'] ?? [];
 
@@ -107,6 +121,10 @@ class Show extends Component
                         $renderedHtml .= '</tr>';
                     }
                     $renderedHtml .= '</tbody></table>';
+                } else {
+                    if (isset($data['text'])) {
+                        $renderedHtml .= '<p>' . $data['text'] . '</p>';
+                    }
                 }
             }
         } else {
