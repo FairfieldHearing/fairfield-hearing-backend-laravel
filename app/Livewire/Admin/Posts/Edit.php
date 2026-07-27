@@ -195,6 +195,22 @@ class Edit extends Component
 
     public function save(): void
     {
+        // Resolve author_name and reviewer_name dynamically
+        if ($this->author_id) {
+            $author = \App\Models\TeamMember::find($this->author_id);
+            if ($author) {
+                $this->author_name = $author->name;
+            }
+        }
+        if ($this->reviewer_id) {
+            $reviewer = \App\Models\TeamMember::find($this->reviewer_id);
+            if ($reviewer) {
+                $this->reviewer_name = $reviewer->name;
+            }
+        } else {
+            $this->reviewer_name = null;
+        }
+
         // Clean empty strings to null to pass validation
         $this->json_schema = $this->json_schema ?: null;
         $this->canonical_url = $this->canonical_url ?: null;
@@ -202,12 +218,14 @@ class Edit extends Component
         $rules = [
             'blog_category_id' => 'required|exists:blog_categories,id',
             'author_id' => 'required|exists:team_members,id',
+            'reviewer_id' => 'nullable|exists:team_members,id',
             'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|unique:blog_posts,slug,' . ($this->post?->id ?? 'NULL'),
             'summary' => 'nullable|string',
             'featured_image' => 'nullable|string|max:255',
             'content' => 'required|string',
             'author_name' => 'required|string|max:255',
+            'reviewer_name' => 'nullable|string|max:255',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
             'json_schema' => 'nullable|json',

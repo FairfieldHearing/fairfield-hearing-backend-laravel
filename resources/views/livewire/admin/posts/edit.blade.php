@@ -14,8 +14,8 @@
                 <x-form wire:submit="save">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <x-select label="Category" wire:model="blog_category_id" :options="$categories" option-value="id" option-label="title" required />
-                        <x-select label="Author (Team Member)" wire:model.live="author_id" :options="$authors" option-value="id" option-label="name" placeholder="Select Author" required />
-                        <x-select label="Medically Reviewed By" wire:model.live="reviewer_id" :options="$authors" option-value="id" option-label="name" placeholder="Select Reviewer (Optional)" />
+                        <x-select label="Author (Team Member)" wire:model="author_id" :options="$authors" option-value="id" option-label="name" placeholder="Select Author" required />
+                        <x-select label="Medically Reviewed By" wire:model="reviewer_id" :options="$authors" option-value="id" option-label="name" placeholder="Select Reviewer (Optional)" />
                     </div>
 
                     <x-input label="Title" wire:model.live.debounce.500ms="title" required />
@@ -29,7 +29,7 @@
 
                     <x-textarea label="Summary" wire:model="summary" rows="3" />
                     
-                    <div class="space-y-2">
+                    <div class="space-y-2" wire:ignore>
                         <!-- Load open-source TinyMCE CDN -->
                         <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js" referrerpolicy="origin"></script>
                         <x-editor 
