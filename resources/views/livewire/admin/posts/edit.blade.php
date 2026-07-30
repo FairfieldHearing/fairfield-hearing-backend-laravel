@@ -48,30 +48,60 @@
                     <div class="space-y-2" wire:ignore
                          x-data="{
                              value: @entangle('content'),
-                             init() {
-                                 const checkAndInit = () => {
-                                     if (window.tinymce && window.tinymce.activeEditor) {
-                                         window.tinymce.activeEditor.on('change keyup NodeChange blur', () => {
-                                             this.value = window.tinymce.activeEditor.getContent();
-                                         });
-                                     } else {
-                                         setTimeout(checkAndInit, 300);
+                             initEditor() {
+                                 if (!window.tinymce || !$refs.tinymce) return;
+
+                                 const existing = window.tinymce.get($refs.tinymce.id);
+                                 if (existing) {
+                                     const container = existing.getContainer();
+                                     if (container && document.body.contains(container)) {
+                                         return;
                                      }
-                                 };
-                                 checkAndInit();
+                                     try { existing.remove(); } catch(e) {}
+                                 }
+
+                                 window.tinymce.init({
+                                     target: $refs.tinymce,
+                                     license_key: 'gpl',
+                                     height: 400,
+                                     menubar: false,
+                                     branding: false,
+                                     plugins: 'advlist autolink lists link image table quickbars custom_image_plugin key_takeaways_plugin code',
+                                     toolbar: 'undo redo | blocks | bold italic underline | bullist numlist | key_takeaways custom_image table link | code',
+                                     setup: (editor) => {
+                                         editor.on('keyup change undo redo NodeChange blur', () => {
+                                             this.value = editor.getContent();
+                                         });
+                                         editor.on('init', () => {
+                                             editor.setContent(this.value ?? '');
+                                         });
+                                         editor.on('OpenWindow', (e) => editor.topLevelWindow = e.dialog);
+
+                                         this.$watch('value', (newValue) => {
+                                             if (editor && typeof editor.getContent === 'function') {
+                                                 const val = newValue || '';
+                                                 if (val !== editor.getContent()) {
+                                                     editor.setContent(val);
+                                                 }
+                                             }
+                                         });
+                                     }
+                                 });
                              }
-                         }">
-                        <!-- Load open-source TinyMCE CDN -->
-                        <script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js" referrerpolicy="origin"></script>
-                        <x-editor 
-                            wire:model="content" 
-                            label="Content" 
-                            gpl-license 
-                            :config="[
-                                'plugins' => 'custom_image_plugin key_takeaways_plugin table link lists code',
-                                'toolbar' => 'undo redo | blocks | bold italic underline | bullist numlist | key_takeaways custom_image table link | code'
-                            ]"
-                        />
+                         }"
+                         x-init="
+                             initEditor();
+                             if (typeof Livewire !== 'undefined') {
+                                 Livewire.hook('commit', ({ succeed }) => {
+                                     succeed(() => {
+                                         $nextTick(() => initEditor());
+                                     });
+                                 });
+                             }
+                         "
+                    >
+                        <label class="label"><span class="label-text font-semibold">Content</span></label>
+                        <textarea id="blog-post-content-editor" x-ref="tinymce" class="hidden">{{ $content }}</textarea>
                         @error('content') <span class="text-error text-xs block mt-1">{{ $message }}</span> @enderror
                     </div>
 
@@ -142,27 +172,33 @@
     }
 
     function registerTinyMceImagePlugin() {
-        window.tinymce.PluginManager.add('custom_image_plugin', function(editor) {
-            editor.ui.registry.addButton('custom_image', {
-                icon: 'image',
-                tooltip: 'Insert Image from Media Manager',
-                onAction: function () {
-                    window.activeTinyMceEditor = editor;
-                    window.dispatchEvent(new CustomEvent('open-media-selector-custom_editor_insert'));
-                }
-            });
-        });
+        if (!window.tinymce || !window.tinymce.PluginManager) return;
 
-        window.tinymce.PluginManager.add('key_takeaways_plugin', function(editor) {
-            editor.ui.registry.addButton('key_takeaways', {
-                icon: 'star',
-                text: 'Key Takeaways',
-                tooltip: 'Insert Key Takeaways Box',
-                onAction: function () {
-                    editor.insertContent('<div class="takeaways"><h2>Key takeaways</h2><ul><li>First takeaway point...</li><li>Second takeaway point...</li></ul></div><p>&nbsp;</p>');
-                }
+        if (!window.tinymce.PluginManager.get('custom_image_plugin')) {
+            window.tinymce.PluginManager.add('custom_image_plugin', function(editor) {
+                editor.ui.registry.addButton('custom_image', {
+                    icon: 'image',
+                    tooltip: 'Insert Image from Media Manager',
+                    onAction: function () {
+                        window.activeTinyMceEditor = editor;
+                        window.dispatchEvent(new CustomEvent('open-media-selector-custom_editor_insert'));
+                    }
+                });
             });
-        });
+        }
+
+        if (!window.tinymce.PluginManager.get('key_takeaways_plugin')) {
+            window.tinymce.PluginManager.add('key_takeaways_plugin', function(editor) {
+                editor.ui.registry.addButton('key_takeaways', {
+                    icon: 'star',
+                    text: 'Key Takeaways',
+                    tooltip: 'Insert Key Takeaways Box',
+                    onAction: function () {
+                        editor.insertContent('<div class="takeaways"><h2>Key takeaways</h2><ul><li>First takeaway point...</li><li>Second takeaway point...</li></ul></div><p>&nbsp;</p>');
+                    }
+                });
+            });
+        }
     }
 
     // Connect custom Media Selector events to TinyMCE
@@ -191,18 +227,5 @@
     window.addEventListener('media-selected', handleTinyMceMedia);
     if (typeof Livewire !== 'undefined') {
         Livewire.on('media-selected', handleTinyMceMedia);
-    }
-
-    function syncTinyMceContent() {
-        if (typeof window.tinymce !== 'undefined' && window.tinymce.activeEditor) {
-            const html = window.tinymce.activeEditor.getContent();
-            const wireEl = document.querySelector('[wire\\:id]');
-            if (wireEl && window.Livewire) {
-                const component = window.Livewire.find(wireEl.getAttribute('wire:id'));
-                if (component) {
-                    component.set('content', html, false);
-                }
-            }
-        }
     }
 </script>
