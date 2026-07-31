@@ -185,6 +185,42 @@ Route::prefix('maintenance')->group(function () use ($validateMaintenance) {
         Artisan::call('optimize:clear');
         return response()->json(['output' => Artisan::output()]);
     });
+    Route::get('/deploy', function (Request $request) use ($validateMaintenance) {
+        $validateMaintenance($request);
+        
+        $outputs = [];
+
+        // 1. Force Migrate
+        Artisan::call('migrate', ['--force' => true]);
+        $outputs['migrate'] = Artisan::output();
+
+        // 2. Clear previous cache/optimizations & Optimize
+        Artisan::call('optimize:clear');
+        $outputs['optimize_clear'] = Artisan::output();
+
+        Artisan::call('optimize');
+        $outputs['optimize'] = Artisan::output();
+
+        // 3. Storage Link
+        $targetPath = storage_path('app/public');
+        if (!is_dir($targetPath)) {
+            mkdir($targetPath, 0755, true);
+        }
+
+        $linkPath = public_path('storage');
+        if (is_link($linkPath)) {
+            unlink($linkPath);
+        }
+
+        Artisan::call('storage:link');
+        $outputs['storage_link'] = Artisan::output();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Deployment maintenance tasks completed successfully.',
+            'details' => $outputs
+        ]);
+    });
     Route::get('/storage-link', function (Request $request) use ($validateMaintenance) {
         $validateMaintenance($request);
 
