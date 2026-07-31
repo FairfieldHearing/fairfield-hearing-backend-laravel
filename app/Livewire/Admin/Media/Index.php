@@ -29,6 +29,7 @@ class Index extends Component
     public $newImage;
 
     // Details modal
+    public bool $showDetailsModal = false;
     public ?Media $viewingMedia = null;
     public array $viewingUsage = [];
 
@@ -103,11 +104,13 @@ class Index extends Component
         $this->viewingMedia = Media::find($mediaId);
         if ($this->viewingMedia) {
             $this->viewingUsage = $this->viewingMedia->getUsageInfo();
+            $this->showDetailsModal = true;
         }
     }
 
     public function closeDetails()
     {
+        $this->showDetailsModal = false;
         $this->reset(['viewingMedia', 'viewingUsage']);
     }
 

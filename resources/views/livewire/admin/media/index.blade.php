@@ -119,7 +119,7 @@
                                 <button wire:click="viewDetails({{ $media->id }})" class="btn btn-ghost btn-xs p-1 text-primary" title="Details / Usage">
                                     <x-icon name="o-eye" class="w-3.5 h-3.5" />
                                 </button>
-                                <button wire:click="viewDetails({{ $media->id }})" class="btn btn-ghost btn-xs p-1 text-error" title="Delete">
+                                <button wire:click="deleteMedia({{ $media->id }})" wire:confirm="Are you sure you want to delete this image? This action cannot be undone." class="btn btn-ghost btn-xs p-1 text-error" title="Delete Image">
                                     <x-icon name="o-trash" class="w-3.5 h-3.5" />
                                 </button>
                             </div>
@@ -178,7 +178,7 @@
                                             <button wire:click="viewDetails({{ $media->id }})" class="btn btn-ghost btn-xs text-primary" title="Details / Usage">
                                                 <x-icon name="o-eye" class="w-4 h-4" />
                                             </button>
-                                            <button wire:click="viewDetails({{ $media->id }})" class="btn btn-ghost btn-xs text-error" title="Delete">
+                                            <button wire:click="deleteMedia({{ $media->id }})" wire:confirm="Are you sure you want to delete this image? This action cannot be undone." class="btn btn-ghost btn-xs text-error" title="Delete Image">
                                                 <x-icon name="o-trash" class="w-4 h-4" />
                                             </button>
                                         </div>
@@ -198,7 +198,7 @@
 
     <!-- DETAILS & USAGE MODAL -->
     @if($viewingMedia)
-        <x-modal wire:model="viewingMedia" class="backdrop-blur" title="Image Properties & Usage" separator>
+        <x-modal wire:model="showDetailsModal" class="backdrop-blur" title="Image Properties & Usage" separator>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Preview image & meta -->
                 <div class="space-y-4">

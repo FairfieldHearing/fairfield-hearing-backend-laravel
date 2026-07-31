@@ -24,6 +24,13 @@ class Galleries extends Component
     public function mount()
     {
         Gate::authorize('manage-blogs');
+        if (request()->has('folderFilter')) {
+            $folder = request()->query('folderFilter');
+            $validSlugs = ['ric', 'bte', 'rechargeable', 'tinnitus', 'bluetooth', 'invisible'];
+            if (in_array($folder, $validSlugs)) {
+                $this->styleSlug = $folder;
+            }
+        }
     }
 
     public function setStyleSlug(string $slug)
