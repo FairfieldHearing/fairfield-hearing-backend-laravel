@@ -11,7 +11,7 @@
             ]" />
             <span class="eyebrow">{{ $member['eyebrow'] ?: 'Our Specialist' }}</span>
             <h1>{{ $member['name'] }}</h1>
-            <p class="lead">{{ $member['role'] }}</p>
+            <p class="lead">{{ html_entity_decode($member['role']) }}</p>
         </div>
     </section>
 
@@ -19,7 +19,7 @@
         <div class="container profile">
             {{-- left: photo + facts --}}
             <div class="profile__photo">
-                <img src="/{{ $member['photo'] }}" alt="{{ $member['name'] }}, {{ $member['role'] }}">
+                <img src="/{{ $member['photo'] }}" alt="{{ $member['name'] }}, {{ html_entity_decode($member['role']) }}">
                 
                 @if(count($glanceItems) > 0)
                     <div class="profile__card">
@@ -30,9 +30,9 @@
                                     $parts = explode(':', $item, 2);
                                 @endphp
                                 @if(count($parts) > 1)
-                                    <li><strong>{{ trim($parts[0]) }}:</strong>{{ $parts[1] }}</li>
+                                    <li><strong>{{ html_entity_decode(trim($parts[0])) }}:</strong>{{ html_entity_decode($parts[1]) }}</li>
                                 @else
-                                    <li>{{ $item }}</li>
+                                    <li>{{ html_entity_decode($item) }}</li>
                                 @endif
                             @endforeach
                         </ul>
@@ -44,7 +44,7 @@
                         <h4>Areas of expertise</h4>
                         <ul>
                             @foreach($expertiseItems as $item)
-                                <li>{{ $item }}</li>
+                                <li>{{ html_entity_decode($item) }}</li>
                             @endforeach
                         </ul>
                     </div>
@@ -58,12 +58,12 @@
             {{-- right: bio --}}
             <div>
                 @if($member['blockquote'])
-                    <blockquote>&ldquo;{{ $member['blockquote'] }}&rdquo;</blockquote>
+                    <blockquote>&ldquo;{{ html_entity_decode($member['blockquote']) }}&rdquo;</blockquote>
                 @endif
 
                 <h2>About {{ explode(' ', $member['name'])[0] }}</h2>
                 <div class="bio-content">
-                    {!! $member['bio'] !!}
+                    {!! str_replace('\n', "\n", $member['bio']) !!}
                 </div>
 
                 @if(count($timelineItems) > 0)
@@ -71,7 +71,7 @@
                     <ul class="timeline">
                         @foreach($timelineItems as $item)
                             <li>
-                                <span class="yr">{{ $item['year'] ?? '' }}</span> — {{ $item['text'] ?? '' }}
+                                <span class="yr">{{ html_entity_decode($item['year'] ?? '') }}</span> — {{ html_entity_decode($item['text'] ?? '') }}
                             </li>
                         @endforeach
                     </ul>

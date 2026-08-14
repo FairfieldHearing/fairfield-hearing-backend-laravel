@@ -30,7 +30,7 @@
                     <p class="article__review">
                         Written by 
                         @if($postModel->author)
-                            <a href="/team/{{ $postModel->author->slug }}">{{ $postModel->author->name }}</a>, {{ $postModel->author->role }}
+                            <a href="/team/{{ $postModel->author->slug }}">{{ $postModel->author->name }}</a>, {{ html_entity_decode($postModel->author->role) }}
                         @else
                             {{ $post['author_name'] }}
                         @endif

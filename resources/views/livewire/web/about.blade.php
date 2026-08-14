@@ -94,12 +94,12 @@
                   <img
                     class="doc-card__photo"
                     src="/{{ $member['photo'] }}"
-                    alt="{{ $member['name'] }}, {{ $member['role'] }}"
+                    alt="{{ $member['name'] }}, {{ html_entity_decode($member['role']) }}"
                   >
                   <div>
                     <h3>{{ $member['name'] }}</h3>
-                    <p class="role">{{ $member['role'] }}</p>
-                    <p>{{ $member['short_bio'] }}</p>
+                    <p class="role">{{ html_entity_decode($member['role']) }}</p>
+                    <p>{{ html_entity_decode($member['short_bio']) }}</p>
                     <a href="/team/{{ $member['slug'] }}">
                       Read full profile &rarr;
                     </a>
@@ -117,15 +117,15 @@
                   <img
                     class="doc-card__photo"
                     src="/{{ $member['photo'] }}"
-                    alt="{{ $member['name'] }}, {{ $member['role'] }}"
+                    alt="{{ $member['name'] }}, {{ html_entity_decode($member['role']) }}"
                   >
                   <div>
                     <h3>{{ $member['name'] }}</h3>
-                    <p class="role">{{ $member['role'] }}</p>
+                    <p class="role">{{ html_entity_decode($member['role']) }}</p>
                     @if($member['blockquote'])
-                        <p class="quote">{{ $member['blockquote'] }}</p>
+                        <p class="quote">{{ html_entity_decode($member['blockquote']) }}</p>
                     @endif
-                    <p>{{ $member['short_bio'] }}</p>
+                    <p>{{ html_entity_decode($member['short_bio']) }}</p>
                     <a href="/team/{{ $member['slug'] }}">
                       Read full profile &rarr;
                     </a>
@@ -144,12 +144,12 @@
                     <img
                       class="person-card__photo"
                       src="/{{ $member['photo'] }}"
-                      alt="{{ $member['name'] }}, {{ $member['role'] }}"
+                      alt="{{ $member['name'] }}, {{ html_entity_decode($member['role']) }}"
                     >
                     <div class="person-card__body">
                       <h3>{{ $member['name'] }}</h3>
-                      <p class="role">{{ $member['role'] }}</p>
-                      <p>{{ $member['short_bio'] }}</p>
+                      <p class="role">{{ html_entity_decode($member['role']) }}</p>
+                      <p>{{ html_entity_decode($member['short_bio']) }}</p>
                       <a href="/team/{{ $member['slug'] }}">
                         View profile &rarr;
                       </a>
@@ -172,12 +172,12 @@
                     <img
                       class="person-card__photo"
                       src="/{{ $member['photo'] }}"
-                      alt="{{ $member['name'] }}, {{ $member['role'] }}"
+                      alt="{{ $member['name'] }}, {{ html_entity_decode($member['role']) }}"
                     >
                     <div class="person-card__body">
                       <h3>{{ $member['name'] }}</h3>
-                      <p class="role">{{ $member['role'] }}</p>
-                      <p>{{ $member['short_bio'] }}</p>
+                      <p class="role">{{ html_entity_decode($member['role']) }}</p>
+                      <p>{{ html_entity_decode($member['short_bio']) }}</p>
                       <a href="/team/{{ $member['slug'] }}">
                         View profile &rarr;
                       </a>
