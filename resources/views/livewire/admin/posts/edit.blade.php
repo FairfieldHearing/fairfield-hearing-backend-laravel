@@ -68,6 +68,16 @@
                                      branding: false,
                                      plugins: 'advlist autolink lists link image table quickbars custom_image_plugin key_takeaways_plugin code',
                                      toolbar: 'undo redo | blocks | bold italic underline | bullist numlist | key_takeaways custom_image table link | code',
+                                     paste_preprocess: function(plugin, args) {
+                                         // Remove <style> blocks injected by Word
+                                         args.content = args.content.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+                                         // Strip MsoNormal / Word-class attributes from elements
+                                         args.content = args.content.replace(/\s*class="[^"]*Mso[^"]*"/gi, '');
+                                         // Strip SourceURL and CSS-text Word pastes as a text prefix
+                                         args.content = args.content.replace(/^(\s*(SourceURL:[^\n]*|@[\w\-]+\{[^}]*\}|[\w.#][^{]*\{[^}]*\}|\s*))+/si, '');
+                                         // Strip MSO conditional comments
+                                         args.content = args.content.replace(/<!--\[if[^\]]*\]>[\s\S]*?<!\[endif\]-->/gi, '');
+                                     },
                                      setup: (editor) => {
                                          editor.on('keyup change undo redo NodeChange blur', () => {
                                              this.value = editor.getContent();

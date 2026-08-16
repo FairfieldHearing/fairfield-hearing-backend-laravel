@@ -268,15 +268,31 @@ class Edit extends Component
             $blocks = [];
 
             if (!empty(trim($rawHtml))) {
-                // Use DOMDocument to cleanly parse HTML elements into block JSON array
+                // ── Pre-processing: strip Word/Libre Office CSS artifacts ──────────────
+                // Word HTML paste includes raw @font-face / MsoNormal style blocks as
+                // text. Strip them before DOMDocument sees the markup.
+                $rawHtml = preg_replace('/<style[^>]*>.*?<\/style>/is', '', $rawHtml);
+                // Strip inline Word class attributes that pollute the block detection
+                $rawHtml = preg_replace('/\s*class="[^"]*Mso[^"]*"/i', '', $rawHtml);
+                // Strip any leading CSS-looking text (SourceURL, @font-face etc.)
+                // that Word injects as a plain-text prefix before the actual HTML
+                $rawHtml = preg_replace('/^(\s*(SourceURL:[^\n]*|@[a-z\-]+\{[^}]*\}|[a-z.#][^{]*\{[^}]*\}|\s*))+/si', '', $rawHtml);
+                $rawHtml = trim($rawHtml);
+
+                // Use a unique wrapper ID so getElementsByTagName('div')->item(0) can
+                // never accidentally resolve to a *child* div (e.g. .takeaways block)
+                $wrapperId = 'tinymce_root_' . uniqid();
+
                 $dom = new \DOMDocument();
-                // Suppress HTML5 parsing warnings
                 libxml_use_internal_errors(true);
-                $dom->loadHTML('<?xml encoding="utf-8" ?><div>' . $rawHtml . '</div>', LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+                $dom->loadHTML(
+                    '<?xml encoding="utf-8" ?><div id="' . $wrapperId . '">' . $rawHtml . '</div>',
+                    LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+                );
                 libxml_clear_errors();
 
                 /** @var \DOMElement|null $container */
-                $container = $dom->getElementsByTagName('div')->item(0);
+                $container = $dom->getElementById($wrapperId);
                 if ($container && $container->hasChildNodes()) {
                     foreach ($container->childNodes as $node) {
                         if (!$node instanceof \DOMElement) {
