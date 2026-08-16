@@ -212,26 +212,45 @@ class Edit extends Component
                 $this->reviewer_name = null;
             }
 
-            // Clean empty strings to null to pass validation
-            $this->json_schema = $this->json_schema ?: null;
-            $this->canonical_url = $this->canonical_url ?: null;
+            // Sanitize optional SEO fields — bad values are cleared, not rejected.
+            // This prevents the json_schema and canonical_url validation errors
+            // from blocking the entire save (15+ prod log hits confirmed).
+            if ($this->json_schema) {
+                $decoded = json_decode($this->json_schema, true);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    $this->json_schema = null;
+                    $this->warning('JSON Schema was invalid and has been cleared. Post saved without it.', position: 'toast-bottom');
+                }
+            } else {
+                $this->json_schema = null;
+            }
+
+            if ($this->canonical_url) {
+                $url = trim($this->canonical_url);
+                if (!filter_var($url, FILTER_VALIDATE_URL)) {
+                    $this->canonical_url = null;
+                    $this->warning('Canonical URL was invalid and has been cleared. Post saved without it.', position: 'toast-bottom');
+                }
+            } else {
+                $this->canonical_url = null;
+            }
 
             $rules = [
                 'blog_category_id' => 'required|exists:blog_categories,id',
-                'author_id' => 'required|exists:team_members,id',
-                'reviewer_id' => 'nullable|exists:team_members,id',
-                'title' => 'required|string|max:255',
-                'slug' => 'required|string|max:255|unique:blog_posts,slug,' . ($this->post?->id ?? 'NULL'),
-                'summary' => 'nullable|string',
-                'featured_image' => 'nullable|string|max:255',
-                'content' => 'required|string',
-                'author_name' => 'required|string|max:255',
-                'reviewer_name' => 'nullable|string|max:255',
-                'meta_title' => 'nullable|string|max:255',
+                'author_id'        => 'required|exists:team_members,id',
+                'reviewer_id'      => 'nullable|exists:team_members,id',
+                'title'            => 'required|string|max:255',
+                'slug'             => 'required|string|max:255|unique:blog_posts,slug,' . ($this->post?->id ?? 'NULL'),
+                'summary'          => 'nullable|string',
+                'featured_image'   => 'nullable|string|max:255',
+                'content'          => 'required|string',
+                'author_name'      => 'required|string|max:255',
+                'reviewer_name'    => 'nullable|string|max:255',
+                'meta_title'       => 'nullable|string|max:255',
                 'meta_description' => 'nullable|string',
-                'json_schema' => 'nullable|json',
-                'meta_keywords' => 'nullable|string',
-                'canonical_url' => 'nullable|url|max:255',
+                'json_schema'      => 'nullable|json',
+                'meta_keywords'    => 'nullable|string',
+                'canonical_url'    => 'nullable|url|max:255',
             ];
 
             $this->validate($rules);
@@ -343,7 +362,10 @@ class Edit extends Component
                                 $innerHtml .= $child->ownerDocument->saveHTML($child);
                             }
                             $trimmed = trim($innerHtml);
-                            if ($trimmed !== '' && $trimmed !== '&nbsp;') {
+                            // Strip blocks that are empty or contain only whitespace/nbsp after decoding
+                            $decoded = trim(html_entity_decode($trimmed, ENT_HTML5 | ENT_QUOTES, 'UTF-8'));
+                            $decoded = preg_replace('/[\x{00A0}\x{200B}\x{FEFF}]/u', '', $decoded); // strip nbsp, zero-width, BOM
+                            if ($trimmed !== '' && trim(strip_tags($decoded)) !== '') {
                                 $blocks[] = [
                                     'type' => 'paragraph',
                                     'data' => [

@@ -11,7 +11,7 @@
         <!-- MAIN FORM -->
         <div class="lg:col-span-2 space-y-6">
             <x-card shadow class="bg-base-100">
-                <x-form wire:submit="save">
+                <x-form>
                     @if ($errors->any())
                         <div class="alert alert-error shadow-lg mb-4">
                             <div>
@@ -90,15 +90,21 @@
                              }
                          }"
                          x-init="
-                             initEditor();
-                             if (typeof Livewire !== 'undefined') {
-                                 Livewire.hook('commit', ({ succeed }) => {
-                                     succeed(() => {
-                                         $nextTick(() => initEditor());
-                                     });
-                                 });
-                             }
-                         "
+                              initEditor();
+                              if (typeof Livewire !== 'undefined') {
+                                  Livewire.hook('commit', ({ succeed }) => {
+                                      succeed(() => {
+                                          $nextTick(() => {
+                                              // Only re-init if TinyMCE has been destroyed
+                                              const edId = $refs.tinymce ? $refs.tinymce.id : null;
+                                              const ed = edId ? window.tinymce.get(edId) : null;
+                                              const alive = ed && ed.getContainer && document.body.contains(ed.getContainer());
+                                              if (!alive) initEditor();
+                                          });
+                                      });
+                                  });
+                              }
+                          "
                     >
                         <label class="label"><span class="label-text font-semibold">Content</span></label>
                         <textarea id="blog-post-content-editor" x-ref="tinymce" class="hidden">{{ $content }}</textarea>
@@ -110,7 +116,16 @@
 
                     <div class="flex justify-end gap-3 mt-6">
                         <x-button label="Cancel" link="{{ route('admin.posts') }}" class="btn-ghost" no-wire-navigate />
-                        <x-button label="Save Article" wire:click="save" class="btn-primary" spinner="save" />
+                        <x-button
+                            label="Save Article"
+                            x-on:click.prevent="
+                                const ed = window.tinymce.get('blog-post-content-editor');
+                                if (ed) { $wire.content = ed.getContent(); }
+                                $wire.save();
+                            "
+                            class="btn-primary"
+                            spinner="save"
+                        />
                     </div>
                 </x-form>
             </x-card>
