@@ -71,8 +71,8 @@
                                      paste_preprocess: function(plugin, args) {
                                          // Remove <style> blocks injected by Word
                                          args.content = args.content.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
-                                         // Strip MsoNormal / Word-class attributes from elements
-                                         args.content = args.content.replace(/\s*class="[^"]*Mso[^"]*"/gi, '');
+                                         // Strip MsoNormal / Word-class attributes from elements (using \x22 to avoid breaking x-data double quotes)
+                                         args.content = args.content.replace(/\s*class=\x22[^\x22]*Mso[^\x22]*\x22/gi, '');
                                          // Strip SourceURL and CSS-text Word pastes as a text prefix
                                          args.content = args.content.replace(/^(\s*(SourceURL:[^\n]*|@[\w\-]+\{[^}]*\}|[\w.#][^{]*\{[^}]*\}|\s*))+/si, '');
                                          // Strip MSO conditional comments
