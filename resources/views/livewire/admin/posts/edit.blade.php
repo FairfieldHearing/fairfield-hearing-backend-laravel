@@ -243,4 +243,38 @@
     if (typeof Livewire !== 'undefined') {
         Livewire.on('media-selected', handleTinyMceMedia);
     }
+
+    // Client-side Error Logger to laravel.log in production
+    (function() {
+        const logClientError = function(message, source, lineno, colno, error) {
+            try {
+                fetch('/api/log-client-error', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+                    },
+                    body: JSON.stringify({
+                        error: message || 'Unknown JS Error',
+                        url: source || window.location.href,
+                        line: lineno || 0,
+                        col: colno || 0,
+                        stack: error && error.stack ? error.stack : ''
+                    })
+                });
+            } catch(e) {}
+        };
+
+        window.onerror = function(message, source, lineno, colno, error) {
+            logClientError(message, source, lineno, colno, error);
+            return false; // let default browser handling run too
+        };
+
+        window.addEventListener('unhandledrejection', function(event) {
+            const reason = event.reason;
+            const message = reason instanceof Error ? reason.message : String(reason);
+            const stack = reason instanceof Error ? reason.stack : '';
+            logClientError('Unhandled Promise Rejection: ' + message, window.location.href, 0, 0, { stack });
+        });
+    })();
 </script>

@@ -237,6 +237,70 @@ Route::prefix('maintenance')->group(function () use ($validateMaintenance) {
         Artisan::call('storage:link');
         return response()->json(['output' => Artisan::output()]);
     });
+
+    // Production-safe Log Viewer & Cleaner (Bypasses Local Env check, but strictly requires token)
+    $validateTokenOnly = function (Request $request) {
+        $token = $request->header('X-Maintenance-Token') ?: $request->input('token');
+        $expectedToken = config('admin.maintenance_token');
+        if (empty($expectedToken) || $token !== $expectedToken) {
+            abort(401, 'Unauthorized token.');
+        }
+    };
+
+    Route::get('/logs', function (Request $request) use ($validateTokenOnly) {
+        $validateTokenOnly($request);
+        $logFile = storage_path('logs/laravel.log');
+        if (!file_exists($logFile)) {
+            return response()->json(['message' => 'No log file found.']);
+        }
+        $lines = (int)$request->input('lines', 200);
+        
+        // Read last N lines efficiently
+        $file = new \SplFileObject($logFile, 'r');
+        $file->seek(PHP_INT_MAX);
+        $totalLines = $file->key();
+        
+        $start = max(0, $totalLines - $lines);
+        $file->seek($start);
+        
+        $output = '';
+        while (!$file->eof()) {
+            $output .= $file->current();
+            $file->next();
+        }
+        
+        return response($output, 200, ['Content-Type' => 'text/plain; charset=utf-8']);
+    });
+
+    Route::get('/logs/clear', function (Request $request) use ($validateTokenOnly) {
+        $validateTokenOnly($request);
+        $logFile = storage_path('logs/laravel.log');
+        if (file_exists($logFile)) {
+            file_put_contents($logFile, '');
+            return response()->json(['status' => 'success', 'message' => 'Log file cleared.']);
+        }
+        return response()->json(['status' => 'success', 'message' => 'No log file to clear.']);
+    });
+});
+
+// Capture Browser/Client-side JS console errors and stream them to laravel.log
+Route::post('/api/log-client-error', function (Request $request) {
+    $error = $request->input('error');
+    $url = $request->input('url');
+    $line = $request->input('line');
+    $col = $request->input('col');
+    $stack = $request->input('stack');
+    $userAgent = $request->header('User-Agent');
+
+    \Illuminate\Support\Facades\Log::error('Browser Console Error: ' . $error, [
+        'url' => $url,
+        'line' => $line,
+        'col' => $col,
+        'userAgent' => $userAgent,
+        'stack' => $stack,
+    ]);
+
+    return response()->json(['status' => 'logged']);
 });
 
 Route::get('/sitemap.xml', function () {
