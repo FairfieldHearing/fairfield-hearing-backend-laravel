@@ -18,6 +18,8 @@ class BlogPost extends Model
         'content',
         'author_name',
         'reviewer_name',
+        'key_takeaways',
+        'editor_type',
         'meta_title',
         'meta_description',
         'json_schema',
@@ -28,6 +30,7 @@ class BlogPost extends Model
     protected $casts = [
         'content' => 'array',
         'json_schema' => 'array',
+        'key_takeaways' => 'array',
     ];
 
     public function author()

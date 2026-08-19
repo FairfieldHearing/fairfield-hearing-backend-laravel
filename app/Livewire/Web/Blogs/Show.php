@@ -50,6 +50,16 @@ class Show extends Component
 
         // Convert JSON array blocks or HTML content string to rendered HTML
         $renderedHtml = '';
+        
+        $hasNewTakeaways = !empty($this->postModel->key_takeaways);
+        if ($hasNewTakeaways) {
+            $renderedHtml .= '<div class="takeaways"><h2>Key takeaways</h2><ul>';
+            foreach ($this->postModel->key_takeaways as $takeaway) {
+                $renderedHtml .= '<li>' . $takeaway . '</li>';
+            }
+            $renderedHtml .= '</ul></div>';
+        }
+
         $content = $this->postModel->content;
 
         // Loop un-wrapping in case stored content is double-encoded or stringified
@@ -84,13 +94,17 @@ class Show extends Component
                     $id = str(strip_tags($text))->slug()->toString();
                     $renderedHtml .= "<h{$level} id=\"{$id}\">{$text}</h{$level}>";
                 } elseif ($type === 'takeaways') {
-                    $title = $data['title'] ?? 'Key takeaways';
-                    $items = $data['items'] ?? [];
-                    $renderedHtml .= '<div class="takeaways"><h2>' . e($title) . '</h2><ul>';
-                    foreach ($items as $item) {
-                        $renderedHtml .= '<li>' . $item . '</li>';
+                    if (!$hasNewTakeaways) {
+                        $title = $data['title'] ?? 'Key takeaways';
+                        $items = $data['items'] ?? [];
+                        $renderedHtml .= '<div class="takeaways"><h2>' . e($title) . '</h2><ul>';
+                        foreach ($items as $item) {
+                            $renderedHtml .= '<li>' . $item . '</li>';
+                        }
+                        $renderedHtml .= '</ul></div>';
                     }
-                    $renderedHtml .= '</ul></div>';
+                } elseif ($type === 'markdown') {
+                    $renderedHtml .= \Illuminate\Support\Str::markdown($data['text'] ?? '');
                 } elseif ($type === 'list') {
                     $items = $data['items'] ?? [];
                     $renderedHtml .= '<ul>';

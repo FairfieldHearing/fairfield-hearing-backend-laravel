@@ -32,6 +32,9 @@ class Edit extends Component
     public ?string $json_schema = null;
     public ?string $meta_keywords = null;
     public ?string $canonical_url = null;
+    public array $key_takeaways = [];
+    public string $editor_type = 'html';
+    public string $markdown_content = '';
 
     // FAQs inline management
     public array $linkedFaqs = [];
@@ -51,55 +54,62 @@ class Edit extends Component
             $this->slug = $post->slug;
             $this->summary = $post->summary ?? '';
             $this->featured_image = $post->featured_image;
+            
+            $this->key_takeaways = $post->key_takeaways ?? [];
+            $this->editor_type = $post->editor_type ?? 'html';
+
             // Render content cleanly into HTML for TinyMCE editor
             if (is_array($post->content)) {
-                $html = '';
-                foreach ($post->content as $block) {
-                    $type = $block['type'] ?? '';
-                    $data = $block['data'] ?? [];
+                if ($this->editor_type === 'markdown' || (isset($post->content[0]['type']) && $post->content[0]['type'] === 'markdown')) {
+                    $this->editor_type = 'markdown';
+                    $this->markdown_content = $post->content[0]['data']['text'] ?? '';
+                    $this->content = '';
+                } else {
+                    $html = '';
+                    foreach ($post->content as $block) {
+                        $type = $block['type'] ?? '';
+                        $data = $block['data'] ?? [];
 
-                    if ($type === 'paragraph') {
-                        $html .= '<p>' . ($data['text'] ?? '') . '</p>';
-                    } elseif ($type === 'heading') {
-                        $level = $data['level'] ?? 2;
-                        $text = $data['text'] ?? '';
-                        $html .= "<h{$level}>{$text}</h{$level}>";
-                    } elseif ($type === 'takeaways') {
-                        $title = $data['title'] ?? 'Key takeaways';
-                        $items = $data['items'] ?? [];
-                        $html .= '<div class="takeaways"><h2>' . e($title) . '</h2><ul>';
-                        foreach ($items as $item) {
-                            $html .= '<li>' . $item . '</li>';
-                        }
-                        $html .= '</ul></div>';
-                    } elseif ($type === 'list') {
-                        $items = $data['items'] ?? [];
-                        $html .= '<ul>';
-                        foreach ($items as $item) {
-                            $html .= '<li>' . $item . '</li>';
-                        }
-                        $html .= '</ul>';
-                    } elseif ($type === 'table') {
-                        $headers = $data['headers'] ?? [];
-                        $rows = $data['rows'] ?? [];
-                        $html .= '<table><thead><tr>';
-                        foreach ($headers as $th) {
-                            $html .= '<th>' . e($th) . '</th>';
-                        }
-                        $html .= '</tr></thead><tbody>';
-                        foreach ($rows as $row) {
-                            $html .= '<tr>';
-                            foreach ($row as $td) {
-                                $html .= '<td>' . $td . '</td>';
+                        if ($type === 'paragraph') {
+                            $html .= '<p>' . ($data['text'] ?? '') . '</p>';
+                        } elseif ($type === 'heading') {
+                            $level = $data['level'] ?? 2;
+                            $text = $data['text'] ?? '';
+                            $html .= "<h{$level}>{$text}</h{$level}>";
+                        } elseif ($type === 'takeaways') {
+                            if (empty($this->key_takeaways)) {
+                                $this->key_takeaways = $data['items'] ?? [];
                             }
-                            $html .= '</tr>';
+                        } elseif ($type === 'list') {
+                            $items = $data['items'] ?? [];
+                            $html .= '<ul>';
+                            foreach ($items as $item) {
+                                $html .= '<li>' . $item . '</li>';
+                            }
+                            $html .= '</ul>';
+                        } elseif ($type === 'table') {
+                            $headers = $data['headers'] ?? [];
+                            $rows = $data['rows'] ?? [];
+                            $html .= '<table><thead><tr>';
+                            foreach ($headers as $th) {
+                                $html .= '<th>' . e($th) . '</th>';
+                            }
+                            $html .= '</tr></thead><tbody>';
+                            foreach ($rows as $row) {
+                                $html .= '<tr>';
+                                foreach ($row as $td) {
+                                    $html .= '<td>' . $td . '</td>';
+                                }
+                                $html .= '</tr>';
+                            }
+                            $html .= '</tbody></table>';
                         }
-                        $html .= '</tbody></table>';
                     }
+                    $this->content = $html;
                 }
-                $this->content = $html;
             } else {
                 $this->content = $post->content ?? '';
+                $this->editor_type = 'html';
             }
             $this->author_name = $post->author_name;
             $this->reviewer_name = $post->reviewer_name ?? '';
@@ -243,7 +253,8 @@ class Edit extends Component
                 'slug'             => 'required|string|max:255|unique:blog_posts,slug,' . ($this->post?->id ?? 'NULL'),
                 'summary'          => 'nullable|string',
                 'featured_image'   => 'nullable|string|max:255',
-                'content'          => 'required|string',
+                'content'          => $this->editor_type === 'html' ? 'required|string' : 'nullable|string',
+                'markdown_content' => $this->editor_type === 'markdown' ? 'required|string' : 'nullable|string',
                 'author_name'      => 'required|string|max:255',
                 'reviewer_name'    => 'nullable|string|max:255',
                 'meta_title'       => 'nullable|string|max:255',
@@ -251,6 +262,8 @@ class Edit extends Component
                 'json_schema'      => 'nullable|json',
                 'meta_keywords'    => 'nullable|string',
                 'canonical_url'    => 'nullable|url|max:255',
+                'key_takeaways'    => 'nullable|array',
+                'key_takeaways.*'  => 'nullable|string',
             ];
 
             $this->validate($rules);
@@ -263,144 +276,158 @@ class Edit extends Component
                 }
             }
 
-            // Parse HTML content string from TinyMCE into clean JSON block structure
-            $rawHtml = $this->content;
             $blocks = [];
 
-            if (!empty(trim($rawHtml))) {
-                // ── Pre-processing: strip Word/Libre Office CSS artifacts ──────────────
-                // Word HTML paste includes raw @font-face / MsoNormal style blocks as
-                // text. Strip them before DOMDocument sees the markup.
-                $rawHtml = preg_replace('/<style[^>]*>.*?<\/style>/is', '', $rawHtml);
-                // Strip inline Word class attributes that pollute the block detection
-                $rawHtml = preg_replace('/\s*class="[^"]*Mso[^"]*"/i', '', $rawHtml);
-                // Strip any leading CSS-looking text (SourceURL, @font-face etc.)
-                // that Word injects as a plain-text prefix before the actual HTML
-                $rawHtml = preg_replace('/^(\s*(SourceURL:[^\n]*|@[a-z\-]+\{[^}]*\}|[a-z.#][^{]*\{[^}]*\}|\s*))+/si', '', $rawHtml);
-                $rawHtml = trim($rawHtml);
+            if ($this->editor_type === 'markdown') {
+                $blocks = [
+                    [
+                        'type' => 'markdown',
+                        'data' => [
+                            'text' => $this->markdown_content
+                        ]
+                    ]
+                ];
+            } else {
+                // Parse HTML content string from TinyMCE into clean JSON block structure
+                $rawHtml = $this->content;
 
-                // Use a unique wrapper ID so getElementsByTagName('div')->item(0) can
-                // never accidentally resolve to a *child* div (e.g. .takeaways block)
-                $wrapperId = 'tinymce_root_' . uniqid();
+                if (!empty(trim($rawHtml))) {
+                    // ── Pre-processing: strip Word/Libre Office CSS artifacts ──────────────
+                    // Word HTML paste includes raw @font-face / MsoNormal style blocks as
+                    // text. Strip them before DOMDocument sees the markup.
+                    $rawHtml = preg_replace('/<style[^>]*>.*?<\/style>/is', '', $rawHtml);
+                    // Strip inline Word class attributes that pollute the block detection
+                    $rawHtml = preg_replace('/\s*class="[^"]*Mso[^"]*"/i', '', $rawHtml);
+                    // Strip any leading CSS-looking text (SourceURL, @font-face etc.)
+                    // that Word injects as a plain-text prefix before the actual HTML
+                    $rawHtml = preg_replace('/^(\s*(SourceURL:[^\n]*|@[a-z\-]+\{[^}]*\}|[a-z.#][^{]*\{[^}]*\}|\s*))+/si', '', $rawHtml);
+                    $rawHtml = trim($rawHtml);
 
-                $dom = new \DOMDocument();
-                libxml_use_internal_errors(true);
-                $dom->loadHTML(
-                    '<?xml encoding="utf-8" ?><div id="' . $wrapperId . '">' . $rawHtml . '</div>',
-                    LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
-                );
-                libxml_clear_errors();
+                    // Use a unique wrapper ID so getElementsByTagName('div')->item(0) can
+                    // never accidentally resolve to a *child* div (e.g. .takeaways block)
+                    $wrapperId = 'tinymce_root_' . uniqid();
 
-                /** @var \DOMElement|null $container */
-                $container = $dom->getElementById($wrapperId);
-                if ($container && $container->hasChildNodes()) {
-                    foreach ($container->childNodes as $node) {
-                        if (!$node instanceof \DOMElement) {
-                            continue;
-                        }
+                    $dom = new \DOMDocument();
+                    libxml_use_internal_errors(true);
+                    $dom->loadHTML(
+                        '<?xml encoding="utf-8" ?><div id="' . $wrapperId . '">' . $rawHtml . '</div>',
+                        LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+                    );
+                    libxml_clear_errors();
 
-                        $tagName = strtolower($node->tagName);
+                    /** @var \DOMElement|null $container */
+                    $container = $dom->getElementById($wrapperId);
+                    if ($container && $container->hasChildNodes()) {
+                        foreach ($container->childNodes as $node) {
+                            if (!$node instanceof \DOMElement) {
+                                continue;
+                            }
 
-                        if (in_array($tagName, ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])) {
-                            $level = (int) substr($tagName, 1);
-                            $blocks[] = [
-                                'type' => 'heading',
-                                'data' => [
-                                    'level' => $level,
-                                    'text' => trim($node->ownerDocument->saveHTML($node)) ? trim(strip_tags($node->textContent)) : ''
-                                ]
-                            ];
-                        } elseif ($tagName === 'div' && str_contains($node->getAttribute('class'), 'takeaways')) {
-                            /** @var \DOMElement|null $titleNode */
-                            $titleNode = $node->getElementsByTagName('h2')->item(0);
-                            $titleText = $titleNode ? trim($titleNode->textContent) : 'Key takeaways';
-                            $listItems = [];
-                            foreach ($node->getElementsByTagName('li') as $li) {
-                                $innerHtml = '';
-                                foreach ($li->childNodes as $child) {
-                                    $innerHtml .= $child->ownerDocument->saveHTML($child);
-                                }
-                                $listItems[] = trim($innerHtml);
-                            }
-                            $blocks[] = [
-                                'type' => 'takeaways',
-                                'data' => [
-                                    'title' => $titleText,
-                                    'items' => $listItems
-                                ]
-                            ];
-                        } elseif ($tagName === 'ul' || $tagName === 'ol') {
-                            $listItems = [];
-                            foreach ($node->getElementsByTagName('li') as $li) {
-                                $innerHtml = '';
-                                foreach ($li->childNodes as $child) {
-                                    $innerHtml .= $child->ownerDocument->saveHTML($child);
-                                }
-                                $listItems[] = trim($innerHtml);
-                            }
-                            $blocks[] = [
-                                'type' => 'list',
-                                'data' => [
-                                    'items' => $listItems
-                                ]
-                            ];
-                        } elseif ($tagName === 'table') {
-                            $headers = [];
-                            foreach ($node->getElementsByTagName('th') as $th) {
-                                $headers[] = trim($th->textContent);
-                            }
-                            $rows = [];
-                            foreach ($node->getElementsByTagName('tr') as $tr) {
-                                /** @var \DOMElement $tr */
-                                $row = [];
-                                foreach ($tr->getElementsByTagName('td') as $td) {
-                                    $innerHtml = '';
-                                    foreach ($td->childNodes as $child) {
-                                        $innerHtml .= $child->ownerDocument->saveHTML($child);
-                                    }
-                                    $row[] = trim($innerHtml);
-                                }
-                                if (!empty($row)) {
-                                    $rows[] = $row;
-                                }
-                            }
-                            $blocks[] = [
-                                'type' => 'table',
-                                'data' => [
-                                    'headers' => $headers,
-                                    'rows' => $rows
-                                ]
-                            ];
-                        } else {
-                            // Paragraph or fallback element
-                            $innerHtml = '';
-                            foreach ($node->childNodes as $child) {
-                                $innerHtml .= $child->ownerDocument->saveHTML($child);
-                            }
-                            $trimmed = trim($innerHtml);
-                            // Strip blocks that are empty or contain only whitespace/nbsp after decoding
-                            $decoded = trim(html_entity_decode($trimmed, ENT_HTML5 | ENT_QUOTES, 'UTF-8'));
-                            $decoded = preg_replace('/[\x{00A0}\x{200B}\x{FEFF}]/u', '', $decoded); // strip nbsp, zero-width, BOM
-                            if ($trimmed !== '' && trim(strip_tags($decoded)) !== '') {
+                            $tagName = strtolower($node->tagName);
+
+                            if (in_array($tagName, ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'])) {
+                                $level = (int) substr($tagName, 1);
                                 $blocks[] = [
-                                    'type' => 'paragraph',
+                                    'type' => 'heading',
                                     'data' => [
-                                        'text' => $trimmed
+                                        'level' => $level,
+                                        'text' => trim($node->ownerDocument->saveHTML($node)) ? trim(strip_tags($node->textContent)) : ''
                                     ]
                                 ];
+                            } elseif ($tagName === 'div' && str_contains($node->getAttribute('class'), 'takeaways')) {
+                                /** @var \DOMElement|null $titleNode */
+                                $titleNode = $node->getElementsByTagName('h2')->item(0);
+                                $titleText = $titleNode ? trim($titleNode->textContent) : 'Key takeaways';
+                                $listItems = [];
+                                foreach ($node->getElementsByTagName('li') as $li) {
+                                    $innerHtml = '';
+                                    foreach ($li->childNodes as $child) {
+                                        $innerHtml .= $child->ownerDocument->saveHTML($child);
+                                    }
+                                    $listItems[] = trim($innerHtml);
+                                }
+                                $blocks[] = [
+                                    'type' => 'takeaways',
+                                    'data' => [
+                                        'title' => $titleText,
+                                        'items' => $listItems
+                                    ]
+                                ];
+                            } elseif ($tagName === 'ul' || $tagName === 'ol') {
+                                $listItems = [];
+                                foreach ($node->getElementsByTagName('li') as $li) {
+                                    $innerHtml = '';
+                                    foreach ($li->childNodes as $child) {
+                                        $innerHtml .= $child->ownerDocument->saveHTML($child);
+                                    }
+                                    $listItems[] = trim($innerHtml);
+                                }
+                                $blocks[] = [
+                                    'type' => 'list',
+                                    'data' => [
+                                        'items' => $listItems
+                                    ]
+                                ];
+                            } elseif ($tagName === 'table') {
+                                $headers = [];
+                                foreach ($node->getElementsByTagName('th') as $th) {
+                                    $headers[] = trim($th->textContent);
+                                }
+                                $rows = [];
+                                foreach ($node->getElementsByTagName('tr') as $tr) {
+                                    /** @var \DOMElement $tr */
+                                    $row = [];
+                                    foreach ($tr->getElementsByTagName('td') as $td) {
+                                        $innerHtml = '';
+                                        foreach ($td->childNodes as $child) {
+                                            $innerHtml .= $child->ownerDocument->saveHTML($child);
+                                        }
+                                        $row[] = trim($innerHtml);
+                                    }
+                                    if (!empty($row)) {
+                                        $rows[] = $row;
+                                    }
+                                }
+                                $blocks[] = [
+                                    'type' => 'table',
+                                    'data' => [
+                                        'headers' => $headers,
+                                        'rows' => $rows
+                                    ]
+                                ];
+                            } else {
+                                // Paragraph or fallback element
+                                $innerHtml = '';
+                                foreach ($node->childNodes as $child) {
+                                    $innerHtml .= $child->ownerDocument->saveHTML($child);
+                                }
+                                $trimmed = trim($innerHtml);
+                                // Strip blocks that are empty or contain only whitespace/nbsp after decoding
+                                $decoded = trim(html_entity_decode($trimmed, ENT_HTML5 | ENT_QUOTES, 'UTF-8'));
+                                $decoded = preg_replace('/[\x{00A0}\x{200B}\x{FEFF}]/u', '', $decoded); // strip nbsp, zero-width, BOM
+                                if ($trimmed !== '' && trim(strip_tags($decoded)) !== '') {
+                                    $blocks[] = [
+                                        'type' => 'paragraph',
+                                        'data' => [
+                                            'text' => $trimmed
+                                        ]
+                                    ];
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            if (empty($blocks) && !empty(trim($rawHtml))) {
-                $blocks = [
-                    ['type' => 'paragraph', 'data' => ['text' => trim($rawHtml)]]
-                ];
+                if (empty($blocks) && !empty(trim($rawHtml))) {
+                    $blocks = [
+                        ['type' => 'paragraph', 'data' => ['text' => trim($rawHtml)]]
+                    ];
+                }
             }
 
             $decodedSchema = $this->json_schema ? json_decode($this->json_schema, true) : null;
+            
+            $finalTakeaways = array_values(array_filter($this->key_takeaways, fn($val) => !empty(trim($val))));
 
             $data = [
                 'blog_category_id' => $this->blog_category_id,
@@ -412,6 +439,8 @@ class Edit extends Component
                 'featured_image' => $this->featured_image,
                 'featured_image_media_id' => $featuredImageMediaId,
                 'content' => $blocks,
+                'key_takeaways' => count($finalTakeaways) > 0 ? $finalTakeaways : null,
+                'editor_type' => $this->editor_type,
                 'author_name' => $this->author_name,
                 'reviewer_name' => $this->reviewer_name,
                 'meta_title' => $this->meta_title,

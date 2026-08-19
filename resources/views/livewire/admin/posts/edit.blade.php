@@ -44,81 +44,195 @@
                     </div>
 
                     <x-textarea label="Summary" wire:model="summary" rows="3" />
-                    
-                    <div class="space-y-2" wire:ignore
-                         x-data="{
-                             value: @entangle('content'),
-                             initEditor() {
-                                 if (!window.tinymce || !$refs.tinymce) return;
 
-                                 const existing = window.tinymce.get($refs.tinymce.id);
-                                 if (existing) {
-                                     const container = existing.getContainer();
-                                     if (container && document.body.contains(container)) {
-                                         return;
+                    <!-- Key Takeaways Dynamic Section -->
+                    <div class="space-y-2 mt-4" x-data="{
+                        takeaways: @entangle('key_takeaways') || [],
+                        showToolbar: false,
+                        toolbarX: 0,
+                        toolbarY: 0,
+                        activeInputIdx: null,
+                        addTakeaway() {
+                            if (!Array.isArray(this.takeaways)) {
+                                this.takeaways = [];
+                            }
+                            this.takeaways.push('');
+                            this.$nextTick(() => {
+                                const el = document.getElementById('takeaway-input-' + (this.takeaways.length - 1));
+                                if (el) el.focus();
+                            });
+                        },
+                        removeTakeaway(index) {
+                            this.takeaways.splice(index, 1);
+                            this.showToolbar = false;
+                        },
+                        checkSelection(index, el) {
+                            const sel = window.getSelection();
+                            if (sel.toString().trim().length > 0) {
+                                const range = sel.getRangeAt(0);
+                                const rect = range.getBoundingClientRect();
+                                const containerRect = document.getElementById('takeaways-container').getBoundingClientRect();
+                                this.activeInputIdx = index;
+                                this.toolbarX = rect.left - containerRect.left + (rect.width / 2) - 30;
+                                this.toolbarY = rect.top - containerRect.top - 40;
+                                this.showToolbar = true;
+                            } else {
+                                this.showToolbar = false;
+                            }
+                        },
+                        makeBold() {
+                            if (this.activeInputIdx !== null) {
+                                document.execCommand('bold', false, null);
+                                const el = document.getElementById('takeaway-input-' + this.activeInputIdx);
+                                if (el) {
+                                    this.takeaways[this.activeInputIdx] = el.innerHTML;
+                                }
+                                this.showToolbar = false;
+                            }
+                        }
+                    }">
+                        <div class="flex items-center justify-between">
+                            <label class="label"><span class="label-text font-bold text-sm">Key Takeaways</span></label>
+                            <x-button type="button" label="Add Takeaway" icon="o-plus" class="btn-xs btn-outline btn-primary" @click="addTakeaway()" />
+                        </div>
+                        
+                        <div id="takeaways-container" class="relative space-y-3 bg-base-200 p-4 rounded-xl border border-base-300">
+                            <!-- Floating Premium bold popover -->
+                            <div 
+                                x-show="showToolbar" 
+                                x-transition 
+                                class="absolute z-50 bg-white text-gray-800 px-2 py-1 rounded-md shadow-lg flex items-center gap-1 border border-gray-300"
+                                :style="'left: ' + toolbarX + 'px; top: ' + toolbarY + 'px;'"
+                                @mousedown.prevent="makeBold()"
+                            >
+                                <button type="button" class="font-bold text-xs text-gray-800 px-2 py-1 hover:bg-gray-100 rounded transition-colors flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3.75a.75.75 0 0 0-.75.75v15a.75.75 0 0 0 .75.75h5.025a3.375 3.375 0 0 0 2.248-.846 3.377 3.377 0 0 0 1.127-2.529 3.38 3.38 0 0 0-.73-2.122 3.38 3.38 0 0 0 1.055-2.427 3.378 3.378 0 0 0-2.25-3.176 3.376 3.376 0 0 0-.69-.15v-.01h-.002L6.75 3.75Zm6 6.75H9v-3.75h3.75a1.875 1.875 0 1 1 0 3.75ZM9 16.5v-4.5h4.5a2.25 2.25 0 1 1 0 4.5H9Z"/></svg>
+                                    Bold
+                                </button>
+                            </div>
+
+                            <template x-for="(takeaway, index) in takeaways" :key="index">
+                                <div class="flex items-start gap-2 bg-base-100 p-2 rounded-lg border border-base-200">
+                                    <div class="mt-2 shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold" x-text="index + 1"></div>
+                                    <div 
+                                        :id="'takeaway-input-' + index"
+                                        contenteditable="true"
+                                        class="flex-1 min-h-[38px] max-h-[100px] overflow-y-auto bg-base-100 text-sm focus:outline-none py-1.5 px-2 border-b border-dashed border-base-300 focus:border-primary focus:border-solid transition-all"
+                                        x-html="takeaway"
+                                        @blur="takeaways[index] = $event.target.innerHTML"
+                                        @keyup="checkSelection(index, $el)"
+                                        @mouseup="checkSelection(index, $el)"
+                                        @keydown.enter.prevent=""
+                                        placeholder="Enter key takeaway here... Highlight text to make it bold."
+                                    ></div>
+                                    <x-button icon="o-trash" class="btn-ghost text-error btn-xs shrink-0 mt-1" @click="removeTakeaway(index)" />
+                                </div>
+                            </template>
+
+                            <div x-show="!takeaways || takeaways.length === 0" class="text-xs text-base-content/60 py-2 text-center">
+                                No key takeaways added yet. Click 'Add Takeaway' to begin.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Editor Selection Toggle & Content Editor Section -->
+                    <div class="space-y-4 pt-4 border-t border-base-300" x-data="{ editorMode: @entangle('editor_type') }">
+                        <div class="flex items-center justify-between">
+                            <span class="font-bold text-sm">Editor Mode</span>
+                            <div class="join">
+                                <button type="button" class="btn btn-xs join-item" :class="editorMode === 'html' ? 'btn-primary' : 'btn-ghost'" @click="editorMode = 'html'">TinyMCE HTML</button>
+                                <button type="button" class="btn btn-xs join-item" :class="editorMode === 'markdown' ? 'btn-primary' : 'btn-ghost'" @click="editorMode = 'markdown'">Markdown</button>
+                            </div>
+                        </div>
+
+                        <!-- TinyMCE HTML Editor -->
+                        <div x-show="editorMode === 'html'" class="space-y-2" wire:ignore
+                             x-data="{
+                                 value: @entangle('content'),
+                                 initEditor() {
+                                     if (!window.tinymce || !$refs.tinymce) return;
+
+                                     const existing = window.tinymce.get($refs.tinymce.id);
+                                     if (existing) {
+                                         const container = existing.getContainer();
+                                         if (container && document.body.contains(container)) {
+                                             return;
+                                         }
+                                         try { existing.remove(); } catch(e) {}
                                      }
-                                     try { existing.remove(); } catch(e) {}
-                                 }
 
-                                 window.tinymce.init({
-                                     target: $refs.tinymce,
-                                     license_key: 'gpl',
-                                     height: 400,
-                                     menubar: false,
-                                     branding: false,
-                                     plugins: 'advlist autolink lists link image table quickbars custom_image_plugin key_takeaways_plugin code',
-                                     toolbar: 'undo redo | blocks | bold italic underline | bullist numlist | key_takeaways custom_image table link | code',
-                                     paste_preprocess: function(plugin, args) {
-                                         // Remove <style> blocks injected by Word
-                                         args.content = args.content.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
-                                         // Strip MsoNormal / Word-class attributes from elements (using \x22 to avoid breaking x-data double quotes)
-                                         args.content = args.content.replace(/\s*class=\x22[^\x22]*Mso[^\x22]*\x22/gi, '');
-                                         // Strip SourceURL and CSS-text Word pastes as a text prefix
-                                         args.content = args.content.replace(/^(\s*(SourceURL:[^\n]*|@[\w\-]+\{[^}]*\}|[\w.#][^{]*\{[^}]*\}|\s*))+/si, '');
-                                         // Strip MSO conditional comments
-                                         args.content = args.content.replace(/<!--\[if[^\]]*\]>[\s\S]*?<!\[endif\]-->/gi, '');
-                                     },
-                                     setup: (editor) => {
-                                         editor.on('keyup change undo redo NodeChange blur', () => {
-                                             this.value = editor.getContent();
-                                         });
-                                         editor.on('init', () => {
-                                             editor.setContent(this.value ?? '');
-                                         });
-                                         editor.on('OpenWindow', (e) => editor.topLevelWindow = e.dialog);
+                                     window.tinymce.init({
+                                         target: $refs.tinymce,
+                                         license_key: 'gpl',
+                                         height: 400,
+                                         menubar: false,
+                                         branding: false,
+                                         plugins: 'advlist autolink lists link image table quickbars custom_image_plugin code',
+                                         toolbar: 'undo redo | blocks | bold italic underline removeformat | bullist numlist | custom_image table link | code',
+                                         paste_preprocess: function(plugin, args) {
+                                             // Remove <style> blocks injected by Word
+                                             args.content = args.content.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+                                             // Strip MsoNormal / Word-class attributes from elements (using \x22 to avoid breaking x-data double quotes)
+                                             args.content = args.content.replace(/\s*class=\x22[^\x22]*Mso[^\x22]*\x22/gi, '');
+                                             // Strip SourceURL and CSS-text Word pastes as a text prefix
+                                             args.content = args.content.replace(/^(\s*(SourceURL:[^\n]*|@[\w\-]+\{[^}]*\}|[\w.#][^{]*\{[^}]*\}|\s*))+/si, '');
+                                             // Strip MSO conditional comments
+                                             args.content = args.content.replace(/<!--\[if[^\]]*\]>[\s\S]*?<!\[endif\]-->/gi, '');
+                                         },
+                                         setup: (editor) => {
+                                             editor.on('keyup change undo redo NodeChange blur', () => {
+                                                 this.value = editor.getContent();
+                                             });
+                                             editor.on('init', () => {
+                                                 editor.setContent(this.value ?? '');
+                                             });
+                                             editor.on('OpenWindow', (e) => editor.topLevelWindow = e.dialog);
 
-                                         this.$watch('value', (newValue) => {
-                                             if (editor && typeof editor.getContent === 'function') {
-                                                 const val = newValue || '';
-                                                 if (val !== editor.getContent()) {
-                                                     editor.setContent(val);
+                                             this.$watch('value', (newValue) => {
+                                                 if (editor && typeof editor.getContent === 'function') {
+                                                     const val = newValue || '';
+                                                     if (val !== editor.getContent()) {
+                                                         editor.setContent(val);
+                                                     }
                                                  }
-                                             }
-                                         });
-                                     }
-                                 });
-                             }
-                         }"
-                         x-init="
-                              initEditor();
-                              if (typeof Livewire !== 'undefined') {
-                                  Livewire.hook('commit', ({ succeed }) => {
-                                      succeed(() => {
-                                          $nextTick(() => {
-                                              // Only re-init if TinyMCE has been destroyed
-                                              const edId = $refs.tinymce ? $refs.tinymce.id : null;
-                                              const ed = edId ? window.tinymce.get(edId) : null;
-                                              const alive = ed && ed.getContainer && document.body.contains(ed.getContainer());
-                                              if (!alive) initEditor();
+                                             });
+                                         }
+                                     });
+                                 }
+                             }"
+                             x-init="
+                                  initEditor();
+                                  if (typeof Livewire !== 'undefined') {
+                                      Livewire.hook('commit', ({ succeed }) => {
+                                          succeed(() => {
+                                              $nextTick(() => {
+                                                  // Only re-init if TinyMCE has been destroyed
+                                                  const edId = $refs.tinymce ? $refs.tinymce.id : null;
+                                                  const ed = edId ? window.tinymce.get(edId) : null;
+                                                  const alive = ed && ed.getContainer && document.body.contains(ed.getContainer());
+                                                  if (!alive) initEditor();
+                                              });
                                           });
                                       });
-                                  });
-                              }
-                          "
-                    >
-                        <label class="label"><span class="label-text font-semibold">Content</span></label>
-                        <textarea id="blog-post-content-editor" x-ref="tinymce" class="hidden">{{ $content }}</textarea>
-                        @error('content') <span class="text-error text-xs block mt-1">{{ $message }}</span> @enderror
+                                  }
+                              "
+                        >
+                            <label class="label"><span class="label-text font-semibold">Content</span></label>
+                            <textarea id="blog-post-content-editor" x-ref="tinymce" class="hidden">{{ $content }}</textarea>
+                            @error('content') <span class="text-error text-xs block mt-1">{{ $message }}</span> @enderror
+                        </div>
+
+                        <!-- Markdown Text Area -->
+                        <div x-show="editorMode === 'markdown'" class="space-y-2">
+                            <x-textarea 
+                                label="Markdown Content" 
+                                wire:model="markdown_content" 
+                                rows="15" 
+                                placeholder="Write your post content in markdown..." 
+                                hint="Standard Markdown is supported. It will be compiled to clean HTML on the frontend."
+                            />
+                            @error('markdown_content') <span class="text-error text-xs block mt-1">{{ $message }}</span> @enderror
+                        </div>
                     </div>
 
                     <!-- Headless Selector for Editor Image Insertion -->
@@ -129,8 +243,10 @@
                         <x-button
                             label="Save Article"
                             x-on:click.prevent="
-                                const ed = window.tinymce.get('blog-post-content-editor');
-                                if (ed) { $wire.content = ed.getContent(); }
+                                if ($wire.editor_type === 'html') {
+                                    const ed = window.tinymce.get('blog-post-content-editor');
+                                    if (ed) { $wire.content = ed.getContent(); }
+                                }
                                 $wire.save();
                             "
                             class="btn-primary"

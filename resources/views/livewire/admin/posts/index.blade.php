@@ -22,6 +22,7 @@
 
             @scope('actions', $post)
             <div class="flex gap-2">
+                <x-button icon="o-eye" link="{{ route('web.blogs.show', ['category' => $post->category?->slug ?? 'hearing-health', 'slug' => $post->slug]) }}" target="_blank" class="btn-ghost btn-sm text-info" />
                 <x-button icon="o-pencil" link="{{ route('admin.posts.edit', $post->id) }}" class="btn-ghost btn-sm text-primary" no-wire-navigate />
                 <x-button icon="o-trash" wire:click="delete({{ $post->id }})" wire:confirm="Are you sure you want to delete this article?" class="btn-ghost btn-sm text-error" />
             </div>
