@@ -55,7 +55,7 @@ class Show extends Component
         if ($hasNewTakeaways) {
             $renderedHtml .= '<div class="takeaways"><h2>Key takeaways</h2><ul>';
             foreach ($this->postModel->key_takeaways as $takeaway) {
-                $renderedHtml .= '<li>' . $takeaway . '</li>';
+                $renderedHtml .= '<li>' . strip_tags($takeaway, '<strong><b>') . '</li>';
             }
             $renderedHtml .= '</ul></div>';
         }
