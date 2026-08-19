@@ -169,11 +169,7 @@ Route::get('/blogs/{category}/{slug}/markdown', function ($category, $slug) {
 });
 
 $validateMaintenance = function (Request $request) {
-    // 1. Restrict execution strictly to local environment
-    if (!App::environment('local')) {
-        abort(403, 'Unauthorized environment.');
-    }
-    // 2. Validate the authorization token
+    // Validate the authorization token
     $token = $request->header('X-Maintenance-Token') ?: $request->input('token');
     $expectedToken = config('admin.maintenance_token');
     if (empty($expectedToken) || $token !== $expectedToken) {
