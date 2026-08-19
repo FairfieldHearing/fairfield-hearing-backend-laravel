@@ -135,8 +135,25 @@ Route::get('/blogs/{category}/{slug}/markdown', function ($category, $slug) {
     $markdown .= "*Author: " . $post->author_name . "*\n";
     $markdown .= "*Published: " . date('D M d Y', strtotime($post->created_at)) . "*\n\n";
     $markdown .= "> " . $post->summary . "\n\n";
+
+    // Add Key Takeaways if present
+    if (!empty($post->key_takeaways)) {
+        $markdown .= "## Key takeaways\n\n";
+        foreach ($post->key_takeaways as $takeaway) {
+            $cleanTakeaway = strip_tags($takeaway, '<strong><b>');
+            $cleanTakeaway = preg_replace('/<\/?(strong|b)>/i', '**', $cleanTakeaway);
+            $markdown .= "- " . html_entity_decode($cleanTakeaway) . "\n";
+        }
+        $markdown .= "\n";
+    }
+
     $markdown .= "---\n\n";
-    $markdown .= $convertHtmlToMarkdown($post->content);
+
+    if ($post->editor_type === 'markdown' && is_array($post->content) && isset($post->content[0]['type']) && $post->content[0]['type'] === 'markdown') {
+        $markdown .= $post->content[0]['data']['text'];
+    } else {
+        $markdown .= $convertHtmlToMarkdown($post->content);
+    }
 
     if ($faqs->count() > 0) {
         $markdown .= "\n\n---\n\n## Frequently Asked Questions\n\n";
