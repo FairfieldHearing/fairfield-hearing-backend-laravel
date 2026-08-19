@@ -33,7 +33,7 @@ class Edit extends Component
     public ?string $meta_keywords = null;
     public ?string $canonical_url = null;
     public array $key_takeaways = [];
-    public string $editor_type = 'html';
+    public string $editor_type = 'markdown';
     public string $markdown_content = '';
 
     // FAQs inline management
@@ -56,7 +56,7 @@ class Edit extends Component
             $this->featured_image = $post->featured_image;
             
             $this->key_takeaways = $post->key_takeaways ?? [];
-            $this->editor_type = $post->editor_type ?? 'html';
+            $this->editor_type = $post->editor_type ?: 'html';
 
             // Render content cleanly into HTML for TinyMCE editor
             if (is_array($post->content)) {
