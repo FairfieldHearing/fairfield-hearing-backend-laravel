@@ -68,12 +68,22 @@
                         },
                         handlePaste(e, index) {
                             e.preventDefault();
-                            const text = e.clipboardData.getData('text/plain');
-                            document.execCommand('insertText', false, text);
-                            const el = document.getElementById('takeaway-input-' + index);
-                            if (el) {
-                                this.takeaways[index] = el.innerHTML;
-                            }
+                            const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+                            const selection = window.getSelection();
+                            if (!selection.rangeCount) return;
+                            
+                            const range = selection.getRangeAt(0);
+                            range.deleteContents();
+                            
+                            const textNode = document.createTextNode(text);
+                            range.insertNode(textNode);
+                            
+                            range.setStartAfter(textNode);
+                            range.setEndAfter(textNode);
+                            selection.removeAllRanges();
+                            selection.addRange(range);
+                            
+                            this.takeaways[index] = e.target.innerHTML;
                         },
                         checkSelection(index, el) {
                             const sel = window.getSelection();
