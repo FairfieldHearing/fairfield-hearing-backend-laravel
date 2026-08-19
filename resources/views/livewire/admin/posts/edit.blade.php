@@ -66,6 +66,15 @@
                             this.takeaways.splice(index, 1);
                             this.showToolbar = false;
                         },
+                        handlePaste(e, index) {
+                            e.preventDefault();
+                            const text = e.clipboardData.getData('text/plain');
+                            document.execCommand('insertText', false, text);
+                            const el = document.getElementById('takeaway-input-' + index);
+                            if (el) {
+                                this.takeaways[index] = el.innerHTML;
+                            }
+                        },
                         checkSelection(index, el) {
                             const sel = window.getSelection();
                             if (sel.toString().trim().length > 0) {
@@ -120,6 +129,7 @@
                                         class="flex-1 min-h-[38px] max-h-[100px] overflow-y-auto bg-base-100 text-sm focus:outline-none py-1.5 px-2 border-b border-dashed border-base-300 focus:border-primary focus:border-solid transition-all"
                                         x-html="takeaway"
                                         @blur="takeaways[index] = $event.target.innerHTML"
+                                        @paste="handlePaste($event, index)"
                                         @keyup="checkSelection(index, $el)"
                                         @mouseup="checkSelection(index, $el)"
                                         @keydown.enter.prevent=""
