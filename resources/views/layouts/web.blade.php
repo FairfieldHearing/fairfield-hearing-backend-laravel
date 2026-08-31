@@ -35,6 +35,8 @@
 
     @vite(['resources/css/web.css', 'resources/js/app.js'])
     
+    <script async src="https://news.google.com/swg/js/v1/publisher.js"></script>
+    
     <link rel="icon" type="image/jpeg" href="/assets/img/logo.jpeg" />
 </head>
 <body class="font-sans antialiased text-[#1b1b1b] bg-white">

@@ -7,6 +7,7 @@
             <a href="https://www.facebook.com/FairfieldClinicDelhi/" target="_blank" rel="noopener" aria-label="Facebook">Facebook</a>
             <a href="https://www.instagram.com/fairfieldhearingclinics/" target="_blank" rel="noopener" aria-label="Instagram">Instagram</a>
             <a href="https://www.youtube.com/@FairfieldHearingClinic" target="_blank" rel="noopener" aria-label="YouTube">YouTube</a>
+            {{-- <div google-add-preferred-source-btn style="display:inline-block; margin-left: 10px;"></div> --}}
         </div>
     </div>
 </div>
