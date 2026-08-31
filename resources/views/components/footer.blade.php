@@ -17,7 +17,7 @@
                     ▶
                 </a>
             </div>
-            <div style="margin-top: 20px;">
+            <div style="margin-top: 10px;">
                 <div google-add-preferred-source-btn data-theme="dark" data-lang="en"></div>
             </div>
         </div>
