@@ -16,7 +16,9 @@
                 <a href="https://www.youtube.com/@FairfieldHearingClinic" target="_blank" rel="noopener" aria-label="YouTube">
                     ▶
                 </a>
-                <div google-add-preferred-source-btn data-theme="dark" data-lang="en" style="display:inline-block; margin-top: 10px;"></div>
+            </div>
+            <div style="margin-top: 20px;">
+                <div google-add-preferred-source-btn data-theme="dark" data-lang="en"></div>
             </div>
         </div>
         <div>
