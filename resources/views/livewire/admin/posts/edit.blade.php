@@ -15,7 +15,7 @@
                     @if ($errors->any())
                         <div class="alert alert-error shadow-lg mb-4">
                             <div>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                 <div>
                                     <h3 class="font-bold">Validation Errors:</h3>
                                     <ul class="list-disc list-inside text-xs mt-1">
@@ -136,7 +136,7 @@
                                     <div 
                                         :id="'takeaway-input-' + index"
                                         contenteditable="true"
-                                        class="flex-1 min-h-[38px] max-h-[100px] overflow-y-auto bg-base-100 text-sm focus:outline-none py-1.5 px-2 border-b border-dashed border-base-300 focus:border-primary focus:border-solid transition-all"
+                                        class="flex-1 min-h-9.5 max-h-25 overflow-y-auto bg-base-100 text-sm focus:outline-none py-1.5 px-2 border-b border-dashed border-base-300 focus:border-primary focus:border-solid transition-all"
                                         x-html="takeaway"
                                         @blur="takeaways[index] = $event.target.innerHTML"
                                         @paste="handlePaste($event, index)"

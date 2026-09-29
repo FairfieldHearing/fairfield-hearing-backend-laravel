@@ -33,6 +33,10 @@ class BlogPost extends Model
         'key_takeaways' => 'array',
     ];
 
+    protected $appends = [
+        'featured_image_url',
+    ];
+
     public function author()
     {
         return $this->belongsTo(TeamMember::class, 'author_id');
@@ -58,6 +62,9 @@ class BlogPost extends Model
         }
         if (str_starts_with($this->featured_image, 'http://') || str_starts_with($this->featured_image, 'https://')) {
             return $this->featured_image;
+        }
+        if (str_starts_with($this->featured_image, 'assets/') || str_starts_with($this->featured_image, '/assets/')) {
+            return '/' . ltrim($this->featured_image, '/');
         }
         return \Illuminate\Support\Facades\Storage::url($this->featured_image);
     }

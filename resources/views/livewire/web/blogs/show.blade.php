@@ -100,7 +100,7 @@
                             @foreach($relatedPosts as $relPost)
                                 <article class="post-card">
                                     <a href="/blogs/{{ $relPost->category->slug ?? 'hearing-health' }}/{{ $relPost->slug }}">
-                                        <img class="post-card__img" src="{{ $relPost->featured_image ? \Illuminate\Support\Facades\Storage::url($relPost->featured_image) : (str_contains($relPost->slug, 'styletto') ? '/img/signia-styletto-ix-7ix-vs-5ix-vs-3ix.svg' : (str_contains($relPost->slug, 'severe') ? '/img/best-hearing-aids-for-severe-to-profound-loss.svg' : '/img/best-hearing-aids-for-senior-citizens.svg')) }}" alt="{{ $relPost->title }}" loading="lazy">
+                                        <img class="post-card__img" src="{{ $relPost->featured_image_url }}" alt="{{ $relPost->title }}" loading="lazy">
                                     </a>
                                     <div class="post-card__body">
                                         <span class="tag">{{ $relPost->category->title ?? 'Buying Guides' }}</span>

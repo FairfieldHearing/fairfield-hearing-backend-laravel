@@ -40,7 +40,7 @@ class Index extends Component
     public function posts()
     {
         return BlogPost::query()
-            ->with('category')
+            ->with(['category', 'featuredImageMedia'])
             ->when($this->search, function ($query) {
                 $query->where('title', 'like', '%' . $this->search . '%')
                     ->orWhere('author_name', 'like', '%' . $this->search . '%');

@@ -16,7 +16,7 @@ class Show extends Component
 
     public function mount(string $category, string $slug): void
     {
-        $this->postModel = BlogPost::with(['category', 'author', 'reviewer'])->where('slug', $slug)->firstOrFail();
+        $this->postModel = BlogPost::with(['category', 'author', 'reviewer', 'featuredImageMedia'])->where('slug', $slug)->firstOrFail();
     }
 
     public function getPostCoverImage(): string
@@ -202,7 +202,7 @@ class Show extends Component
             ])->toArray()
         ] : null;
 
-        $relatedPosts = BlogPost::with('category')
+        $relatedPosts = BlogPost::with(['category', 'featuredImageMedia'])
             ->where('id', '!=', $this->postModel->id)
             ->latest()
             ->take(2)

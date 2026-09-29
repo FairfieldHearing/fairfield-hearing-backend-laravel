@@ -20,7 +20,16 @@ class CategoryPage extends Component
 
     public function render()
     {
-        $posts = BlogPost::where('blog_category_id', $this->category->id)->latest()->get()->toArray();
+        $posts = BlogPost::with(['category', 'featuredImageMedia'])
+            ->where('blog_category_id', $this->category->id)
+            ->latest()
+            ->get();
+
+        $postsArray = $posts->map(function ($post) {
+            $arr = $post->toArray();
+            $arr['cover_image'] = $post->featured_image_url;
+            return $arr;
+        })->toArray();
 
         $collectionSchema = [
             "@context" => "https://schema.org",
@@ -29,7 +38,7 @@ class CategoryPage extends Component
             "description" => $this->category->short_description,
             "mainEntity" => [
                 "@type" => "ItemList",
-                "itemListElement" => collect($posts)->map(fn($post, $index) => [
+                "itemListElement" => collect($postsArray)->map(fn($post, $index) => [
                     "@type" => "ListItem",
                     "position" => $index + 1,
                     "url" => "https://fairfieldhearing.in/blogs/" . $this->category->slug . "/" . $post['slug'],
@@ -40,7 +49,7 @@ class CategoryPage extends Component
 
         return view('livewire.web.blogs.category', [
             'category' => $this->category->toArray(),
-            'posts' => $posts,
+            'posts' => $postsArray,
             'collectionSchema' => $collectionSchema
         ])->layout('layouts.web', $this->seoForModel($this->category, $this->category->title . ' | Category Archives', $this->category->short_description));
     }
